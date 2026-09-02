@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { campaigns, users } from "@/db/schema";
 import { hashPassword, verifyPassword, generateToken } from "@/lib/auth";
 
-type Context = {
+export type Context = {
   user: { id: number; email: string; nome: string | null } | null;
 };
 

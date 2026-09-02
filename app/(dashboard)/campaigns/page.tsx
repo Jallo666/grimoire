@@ -32,12 +32,12 @@ const CREATE_CAMPAIGN = gql`
 export default function CampaignsPage() {
   const [nome, setNome] = useState("");
 
-  const { data, refetch } = useQuery(CAMPAIGNS);
+  const { data, refetch } = useQuery<{ campaigns: Campaign[] }>(CAMPAIGNS);
   const [createCampaign, { loading: creating }] = useMutation(CREATE_CAMPAIGN, {
     onCompleted: () => refetch(),
   });
 
-  const campaigns = data?.campaigns ?? [];
+  const campaigns: Campaign[] = data?.campaigns ?? [];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -70,7 +70,7 @@ export default function CampaignsPage() {
         <p className="text-muted">Nessuna campagna ancora.</p>
       ) : (
         <ul className="list-group">
-          {campaigns.map((c: Campaign) => (
+          {campaigns.map((c) => (
             <li
               key={c.id}
               className="list-group-item d-flex justify-content-between align-items-center"

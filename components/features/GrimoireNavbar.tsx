@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { gql } from "graphql-tag";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import ThemeToggle from "./ThemeToggle";
+import type { User } from "@/db/types";
 
 const ME = gql`
   query Me {
@@ -22,7 +23,7 @@ const LOGOUT = gql`
 `;
 
 export default function GrimoireNavbar() {
-  const { data } = useQuery(ME);
+  const { data } = useQuery<{ me: Pick<User, "id" | "email" | "nome"> | null }>(ME);
   const [logout] = useMutation(LOGOUT, {
     onCompleted: () => { window.location.href = "/login"; },
   });
