@@ -1,0 +1,37 @@
+/* ── Light (default) ── */
+:root {
+  --g-body-bg: #f0f2f5;
+  --g-card-bg: #ffffff;
+  --g-card-border: rgba(0, 0, 0, 0.1);
+  --g-text: #212529;
+  --g-text-muted: #6c757d;
+  --g-label: #495057;
+  --g-input-bg: #ffffff;
+  --g-input-border: #ced4da;
+  --g-input-text: #212529;
+  --g-alert-danger-bg: #f8d7da;
+  --g-alert-danger-border: #f5c2c7;
+  --g-alert-danger-text: #842029;
+  --g-badge-bg: #6c757d;
+  --g-badge-text: #ffffff;
+  --g-page-title: #1a1a2e;
+}
+
+/* ── Dark ── */
+.g-dark {
+  --g-body-bg: #1a1a2e;
+  --g-card-bg: #16213e;
+  --g-card-border: #1e3a5f;
+  --g-text: #e2e8f0;
+  --g-text-muted: #94a3b8;
+  --g-label: #94a3b8;
+  --g-input-bg: #0f1b35;
+  --g-input-border: #1e4080;
+  --g-input-text: #e2e8f0;
+  --g-alert-danger-bg: #450a0a;
+  --g-alert-danger-border: #7f1d1d;
+  --g-alert-danger-text: #fca5a5;
+  --g-badge-bg: #334155;
+  --g-badge-text: #e2e8f0;
+  --g-page-title: #e2e8f0;
+}

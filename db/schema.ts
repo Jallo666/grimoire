@@ -2,10 +2,10 @@ import { pgTable, serial, text, integer } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  email: text("email").notNull(),
+  email: text("email").notNull().unique(),
   nome: text("nome"),
+  passwordHash: text("password_hash").notNull(),
 });
-
 export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),
   nome: text("nome").notNull(),
@@ -18,3 +18,4 @@ export const campaignMembers = pgTable("campaign_members", {
   userId: integer("user_id").references(() => users.id),
   ruolo: text("ruolo").notNull(),
 });
+
