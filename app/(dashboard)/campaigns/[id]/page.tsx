@@ -147,7 +147,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
       },
     },
     { key: "user", label: "Email", render: (v) => (v as UserRow).email },
-    { key: "ruolo", label: "Ruolo", render: (v) => <GrimoireBadge>{String(v)}</GrimoireBadge> },
+    { key: "ruolo", label: "Ruolo", type: "badge", badgeColors: { master: "primary", giocatore: "success", spettatore: "secondary" } },
   ];
 
   // Opzioni ruolo nel picker: solo owner può assegnare master

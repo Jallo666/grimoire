@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { CAMPAIGNS, CREATE_CAMPAIGN, DELETE_CAMPAIGN } from "@/lib/queries/campaigns";
 import { ME_ID } from "@/lib/queries/users";
-import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
@@ -45,7 +44,7 @@ const CREATE_FIELDS: FieldConfig[] = [
 
 const COLUMNS: Column<CampaignRow>[] = [
   { key: "nome", label: "Nome" },
-  { key: "stato", label: "Stato", render: (v) => <GrimoireBadge>{String(v)}</GrimoireBadge> },
+  { key: "stato", label: "Stato", type: "badge", badgeColors: { attiva: "success", in_pausa: "warning", conclusa: "secondary" } },
   {
     key: "owner",
     label: "Creatore",
@@ -98,7 +97,7 @@ export default function CampaignsPage() {
           const isMember = meId !== undefined && c.members.some((m) => m.userId === meId);
           return [
             {
-              icon: "pencil",
+              icon: "gear",
               tooltip: "Gestisci",
               variant: "outline-secondary",
               href: `/campaigns/${c.id}`,

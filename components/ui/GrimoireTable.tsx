@@ -3,10 +3,15 @@
 import Link from "next/link";
 import { useAppSelector } from "@/store/hooks";
 import GrimoireButton, { type Variant } from "./GrimoireButton";
+import GrimoireBadge from "./GrimoireBadge";
+
+type BadgeVariant = "secondary" | "primary" | "success" | "danger" | "warning";
 
 export type Column<T> = {
   key: keyof T;
   label: string;
+  type?: "badge";
+  badgeColors?: Partial<Record<string, BadgeVariant>>;
   render?: (value: T[keyof T], row: T) => React.ReactNode;
 };
 
@@ -119,7 +124,11 @@ export default function GrimoireTable<T extends { id: string | number }>({
                 <tr key={row.id}>
                   {columns.map((col) => (
                     <td key={String(col.key)} style={cellStyle}>
-                      {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "")}
+                      {col.render
+                        ? col.render(row[col.key], row)
+                        : col.type === "badge"
+                        ? <GrimoireBadge variant={col.badgeColors?.[String(row[col.key])] ?? "secondary"}>{String(row[col.key] ?? "")}</GrimoireBadge>
+                        : String(row[col.key] ?? "")}
                     </td>
                   ))}
                   {hasActions && (
