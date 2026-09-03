@@ -3,26 +3,10 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client/react";
-import { gql } from "graphql-tag";
+import { ME, LOGOUT } from "@/lib/queries/users";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import ThemeToggle from "./ThemeToggle";
 import type { User } from "@/db/types";
-
-const ME = gql`
-  query Me {
-    me {
-      id
-      email
-      nome
-    }
-  }
-`;
-
-const LOGOUT = gql`
-  mutation Logout {
-    logout
-  }
-`;
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },

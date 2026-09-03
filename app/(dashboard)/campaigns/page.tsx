@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
-import { gql } from "graphql-tag";
 import Link from "next/link";
+import { CAMPAIGNS, CREATE_CAMPAIGN, DELETE_CAMPAIGN } from "@/lib/queries/campaigns";
+import { ME_ID } from "@/lib/queries/users";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
@@ -22,31 +23,6 @@ type CampaignRow = {
   members: { userId: number }[];
 };
 
-const ME = gql`
-  query MeCampaigns { me { id } }
-`;
-
-const CAMPAIGNS = gql`
-  query Campaigns {
-    campaigns {
-      id nome descrizione stato unitaMisuraDefault masterPuoModificarePersonaggi
-      owner { id email nome }
-      members { userId }
-    }
-  }
-`;
-
-const CREATE_CAMPAIGN = gql`
-  mutation CreateCampaign($nome: String!, $descrizione: String, $stato: String, $unitaMisuraDefault: String, $masterPuoModificarePersonaggi: Boolean) {
-    createCampaign(nome: $nome, descrizione: $descrizione, stato: $stato, unitaMisuraDefault: $unitaMisuraDefault, masterPuoModificarePersonaggi: $masterPuoModificarePersonaggi) {
-      id nome
-    }
-  }
-`;
-
-const DELETE_CAMPAIGN = gql`
-  mutation DeleteCampaign($id: ID!) { deleteCampaign(id: $id) }
-`;
 
 const STATO_OPTIONS = [
   { value: "attiva", label: "Attiva" },
@@ -85,7 +61,7 @@ const COLUMNS: Column<CampaignRow>[] = [
 export default function CampaignsPage() {
   const [showCreate, setShowCreate] = useState(false);
 
-  const { data: meData } = useQuery<{ me: { id: string } | null }>(ME);
+  const { data: meData } = useQuery<{ me: { id: string } | null }>(ME_ID);
   const meId = meData?.me?.id ? Number(meData.me.id) : undefined;
 
   const { data, refetch } = useQuery<{ campaigns: CampaignRow[] }>(CAMPAIGNS);

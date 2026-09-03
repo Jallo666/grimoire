@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@apollo/client/react";
-import { gql } from "graphql-tag";
+import { CAMPAIGNS_HOME } from "@/lib/queries/campaigns";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireCard from "@/components/ui/GrimoireCard";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
@@ -17,24 +17,8 @@ type CampaignCard = {
   owner: { nome: string | null; email: string } | null;
 };
 
-const CAMPAIGNS = gql`
-  query CampaignsHome {
-    campaigns {
-      id
-      nome
-      descrizione
-      stato
-      unitaMisuraDefault
-      owner {
-        nome
-        email
-      }
-    }
-  }
-`;
-
 export default function HomePage() {
-  const { data, loading } = useQuery<{ campaigns: CampaignCard[] }>(CAMPAIGNS);
+  const { data, loading } = useQuery<{ campaigns: CampaignCard[] }>(CAMPAIGNS_HOME);
   const campaigns = data?.campaigns ?? [];
 
   return (

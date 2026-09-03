@@ -2,19 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "graphql-tag";
+import { REGISTER } from "@/lib/queries/users";
 import GrimoireForm from "@/components/ui/GrimoireForm";
 import AppLogo from "@/components/ui/AppLogo";
-
-const REGISTER = gql`
-  mutation Register($email: String!, $password: String!, $nome: String!) {
-    register(email: $email, password: $password, nome: $nome) {
-      id
-      email
-      nome
-    }
-  }
-`;
 
 const FIELDS = [
   { name: "nome", label: "Nome", type: "text" as const },

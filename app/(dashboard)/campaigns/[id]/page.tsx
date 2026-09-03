@@ -2,7 +2,8 @@
 
 import { use, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
-import { gql } from "graphql-tag";
+import { CAMPAIGN, UPDATE_CAMPAIGN } from "@/lib/queries/campaigns";
+import { ADD_MEMBER, REMOVE_MEMBER, UPDATE_ROLE } from "@/lib/queries/members";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
@@ -31,43 +32,6 @@ type CampaignDetail = {
   members: Member[];
 };
 
-const CAMPAIGN = gql`
-  query Campaign($id: ID!) {
-    campaign(id: $id) {
-      id nome descrizione stato unitaMisuraDefault masterPuoModificarePersonaggi ownerId
-      owner { id email nome }
-      members { id userId ruolo user { id email nome } }
-    }
-    me { id }
-    users { id email nome }
-  }
-`;
-
-const UPDATE_CAMPAIGN = gql`
-  mutation UpdateCampaignDetail($id: ID!, $nome: String, $descrizione: String, $stato: String, $unitaMisuraDefault: String, $masterPuoModificarePersonaggi: Boolean) {
-    updateCampaign(id: $id, nome: $nome, descrizione: $descrizione, stato: $stato, unitaMisuraDefault: $unitaMisuraDefault, masterPuoModificarePersonaggi: $masterPuoModificarePersonaggi) {
-      id nome descrizione stato unitaMisuraDefault masterPuoModificarePersonaggi
-    }
-  }
-`;
-
-const ADD_MEMBER = gql`
-  mutation AddMember($campaignId: ID!, $email: String!, $ruolo: String!) {
-    addMember(campaignId: $campaignId, email: $email, ruolo: $ruolo) {
-      id userId ruolo user { id email nome }
-    }
-  }
-`;
-
-const REMOVE_MEMBER = gql`
-  mutation RemoveMember($memberId: ID!) { removeMember(memberId: $memberId) }
-`;
-
-const UPDATE_ROLE = gql`
-  mutation UpdateMemberRole($memberId: ID!, $ruolo: String!) {
-    updateMemberRole(memberId: $memberId, ruolo: $ruolo) { id ruolo }
-  }
-`;
 
 const STATO_OPTIONS = [
   { value: "attiva", label: "Attiva" },
@@ -150,19 +114,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
     });
   }
 
-  if (error) {
-    const code = (error as { graphQLErrors?: { extensions?: { code?: string } }[] }).graphQLErrors?.[0]?.extensions?.code;
-    return (
-      <main className="container py-5">
-        <GrimoirePageTitle showBack>Accesso negato</GrimoirePageTitle>
-        <p style={{ color: "var(--g-text-muted)" }}>
-          {code === "FORBIDDEN"
-            ? "Non sei membro di questa campagna."
-            : "Campagna non trovata."}
-        </p>
-      </main>
-    );
-  }
+  if (error) throw error;
 
   if (loading || !campaign) {
     return (
