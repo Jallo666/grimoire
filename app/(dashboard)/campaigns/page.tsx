@@ -47,7 +47,6 @@ const CREATE_FIELDS: FieldConfig[] = [
 const COLUMNS: Column<CampaignRow>[] = [
   { key: "nome", label: "Nome" },
   { key: "stato", label: "Stato", render: (v) => <GrimoireBadge>{String(v)}</GrimoireBadge> },
-  { key: "unitaMisuraDefault", label: "Unità" },
   {
     key: "owner",
     label: "Creatore",
@@ -101,18 +100,18 @@ export default function CampaignsPage() {
           const canManage = isOwner || isMember;
           if (!canManage) return null;
           return (
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-1">
               <Link href={`/campaigns/${c.id}`}>
-                <GrimoireButton size="sm" variant="outline-secondary">Gestisci</GrimoireButton>
+                <GrimoireButton icon="pencil" tooltip="Gestisci" variant="outline-secondary" size="sm" />
               </Link>
               {isOwner && (
                 <GrimoireButton
-                  size="sm"
+                  icon="trash"
+                  tooltip="Elimina"
                   variant="danger"
+                  size="sm"
                   onClick={() => deleteCampaign({ variables: { id: c.id } })}
-                >
-                  Elimina
-                </GrimoireButton>
+                />
               )}
             </div>
           );
