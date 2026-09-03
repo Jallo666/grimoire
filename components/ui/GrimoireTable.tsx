@@ -12,7 +12,7 @@ export type Column<T> = {
   label: string;
   type?: "badge";
   badgeColors?: Partial<Record<string, BadgeVariant>>;
-  render?: (value: T[keyof T], row: T) => React.ReactNode;
+  render?: (value: T[keyof T], row: T, meta: Record<string, unknown>) => React.ReactNode;
 };
 
 export type TableAction = {
@@ -28,6 +28,7 @@ export type TableAction = {
 type Props<T extends { id: string | number }> = {
   columns: Column<T>[];
   data: T[];
+  meta?: Record<string, unknown>;
   actions?: (row: T) => TableAction[];
   renderActions?: (row: T) => React.ReactNode;
   skeleton?: boolean;
@@ -69,6 +70,7 @@ function ActionButton({ action }: { action: TableAction }) {
 export default function GrimoireTable<T extends { id: string | number }>({
   columns,
   data,
+  meta = {},
   actions,
   renderActions,
   skeleton = false,
@@ -125,7 +127,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
                   {columns.map((col) => (
                     <td key={String(col.key)} style={cellStyle}>
                       {col.render
-                        ? col.render(row[col.key], row)
+                        ? col.render(row[col.key], row, meta)
                         : col.type === "badge"
                         ? <GrimoireBadge variant={col.badgeColors?.[String(row[col.key])] ?? "secondary"}>{String(row[col.key] ?? "")}</GrimoireBadge>
                         : String(row[col.key] ?? "")}

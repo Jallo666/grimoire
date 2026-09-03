@@ -64,6 +64,26 @@ const PICKER_COLUMNS: Column<UserRow>[] = [
   { key: "email", label: "Email" },
 ];
 
+const MEMBER_COLUMNS: Column<Member>[] = [
+  {
+    key: "user",
+    label: "Nome",
+    render: (v, row, meta) => {
+      const u = v as UserRow;
+      return (
+        <span className="d-flex align-items-center gap-2">
+          {u.nome ?? "—"}
+          {row.userId === (meta.ownerId as number) && (
+            <GrimoireBadge>Owner</GrimoireBadge>
+          )}
+        </span>
+      );
+    },
+  },
+  { key: "user", label: "Email", render: (v) => (v as UserRow).email },
+  { key: "ruolo", label: "Ruolo", type: "badge", badgeColors: { master: "primary", giocatore: "success", spettatore: "secondary" } },
+];
+
 export default function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [showPicker, setShowPicker] = useState(false);
@@ -129,27 +149,6 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
 
   const isOwner = String(campaign.ownerId) === meId;
 
-  // Colonne tabella membri — definite qui per accedere a campaign.ownerId
-  const MEMBER_COLUMNS: Column<Member>[] = [
-    {
-      key: "user",
-      label: "Nome",
-      render: (v, row) => {
-        const u = v as UserRow;
-        return (
-          <span className="d-flex align-items-center gap-2">
-            {u.nome ?? "—"}
-            {row.userId === campaign.ownerId && (
-              <GrimoireBadge>Owner</GrimoireBadge>
-            )}
-          </span>
-        );
-      },
-    },
-    { key: "user", label: "Email", render: (v) => (v as UserRow).email },
-    { key: "ruolo", label: "Ruolo", type: "badge", badgeColors: { master: "primary", giocatore: "success", spettatore: "secondary" } },
-  ];
-
   // Opzioni ruolo nel picker: solo owner può assegnare master
   const pickerRoleOptions = isOwner
     ? RUOLO_OPTIONS
@@ -202,6 +201,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
       <GrimoireTable
         columns={MEMBER_COLUMNS}
         data={campaign.members}
+        meta={{ ownerId: campaign.ownerId }}
         emptyMessage="Nessun membro."
         actions={(m) => {
           const isSelf = String(m.user.id) === meId;
