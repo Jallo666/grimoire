@@ -203,10 +203,10 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         data={campaign.members}
         meta={{ ownerId: campaign.ownerId }}
         emptyMessage="Nessun membro."
-        actions={(m) => {
+        actions={isMasterOrOwner ? (m) => {
           const isSelf = String(m.user.id) === meId;
           const isTargetOwner = m.userId === campaign.ownerId;
-          const canAct = isMasterOrOwner && (isOwner || !isTargetOwner);
+          const canAct = isOwner || !isTargetOwner;
           return [
             {
               label: "Cambia ruolo",
@@ -222,7 +222,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
               hidden: !canAct || isSelf,
             },
           ];
-        }}
+        } : undefined}
       />
 
       {/* Modale cambia ruolo */}
