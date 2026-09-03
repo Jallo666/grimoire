@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
-import Link from "next/link";
 import { CAMPAIGNS, CREATE_CAMPAIGN, DELETE_CAMPAIGN } from "@/lib/queries/campaigns";
 import { ME_ID } from "@/lib/queries/users";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
@@ -97,24 +96,22 @@ export default function CampaignsPage() {
         actions={(c) => {
           const isOwner = meId !== undefined && c.owner?.id === String(meId);
           const isMember = meId !== undefined && c.members.some((m) => m.userId === meId);
-          const canManage = isOwner || isMember;
-          if (!canManage) return null;
-          return (
-            <div className="d-flex gap-1">
-              <Link href={`/campaigns/${c.id}`}>
-                <GrimoireButton icon="pencil" tooltip="Gestisci" variant="outline-secondary" size="sm" />
-              </Link>
-              {isOwner && (
-                <GrimoireButton
-                  icon="trash"
-                  tooltip="Elimina"
-                  variant="danger"
-                  size="sm"
-                  onClick={() => deleteCampaign({ variables: { id: c.id } })}
-                />
-              )}
-            </div>
-          );
+          return [
+            {
+              icon: "pencil",
+              tooltip: "Gestisci",
+              variant: "outline-secondary" as const,
+              href: `/campaigns/${c.id}`,
+              hidden: !isOwner && !isMember,
+            },
+            {
+              icon: "trash",
+              tooltip: "Elimina",
+              variant: "danger" as const,
+              onClick: () => deleteCampaign({ variables: { id: c.id } }),
+              hidden: !isOwner,
+            },
+          ];
         }}
       />
 

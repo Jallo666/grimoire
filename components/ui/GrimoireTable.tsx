@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useAppSelector } from "@/store/hooks";
+import GrimoireButton from "./GrimoireButton";
 
 export type Column<T> = {
   key: keyof T;
@@ -8,10 +10,21 @@ export type Column<T> = {
   render?: (value: T[keyof T], row: T) => React.ReactNode;
 };
 
+export type TableAction = {
+  icon?: string;
+  label?: string;
+  tooltip?: string;
+  variant?: "primary" | "outline-secondary" | "danger" | "outline-light";
+  href?: string;
+  onClick?: () => void;
+  hidden?: boolean;
+};
+
 type Props<T extends { id: string | number }> = {
   columns: Column<T>[];
   data: T[];
-  actions?: (row: T) => React.ReactNode;
+  actions?: (row: T) => TableAction[];
+  renderActions?: (row: T) => React.ReactNode;
   skeleton?: boolean;
   skeletonRows?: number;
   emptyMessage?: string;
@@ -29,17 +42,38 @@ const headerStyle = {
   color: "var(--g-table-header-text)",
 };
 
+function ActionButton({ action }: { action: TableAction }) {
+  const btn = (
+    <GrimoireButton
+      icon={action.icon}
+      tooltip={action.tooltip}
+      variant={action.variant ?? "outline-secondary"}
+      size="sm"
+      onClick={action.href ? undefined : action.onClick}
+    >
+      {action.label}
+    </GrimoireButton>
+  );
+
+  if (action.href) {
+    return <Link href={action.href}>{btn}</Link>;
+  }
+  return btn;
+}
+
 export default function GrimoireTable<T extends { id: string | number }>({
   columns,
   data,
   actions,
+  renderActions,
   skeleton = false,
   skeletonRows = 3,
   emptyMessage = "Nessun elemento.",
 }: Props<T>) {
   const dark = useAppSelector((s) => s.theme.value === "dark");
 
-  const colCount = columns.length + (actions ? 1 : 0);
+  const hasActions = !!(actions || renderActions);
+  const colCount = columns.length + (hasActions ? 1 : 0);
 
   return (
     <div className="table-responsive">
@@ -51,7 +85,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
                 {col.label}
               </th>
             ))}
-            {actions && (
+            {hasActions && (
               <th scope="col" style={{ ...headerStyle, width: "1px", whiteSpace: "nowrap" }}>
                 Azioni
               </th>
@@ -78,22 +112,31 @@ export default function GrimoireTable<T extends { id: string | number }>({
               </td>
             </tr>
           ) : (
-            data.map((row) => (
-              <tr key={row.id}>
-                {columns.map((col) => (
-                  <td key={String(col.key)} style={cellStyle}>
-                    {col.render
-                      ? col.render(row[col.key], row)
-                      : String(row[col.key] ?? "")}
-                  </td>
-                ))}
-                {actions && (
-                  <td style={{ ...cellStyle, whiteSpace: "nowrap" }}>
-                    {actions(row)}
-                  </td>
-                )}
-              </tr>
-            ))
+            data.map((row) => {
+              const rowActions = actions?.(row).filter((a) => !a.hidden) ?? [];
+              return (
+                <tr key={row.id}>
+                  {columns.map((col) => (
+                    <td key={String(col.key)} style={cellStyle}>
+                      {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "")}
+                    </td>
+                  ))}
+                  {hasActions && (
+                    <td style={{ ...cellStyle, whiteSpace: "nowrap" }}>
+                      {renderActions ? (
+                        renderActions(row)
+                      ) : (
+                        <div className="d-flex gap-1">
+                          {rowActions.map((a, i) => (
+                            <ActionButton key={i} action={a} />
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

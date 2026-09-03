@@ -204,34 +204,24 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         data={campaign.members}
         emptyMessage="Nessun membro."
         actions={(m) => {
-          if (!isMasterOrOwner) return null;
-
           const isSelf = String(m.user.id) === meId;
           const isTargetOwner = m.userId === campaign.ownerId;
-
-          // Il master non può agire sull'owner (eccetto se stesso è l'owner)
-          if (!isOwner && isTargetOwner) return null;
-
-          return (
-            <div className="d-flex gap-2">
-              <GrimoireButton
-                size="sm"
-                variant="outline-secondary"
-                onClick={() => { setEditingMember(m); setEditingRole(m.ruolo); }}
-              >
-                Cambia ruolo
-              </GrimoireButton>
-              {!isSelf && (
-                <GrimoireButton
-                  size="sm"
-                  variant="danger"
-                  onClick={() => removeMember({ variables: { memberId: m.id } })}
-                >
-                  Rimuovi
-                </GrimoireButton>
-              )}
-            </div>
-          );
+          const canAct = isMasterOrOwner && (isOwner || !isTargetOwner);
+          return [
+            {
+              label: "Cambia ruolo",
+              variant: "outline-secondary" as const,
+              onClick: () => { setEditingMember(m); setEditingRole(m.ruolo); },
+              hidden: !canAct,
+            },
+            {
+              icon: "trash",
+              tooltip: "Rimuovi",
+              variant: "danger" as const,
+              onClick: () => removeMember({ variables: { memberId: m.id } }),
+              hidden: !canAct || isSelf,
+            },
+          ];
         }}
       />
 
@@ -287,7 +277,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
             columns={PICKER_COLUMNS}
             data={availableUsers}
             emptyMessage="Nessun utente disponibile."
-            actions={(u) => (
+            renderActions={(u) => (
               <div className="d-flex gap-2 align-items-center">
                 <select
                   className="form-select form-select-sm"
