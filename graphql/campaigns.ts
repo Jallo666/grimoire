@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, users, campaignMembers } from "@/db/schema";
 import { assertAuthenticated, assertOwner } from "./permissions";
@@ -82,8 +82,17 @@ export const campaignResolvers = {
 
   Query: {
     campaigns: async (_: unknown, __: unknown, context: Context) => {
-      assertAuthenticated(context);
-      return db.select().from(campaigns);
+      const user = assertAuthenticated(context);
+
+      const memberOf = db
+        .select({ campaignId: campaignMembers.campaignId })
+        .from(campaignMembers)
+        .where(eq(campaignMembers.userId, user.id));
+
+      return db
+        .select()
+        .from(campaigns)
+        .where(or(eq(campaigns.ownerId, user.id), inArray(campaigns.id, memberOf)));
     },
 
     campaign: async (_: unknown, args: { id: string }, context: Context) => {
