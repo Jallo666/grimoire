@@ -3,7 +3,7 @@
 import { useAppSelector } from "@/store/hooks";
 import GrimoireIcon from "./GrimoireIcon";
 
-type Variant = "primary" | "outline-light" | "outline-secondary" | "danger";
+export type Variant = "primary" | "outline-light" | "outline-secondary" | "danger";
 type Size = "sm" | "lg";
 
 type Props = {

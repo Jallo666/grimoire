@@ -100,14 +100,14 @@ export default function CampaignsPage() {
             {
               icon: "pencil",
               tooltip: "Gestisci",
-              variant: "outline-secondary" as const,
+              variant: "outline-secondary",
               href: `/campaigns/${c.id}`,
               hidden: !isOwner && !isMember,
             },
             {
               icon: "trash",
               tooltip: "Elimina",
-              variant: "danger" as const,
+              variant: "danger",
               onClick: () => deleteCampaign({ variables: { id: c.id } }),
               hidden: !isOwner,
             },

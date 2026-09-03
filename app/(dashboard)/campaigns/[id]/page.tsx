@@ -210,14 +210,14 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           return [
             {
               label: "Cambia ruolo",
-              variant: "outline-secondary" as const,
+              variant: "outline-secondary",
               onClick: () => { setEditingMember(m); setEditingRole(m.ruolo); },
               hidden: !canAct,
             },
             {
               icon: "trash",
               tooltip: "Rimuovi",
-              variant: "danger" as const,
+              variant: "danger",
               onClick: () => removeMember({ variables: { memberId: m.id } }),
               hidden: !canAct || isSelf,
             },

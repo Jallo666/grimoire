@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAppSelector } from "@/store/hooks";
-import GrimoireButton from "./GrimoireButton";
+import GrimoireButton, { type Variant } from "./GrimoireButton";
 
 export type Column<T> = {
   key: keyof T;
@@ -14,7 +14,7 @@ export type TableAction = {
   icon?: string;
   label?: string;
   tooltip?: string;
-  variant?: "primary" | "outline-secondary" | "danger" | "outline-light";
+  variant?: Variant;
   href?: string;
   onClick?: () => void;
   hidden?: boolean;
