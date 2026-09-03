@@ -1,5 +1,6 @@
+import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, users, campaignMembers } from "@/db/schema";
 import { assertAuthenticated, assertOwner } from "./permissions";
@@ -86,13 +87,34 @@ export const campaignResolvers = {
     },
 
     campaign: async (_: unknown, args: { id: string }, context: Context) => {
-      assertAuthenticated(context);
-      const result = await db
+      const user = assertAuthenticated(context);
+      const [campaign] = await db
         .select()
         .from(campaigns)
         .where(eq(campaigns.id, Number(args.id)))
         .limit(1);
-      return result[0] ?? null;
+      if (!campaign) return null;
+
+      const isOwner = campaign.ownerId === user.id;
+      if (!isOwner) {
+        const [member] = await db
+          .select()
+          .from(campaignMembers)
+          .where(
+            and(
+              eq(campaignMembers.campaignId, campaign.id),
+              eq(campaignMembers.userId, user.id)
+            )
+          )
+          .limit(1);
+        if (!member) {
+          throw new GraphQLError("Non sei membro di questa campagna", {
+            extensions: { code: "FORBIDDEN" },
+          });
+        }
+      }
+
+      return campaign;
     },
   },
 

@@ -95,18 +95,19 @@ const EDIT_FIELDS: FieldConfig[] = [
   { name: "masterPuoModificarePersonaggi", label: "Il master può modificare i personaggi", type: "checkbox" },
 ];
 
-const MEMBER_COLUMNS: Column<Member>[] = [
-  { key: "user", label: "Nome", render: (v) => { const u = v as UserRow; return u.nome ?? "—"; } },
-  { key: "user", label: "Email", render: (v) => (v as UserRow).email },
-  { key: "ruolo", label: "Ruolo", render: (v) => <GrimoireBadge>{String(v)}</GrimoireBadge> },
+const PICKER_COLUMNS: Column<UserRow>[] = [
+  { key: "nome", label: "Nome", render: (v) => String(v ?? "—") },
+  { key: "email", label: "Email" },
 ];
 
 export default function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [showPicker, setShowPicker] = useState(false);
   const [pickerRoles, setPickerRoles] = useState<Record<string, string>>({});
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editingRole, setEditingRole] = useState("");
 
-  const { data, loading, refetch } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     campaign: CampaignDetail;
     me: { id: string } | null;
     users: UserRow[];
@@ -119,7 +120,9 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
     onCompleted: () => { refetch(); setShowPicker(false); },
   });
   const [removeMember] = useMutation(REMOVE_MEMBER, { onCompleted: () => refetch() });
-  const [updateRole] = useMutation(UPDATE_ROLE, { onCompleted: () => refetch() });
+  const [updateRole, { loading: updatingRole }] = useMutation(UPDATE_ROLE, {
+    onCompleted: () => { refetch(); setEditingMember(null); },
+  });
 
   const campaign = data?.campaign;
   const meId = data?.me?.id;
@@ -134,27 +137,6 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
 
   const availableUsers = allUsers.filter((u) => !memberIds.has(u.id));
 
-  const PICKER_COLUMNS: Column<UserRow>[] = [
-    { key: "nome", label: "Nome", render: (v) => String(v ?? "—") },
-    { key: "email", label: "Email" },
-    {
-      key: "id",
-      label: "Ruolo",
-      render: (_, row) => (
-        <select
-          className="form-select form-select-sm"
-          value={pickerRoles[row.id] ?? "giocatore"}
-          onChange={(e) => setPickerRoles((r) => ({ ...r, [row.id]: e.target.value }))}
-          style={{ minWidth: "130px" }}
-        >
-          {RUOLO_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-      ),
-    },
-  ];
-
   async function handleUpdate(values: Record<string, string>) {
     await updateCampaign({
       variables: {
@@ -168,6 +150,20 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
     });
   }
 
+  if (error) {
+    const code = (error as { graphQLErrors?: { extensions?: { code?: string } }[] }).graphQLErrors?.[0]?.extensions?.code;
+    return (
+      <main className="container py-5">
+        <GrimoirePageTitle showBack>Accesso negato</GrimoirePageTitle>
+        <p style={{ color: "var(--g-text-muted)" }}>
+          {code === "FORBIDDEN"
+            ? "Non sei membro di questa campagna."
+            : "Campagna non trovata."}
+        </p>
+      </main>
+    );
+  }
+
   if (loading || !campaign) {
     return (
       <main className="container py-5">
@@ -179,6 +175,39 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
+  const isOwner = String(campaign.ownerId) === meId;
+
+  // Colonne tabella membri — definite qui per accedere a campaign.ownerId
+  const MEMBER_COLUMNS: Column<Member>[] = [
+    {
+      key: "user",
+      label: "Nome",
+      render: (v, row) => {
+        const u = v as UserRow;
+        return (
+          <span className="d-flex align-items-center gap-2">
+            {u.nome ?? "—"}
+            {row.userId === campaign.ownerId && (
+              <GrimoireBadge>Owner</GrimoireBadge>
+            )}
+          </span>
+        );
+      },
+    },
+    { key: "user", label: "Email", render: (v) => (v as UserRow).email },
+    { key: "ruolo", label: "Ruolo", render: (v) => <GrimoireBadge>{String(v)}</GrimoireBadge> },
+  ];
+
+  // Opzioni ruolo nel picker: solo owner può assegnare master
+  const pickerRoleOptions = isOwner
+    ? RUOLO_OPTIONS
+    : RUOLO_OPTIONS.filter((o) => o.value !== "master");
+
+  // Opzioni ruolo nel modale cambia ruolo
+  const changeRoleOptions = isOwner
+    ? RUOLO_OPTIONS
+    : RUOLO_OPTIONS.filter((o) => o.value !== "master");
+
   const initialValues: Record<string, string> = {
     nome: campaign.nome,
     descrizione: campaign.descrizione ?? "",
@@ -186,8 +215,6 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
     unitaMisuraDefault: campaign.unitaMisuraDefault,
     masterPuoModificarePersonaggi: campaign.masterPuoModificarePersonaggi ? "true" : "false",
   };
-
-  const isOwner = String(campaign.ownerId) === meId;
 
   return (
     <main className="container py-5">
@@ -230,33 +257,18 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           const isSelf = String(m.user.id) === meId;
           const isTargetOwner = m.userId === campaign.ownerId;
 
-          // Il master non può agire sull'owner (tranne se stesso è l'owner)
+          // Il master non può agire sull'owner (eccetto se stesso è l'owner)
           if (!isOwner && isTargetOwner) return null;
 
-          // Opzioni ruolo: solo owner può assegnare master
-          const roleOptions = isOwner
-            ? RUOLO_OPTIONS
-            : RUOLO_OPTIONS.filter((o) => o.value !== "master");
-
           return (
-            <div className="d-flex gap-2 align-items-center">
-              <select
-                className="form-select form-select-sm"
-                value={m.ruolo}
-                onChange={(e) =>
-                  updateRole({ variables: { memberId: m.id, ruolo: e.target.value } })
-                }
-                style={{
-                  minWidth: "130px",
-                  backgroundColor: "var(--g-input-bg)",
-                  color: "var(--g-input-text)",
-                  borderColor: "var(--g-input-border)",
-                }}
+            <div className="d-flex gap-2">
+              <GrimoireButton
+                size="sm"
+                variant="outline-secondary"
+                onClick={() => { setEditingMember(m); setEditingRole(m.ruolo); }}
               >
-                {roleOptions.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
+                Cambia ruolo
+              </GrimoireButton>
               {!isSelf && (
                 <GrimoireButton
                   size="sm"
@@ -271,6 +283,45 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         }}
       />
 
+      {/* Modale cambia ruolo */}
+      <GrimoireModal
+        show={!!editingMember}
+        onClose={() => setEditingMember(null)}
+        title={`Cambia ruolo — ${editingMember?.user.nome ?? editingMember?.user.email ?? ""}`}
+      >
+        <div className="mb-4">
+          <label className="form-label" style={{ color: "var(--g-label)" }}>Ruolo</label>
+          <select
+            className="form-select"
+            value={editingRole}
+            onChange={(e) => setEditingRole(e.target.value)}
+            style={{
+              backgroundColor: "var(--g-input-bg)",
+              borderColor: "var(--g-input-border)",
+              color: "var(--g-input-text)",
+            }}
+          >
+            {changeRoleOptions.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="d-flex justify-content-end gap-2">
+          <GrimoireButton variant="outline-secondary" onClick={() => setEditingMember(null)}>
+            Annulla
+          </GrimoireButton>
+          <GrimoireButton
+            loading={updatingRole}
+            onClick={() =>
+              updateRole({ variables: { memberId: editingMember!.id, ruolo: editingRole } })
+            }
+          >
+            Salva
+          </GrimoireButton>
+        </div>
+      </GrimoireModal>
+
+      {/* Modale aggiungi membro */}
       <GrimoireModal
         show={showPicker}
         onClose={() => setShowPicker(false)}
@@ -285,21 +336,38 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
             data={availableUsers}
             emptyMessage="Nessun utente disponibile."
             actions={(u) => (
-              <GrimoireButton
-                size="sm"
-                loading={adding}
-                onClick={() =>
-                  addMember({
-                    variables: {
-                      campaignId: id,
-                      email: u.email,
-                      ruolo: pickerRoles[u.id] ?? "giocatore",
-                    },
-                  })
-                }
-              >
-                Aggiungi
-              </GrimoireButton>
+              <div className="d-flex gap-2 align-items-center">
+                <select
+                  className="form-select form-select-sm"
+                  value={pickerRoles[u.id] ?? "giocatore"}
+                  onChange={(e) => setPickerRoles((r) => ({ ...r, [u.id]: e.target.value }))}
+                  style={{
+                    minWidth: "130px",
+                    backgroundColor: "var(--g-input-bg)",
+                    color: "var(--g-input-text)",
+                    borderColor: "var(--g-input-border)",
+                  }}
+                >
+                  {pickerRoleOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                <GrimoireButton
+                  size="sm"
+                  loading={adding}
+                  onClick={() =>
+                    addMember({
+                      variables: {
+                        campaignId: id,
+                        email: u.email,
+                        ruolo: pickerRoles[u.id] ?? "giocatore",
+                      },
+                    })
+                  }
+                >
+                  Aggiungi
+                </GrimoireButton>
+              </div>
             )}
           />
         )}

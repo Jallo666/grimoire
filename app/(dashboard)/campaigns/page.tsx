@@ -19,6 +19,7 @@ type CampaignRow = {
   unitaMisuraDefault: string;
   masterPuoModificarePersonaggi: boolean;
   owner: { id: string; email: string; nome: string | null } | null;
+  members: { userId: number }[];
 };
 
 const ME = gql`
@@ -30,6 +31,7 @@ const CAMPAIGNS = gql`
     campaigns {
       id nome descrizione stato unitaMisuraDefault masterPuoModificarePersonaggi
       owner { id email nome }
+      members { userId }
     }
   }
 `;
@@ -84,7 +86,7 @@ export default function CampaignsPage() {
   const [showCreate, setShowCreate] = useState(false);
 
   const { data: meData } = useQuery<{ me: { id: string } | null }>(ME);
-  const meId = meData?.me?.id;
+  const meId = meData?.me?.id ? Number(meData.me.id) : undefined;
 
   const { data, refetch } = useQuery<{ campaigns: CampaignRow[] }>(CAMPAIGNS);
   const [createCampaign, { loading: creating, error: createError }] = useMutation(CREATE_CAMPAIGN, {
@@ -118,7 +120,10 @@ export default function CampaignsPage() {
         data={campaigns}
         emptyMessage="Nessuna campagna ancora."
         actions={(c) => {
-          const isOwner = meId !== undefined && c.owner?.id === meId;
+          const isOwner = meId !== undefined && c.owner?.id === String(meId);
+          const isMember = meId !== undefined && c.members.some((m) => m.userId === meId);
+          const canManage = isOwner || isMember;
+          if (!canManage) return null;
           return (
             <div className="d-flex gap-2">
               <Link href={`/campaigns/${c.id}`}>
