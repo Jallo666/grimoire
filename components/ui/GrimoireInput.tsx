@@ -13,6 +13,7 @@ type Props = {
   placeholder?: string;
   required?: boolean;
   skeleton?: boolean;
+  disabled?: boolean;
   options?: InputOption[];
 };
 
@@ -25,6 +26,7 @@ export default function GrimoireInput({
   placeholder,
   required = false,
   skeleton = false,
+  disabled = false,
   options = [],
 }: Props) {
   const dark = useAppSelector((s) => s.theme.value === "dark");
@@ -60,6 +62,7 @@ export default function GrimoireInput({
             onChange(synthetic);
           }}
           required={required}
+          disabled={disabled}
         />
         {label && (
           <label htmlFor={id} className="form-check-label" style={{ color: "var(--g-label)" }}>
@@ -84,6 +87,7 @@ export default function GrimoireInput({
           value={value}
           onChange={onChange}
           required={required}
+          disabled={disabled}
           style={{
             backgroundColor: "var(--g-input-bg)",
             borderColor: "var(--g-input-border)",
@@ -115,6 +119,7 @@ export default function GrimoireInput({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        disabled={disabled}
         style={{
           backgroundColor: "var(--g-input-bg)",
           borderColor: "var(--g-input-border)",

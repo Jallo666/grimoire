@@ -194,20 +194,19 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
       <GrimoirePageTitle showBack>Gestione Campagna: {campaign.nome}</GrimoirePageTitle>
 
       <div className="row g-4 mb-5">
-        {isOwner && (
-          <div className="col-12 col-lg-6">
-            <GrimoireForm
-              key={campaign.id}
-              title="Dettagli campagna"
-              fields={EDIT_FIELDS}
-              initialValues={initialValues}
-              onSubmit={handleUpdate}
-              submitLabel="Salva modifiche"
-              loading={updating}
-              error={updateError?.message}
-            />
-          </div>
-        )}
+        <div className="col-12 col-lg-6">
+          <GrimoireForm
+            key={campaign.id}
+            title="Dettagli campagna"
+            fields={EDIT_FIELDS}
+            initialValues={initialValues}
+            onSubmit={handleUpdate}
+            submitLabel="Salva modifiche"
+            loading={updating}
+            error={updateError?.message}
+            view={!isOwner}
+          />
+        </div>
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-3">

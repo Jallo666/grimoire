@@ -32,6 +32,7 @@ type Props = {
   submitLabel?: string;
   loading?: boolean;
   fetching?: boolean;
+  view?: boolean;
   actions?: FormAction[];
 };
 
@@ -45,6 +46,7 @@ export default function GrimoireForm({
   submitLabel = "Salva",
   loading = false,
   fetching = false,
+  view = false,
   actions = [],
 }: Props) {
   const [values, setValues] = useState<Record<string, string>>(
@@ -104,39 +106,42 @@ export default function GrimoireForm({
               value={values[f.name] ?? ""}
               onChange={handleChange(f.name)}
               skeleton={fetching}
+              disabled={view}
               options={f.options}
             />
           ))}
         </div>
 
-        <div
-          className="card-footer px-4 py-3 d-flex justify-content-between align-items-center border-top"
-          style={{ backgroundColor: "var(--g-card-bg)", borderColor: "var(--g-card-border)" }}
-        >
-          {fetching ? (
-            <div className="placeholder-glow w-100 d-flex justify-content-between">
-              <span className="placeholder col-2 rounded" style={{ height: "36px" }} />
-              <span className="placeholder col-2 rounded" style={{ height: "36px" }} />
-            </div>
-          ) : (
-            <>
-              <div className="d-flex gap-2">
-                {actions.map((a) => (
-                  <GrimoireButton
-                    key={a.label}
-                    variant={a.variant ?? "outline-secondary"}
-                    onClick={a.onClick}
-                  >
-                    {a.label}
-                  </GrimoireButton>
-                ))}
+        {!view && (
+          <div
+            className="card-footer px-4 py-3 d-flex justify-content-between align-items-center border-top"
+            style={{ backgroundColor: "var(--g-card-bg)", borderColor: "var(--g-card-border)" }}
+          >
+            {fetching ? (
+              <div className="placeholder-glow w-100 d-flex justify-content-between">
+                <span className="placeholder col-2 rounded" style={{ height: "36px" }} />
+                <span className="placeholder col-2 rounded" style={{ height: "36px" }} />
               </div>
-              <GrimoireButton type="submit" loading={loading}>
-                {submitLabel}
-              </GrimoireButton>
-            </>
-          )}
-        </div>
+            ) : (
+              <>
+                <div className="d-flex gap-2">
+                  {actions.map((a) => (
+                    <GrimoireButton
+                      key={a.label}
+                      variant={a.variant ?? "outline-secondary"}
+                      onClick={a.onClick}
+                    >
+                      {a.label}
+                    </GrimoireButton>
+                  ))}
+                </div>
+                <GrimoireButton type="submit" loading={loading}>
+                  {submitLabel}
+                </GrimoireButton>
+              </>
+            )}
+          </div>
+        )}
       </form>
     </GrimoireCard>
   );
