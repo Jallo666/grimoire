@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -9,6 +9,11 @@ export const users = pgTable("users", {
 export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),
   nome: text("nome").notNull(),
+  descrizione: text("descrizione"),
+  stato: text("stato").notNull().default("attiva"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  unitaMisuraDefault: text("unita_misura_default").notNull().default("metri"),
+  masterPuoModificarePersonaggi: boolean("master_puo_modificare_personaggi").notNull().default(true),
   ownerId: integer("owner_id").references(() => users.id),
 });
 

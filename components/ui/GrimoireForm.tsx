@@ -9,9 +9,11 @@ import GrimoireAlert from "./GrimoireAlert";
 export type FieldConfig = {
   name: string;
   label?: string;
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "checkbox" | "select";
   placeholder?: string;
   required?: boolean;
+  defaultValue?: string;
+  options?: { value: string; label: string }[];
 };
 
 export type FormAction = {
@@ -24,6 +26,7 @@ type Props = {
   title?: string;
   subtitle?: string;
   fields: FieldConfig[];
+  initialValues?: Record<string, string>;
   error?: string;
   onSubmit: (values: Record<string, string>) => void | Promise<void>;
   submitLabel?: string;
@@ -36,6 +39,7 @@ export default function GrimoireForm({
   title,
   subtitle,
   fields,
+  initialValues,
   error,
   onSubmit,
   submitLabel = "Salva",
@@ -44,7 +48,7 @@ export default function GrimoireForm({
   actions = [],
 }: Props) {
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(fields.map((f) => [f.name, ""]))
+    Object.fromEntries(fields.map((f) => [f.name, initialValues?.[f.name] ?? f.defaultValue ?? ""]))
   );
 
   function handleChange(name: string) {
@@ -100,6 +104,7 @@ export default function GrimoireForm({
               value={values[f.name] ?? ""}
               onChange={handleChange(f.name)}
               skeleton={fetching}
+              options={f.options}
             />
           ))}
         </div>

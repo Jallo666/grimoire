@@ -15,6 +15,13 @@
   --g-badge-bg: #6c757d;
   --g-badge-text: #ffffff;
   --g-page-title: #1a1a2e;
+  --g-table-bg: #ffffff;
+  --g-table-stripe-bg: #f8f9fa;
+  --g-table-border: #dee2e6;
+  --g-table-hover-bg: #e9ecef;
+  --g-table-text: #212529;
+  --g-table-header-bg: #f0f2f5;
+  --g-table-header-text: #495057;
 }
 
 /* ── Dark ── */
@@ -34,4 +41,11 @@
   --g-badge-bg: #334155;
   --g-badge-text: #e2e8f0;
   --g-page-title: #e2e8f0;
+  --g-table-bg: #16213e;
+  --g-table-stripe-bg: #0f1b35;
+  --g-table-border: #1e3a5f;
+  --g-table-hover-bg: #1e4080;
+  --g-table-text: #e2e8f0;
+  --g-table-header-bg: #0f1b35;
+  --g-table-header-text: #94a3b8;
 }
