@@ -113,7 +113,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
             </tr>
           ) : (
             data.map((row) => {
-              const rowActions = actions?.(row).filter((a) => !a.hidden) ?? [];
+              const rowActions = actions?.(row)?.filter((a) => !a.hidden) ?? [];
               return (
                 <tr key={row.id}>
                   {columns.map((col) => (
