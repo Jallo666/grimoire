@@ -52,7 +52,7 @@ export default function GrimoireForm({
   );
 
   function handleChange(name: string) {
-    return (e: React.ChangeEvent<HTMLInputElement>) =>
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setValues((v) => ({ ...v, [name]: e.target.value }));
   }
 

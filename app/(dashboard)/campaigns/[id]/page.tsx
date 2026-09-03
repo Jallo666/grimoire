@@ -227,10 +227,14 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         emptyMessage="Nessun membro."
         actions={(m) => {
           if (!isMasterOrOwner) return null;
-          if (String(m.user.id) === meId) return null;
-          // Solo l'owner può agire sui master
-          if (m.ruolo === "master" && !isOwner) return null;
 
+          const isSelf = String(m.user.id) === meId;
+          const isTargetOwner = m.userId === campaign.ownerId;
+
+          // Il master non può agire sull'owner (tranne se stesso è l'owner)
+          if (!isOwner && isTargetOwner) return null;
+
+          // Opzioni ruolo: solo owner può assegnare master
           const roleOptions = isOwner
             ? RUOLO_OPTIONS
             : RUOLO_OPTIONS.filter((o) => o.value !== "master");
@@ -254,13 +258,15 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
-              <GrimoireButton
-                size="sm"
-                variant="danger"
-                onClick={() => removeMember({ variables: { memberId: m.id } })}
-              >
-                Rimuovi
-              </GrimoireButton>
+              {!isSelf && (
+                <GrimoireButton
+                  size="sm"
+                  variant="danger"
+                  onClick={() => removeMember({ variables: { memberId: m.id } })}
+                >
+                  Rimuovi
+                </GrimoireButton>
+              )}
             </div>
           );
         }}
