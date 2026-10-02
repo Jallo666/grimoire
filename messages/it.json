@@ -226,6 +226,7 @@
     "actions": "Azioni",
     "close": "Chiudi",
     "openMenu": "Apri menu",
+    "clearSelection": "Azzera",
     "back": "Torna indietro",
     "owner": "Owner",
     "version": "Versione {version}"

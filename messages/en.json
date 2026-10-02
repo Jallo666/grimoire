@@ -226,6 +226,7 @@
     "actions": "Actions",
     "close": "Close",
     "openMenu": "Open menu",
+    "clearSelection": "Clear",
     "back": "Go back",
     "owner": "Owner",
     "version": "Version {version}"

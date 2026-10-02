@@ -20,6 +20,7 @@ import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 import GrimoireSelect from "@/components/ui/GrimoireSelect";
+import GrimoireMultiSelect from "@/components/ui/GrimoireMultiSelect";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
 import GrimoireSelectOrText from "@/components/ui/GrimoireSelectOrText";
@@ -56,11 +57,12 @@ export default function SpellsPage() {
 
   const tab: TabKey = TAB_FROM_PARAM[searchParams.get("tab") ?? ""] ?? "miei";
   const search = searchParams.get("search") ?? "";
-  const scuola = searchParams.get("scuola") ?? "";
-  const livello = searchParams.get("livello") ?? "";
+  // Filtri a scelta multipla: nell'URL i valori sono separati da virgola (es. ?livello=0,3)
+  const scuole = getListParam("scuola");
+  const livelli = getListParam("livello");
   const concentration = searchParams.get("concentration") ?? "";
   const ritual = searchParams.get("ritual") ?? "";
-  const groupFilter = searchParams.get("group") ?? "";
+  const groupFilter = getListParam("group");
 
   const t = useTranslations("spells");
   const tUi = useTranslations("ui");
@@ -85,6 +87,10 @@ export default function SpellsPage() {
   const [renameName, setRenameName] = useState("");
   const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
 
+  function getListParam(key: string) {
+    return (searchParams.get(key) ?? "").split(",").filter(Boolean);
+  }
+
   function setParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
@@ -107,7 +113,6 @@ export default function SpellsPage() {
   const groups = groupsData?.mySpellGroups ?? [];
 
   const scuolaOptions = [
-    { value: "", label: t("filterAll") },
     { value: "Abiurazione", label: t("scuolaAbiurazione") },
     { value: "Ammaliamento", label: t("scuolaAmmaliamento") },
     { value: "Divinazione", label: t("scuolaDivinazione") },
@@ -119,7 +124,6 @@ export default function SpellsPage() {
   ];
 
   const livelloOptions = [
-    { value: "", label: t("filterAllLevels") },
     { value: "0", label: t("livelloOption0") },
     ...Array.from({ length: 9 }, (_, i) => ({
       value: String(i + 1),
@@ -139,10 +143,7 @@ export default function SpellsPage() {
     { value: "true", label: t("si") },
   ];
 
-  const groupOptions = [
-    { value: "", label: t("filterAllGroups") },
-    ...groups.map((g) => ({ value: g.id, label: g.nome })),
-  ];
+  const groupOptions = groups.map((g) => ({ value: g.id, label: g.nome }));
 
   const groupSelectOptions = [
     { value: "", label: t("groupAutoLabel") },
@@ -166,8 +167,8 @@ export default function SpellsPage() {
 
   const vars = {
     search: search || undefined,
-    scuola: scuola || undefined,
-    livello: livello !== "" ? Number(livello) : undefined,
+    scuole: scuole.length ? scuole : undefined,
+    livelli: livelli.length ? livelli.map(Number) : undefined,
     concentration: concentration === "true" ? true : undefined,
     ritual: ritual === "true" ? true : undefined,
   };
@@ -175,7 +176,7 @@ export default function SpellsPage() {
   const localeVar = { locale };
 
   const { data: myData, refetch: refetchMy } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS, {
-    variables: { ...vars, ...localeVar, groupId: groupFilter || undefined },
+    variables: { ...vars, ...localeVar, groupIds: groupFilter.length ? groupFilter : undefined },
     skip: tab !== "miei",
   });
   const { data: srdData, refetch: refetchSrd } = useQuery<{ srdSpells: SpellRow[] }>(SRD_SPELLS, {
@@ -286,10 +287,10 @@ export default function SpellsPage() {
     <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
       <GrimoireInput id="spell-search" type="text" value={search} onChange={(e) => setParam("search", e.target.value)} placeholder={t("searchPlaceholder")} />
       {tab === "miei" && (
-        <GrimoireSelect id="spell-group" value={groupFilter} onChange={(e) => setParam("group", e.target.value)} options={groupOptions} style={{ minWidth: "150px" }} />
+        <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} style={{ minWidth: "150px" }} />
       )}
-      <GrimoireSelect id="spell-scuola" value={scuola} onChange={(e) => setParam("scuola", e.target.value)} options={scuolaOptions} style={{ minWidth: "160px" }} />
-      <GrimoireSelect id="spell-livello" value={livello} onChange={(e) => setParam("livello", e.target.value)} options={livelloOptions} style={{ minWidth: "130px" }} />
+      <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} style={{ minWidth: "160px" }} />
+      <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} style={{ minWidth: "130px" }} />
       <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
       <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
     </GrimoireInlineGroup>

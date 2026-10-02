@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and, ilike, isNull } from "drizzle-orm";
+import { eq, and, ilike, isNull, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
@@ -42,10 +42,10 @@ export const spellTypeDefs = gql`
   }
 
   type Query {
-    mySpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, groupId: ID, locale: String): [Spell!]!
+    mySpells(search: String, scuole: [String!], livelli: [Int!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
     spell(id: ID!, locale: String): Spell
-    srdSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
-    allSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    srdSpells(search: String, scuole: [String!], livelli: [Int!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    allSpells(search: String, scuole: [String!], livelli: [Int!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
     campaignSpells(campaignId: ID!): [Spell!]!
   }
 
@@ -132,15 +132,15 @@ function toGql(
 
 export const spellResolvers = {
   Query: {
-    mySpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; groupId?: string; locale?: string }, context: Context) => {
+    mySpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; concentration?: boolean; ritual?: boolean; groupIds?: string[]; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const conditions = [eq(userSpellLibrary.userId, user.id)];
-      if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
-      if (args.livello !== undefined) conditions.push(eq(spells.livello, args.livello));
+      if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
+      if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
-      if (args.groupId) conditions.push(eq(userSpellLibrary.groupId, Number(args.groupId)));
+      if (args.groupIds?.length) conditions.push(inArray(userSpellLibrary.groupId, args.groupIds.map(Number)));
       const rows = await db
         .select({ spell: spells, lib: userSpellLibrary, group: spellGroups })
         .from(userSpellLibrary)
@@ -160,13 +160,13 @@ export const spellResolvers = {
       return toGql(spell, user.id, true, null, null, args.locale);
     },
 
-    srdSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    srdSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       assertAuthenticated(context);
       const user = context.user!;
 
       const conditions = [eq(spells.isSystem, true), isNull(spells.creatorId)];
-      if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
-      if (args.livello !== undefined) conditions.push(eq(spells.livello, args.livello));
+      if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
+      if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -180,12 +180,12 @@ export const spellResolvers = {
       return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale));
     },
 
-    allSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
 
       const conditions = [];
-      if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
-      if (args.livello !== undefined) conditions.push(eq(spells.livello, args.livello));
+      if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
+      if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
