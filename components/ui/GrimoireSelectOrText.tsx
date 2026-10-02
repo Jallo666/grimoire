@@ -21,6 +21,8 @@ export default function GrimoireSelectOrText({
   id, label, value, onChange, options, customLabel, placeholder, disabled = false, skeleton = false,
 }: Props) {
   const dark = useAppSelector((s) => s.theme.value === "dark");
+  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
+  // per placeholder, freccette delle select, checkbox e menu a tendina.
 
   const isKnown = options.some((o) => o.value === value);
   const [isCustom, setIsCustom] = useState(!isKnown && value !== "");
@@ -64,7 +66,7 @@ export default function GrimoireSelectOrText({
   const selectValue = isCustom ? "__custom__" : (value || "");
 
   return (
-    <div className="mb-3">
+    <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
       {label && (
         <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
           {label}

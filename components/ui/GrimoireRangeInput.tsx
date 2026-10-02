@@ -19,6 +19,8 @@ const SPECIAL_OPTIONS = ["touch", "self", "sight", "special", "unlimited"] as co
 export default function GrimoireRangeInput({ id, label, value, onChange, disabled = false, skeleton = false }: Props) {
   const t = useTranslations("spells");
   const dark = useAppSelector((s) => s.theme.value === "dark");
+  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
+  // per placeholder, freccette delle select, checkbox e menu a tendina.
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const defaultUnit: UnitSystem = unitSystem || "piedi";
 
@@ -78,7 +80,7 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
   ];
 
   return (
-    <div className="mb-3">
+    <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
       {label && (
         <label htmlFor={`${id}-special`} className="form-label" style={{ color: "var(--g-label)" }}>
           {label}

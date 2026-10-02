@@ -32,6 +32,8 @@ export default function GrimoireInput({
   rows = 4,
 }: Props) {
   const dark = useAppSelector((s) => s.theme.value === "dark");
+  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
+  // per placeholder, freccette delle select, checkbox e menu a tendina.
 
   if (skeleton) {
     return (
@@ -50,7 +52,7 @@ export default function GrimoireInput({
 
   if (type === "checkbox") {
     return (
-      <div className={`form-check mb-3${dark ? " g-dark" : ""}`}>
+      <div className={`form-check mb-3${dark ? " g-dark" : ""}`} data-bs-theme={dark ? "dark" : undefined}>
         <input
           id={id}
           type="checkbox"
@@ -77,7 +79,7 @@ export default function GrimoireInput({
 
   if (type === "select") {
     return (
-      <div className="mb-3">
+      <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
         {label && (
           <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
             {label}
@@ -108,7 +110,7 @@ export default function GrimoireInput({
 
   if (type === "textarea") {
     return (
-      <div className="mb-3">
+      <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
         {label && (
           <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
             {label}
@@ -135,7 +137,7 @@ export default function GrimoireInput({
   }
 
   return (
-    <div className={label ? "mb-3" : undefined}>
+    <div className={label ? "mb-3" : undefined} data-bs-theme={dark ? "dark" : undefined}>
       {label && (
         <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
           {label}

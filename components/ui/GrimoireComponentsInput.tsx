@@ -36,6 +36,8 @@ type Props = {
 export default function GrimoireComponentsInput({ id, label, value, onChange, disabled = false, skeleton = false }: Props) {
   const t = useTranslations("spells");
   const dark = useAppSelector((s) => s.theme.value === "dark");
+  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
+  // per placeholder, freccette delle select, checkbox e menu a tendina.
   const [state, setState] = useState<State>(() => parse(value));
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function GrimoireComponentsInput({ id, label, value, onChange, di
   ];
 
   return (
-    <div className="mb-3">
+    <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
       {label && (
         <label className="form-label d-block" style={{ color: "var(--g-label)" }}>
           {label}
