@@ -3,6 +3,11 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.5.0] - 2026-10-02
+
+### Aggiunto
+- Filtri a scomparsa su tablet e telefono (sotto i 992px): i filtri degli incantesimi sono nascosti e si aprono col pulsante "Filtri (n)", dove n è il numero di filtri attivi. Su desktop restano sempre visibili. Nuovo componente `GrimoireFilterPanel`.
+
 ## [0.4.1] - 2026-10-02
 
 ### Modificato
