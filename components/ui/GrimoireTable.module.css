@@ -38,6 +38,9 @@
     flex: 1 1 0;
     min-height: 0;
     overflow: auto;
+    /* Stesso sfondo delle righe: anche con poche righe (skeleton, tabella vuota)
+       la tabella si vede alta fino in fondo */
+    background-color: var(--g-table-bg);
   }
 
   .fill thead th {
