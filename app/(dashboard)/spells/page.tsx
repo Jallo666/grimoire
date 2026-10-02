@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
+import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
 import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
@@ -90,6 +91,13 @@ export default function SpellsPage() {
     })),
   ];
 
+  const castingTimeOptions = Object.entries(CASTING_TIME_MAP).map(([value, key]) => ({
+    value, label: t(key as Parameters<typeof t>[0]),
+  }));
+  const durationOptions = Object.entries(DURATION_MAP).map(([value, key]) => ({
+    value, label: t(key as Parameters<typeof t>[0]),
+  }));
+
   const boolOptions = (label: string) => [
     { value: "", label },
     { value: "true", label: t("si") },
@@ -120,9 +128,9 @@ export default function SpellsPage() {
       value: String(i), label: i === 0 ? t("livelloOption0") : t("livelloOptionN", { n: i }),
     }))},
     { name: "descrizione", label: t("fieldDescrizione"), type: "textarea", rows: 5 },
-    { name: "tempoLancio", label: t("fieldTempoLancio"), type: "text" },
+    { name: "tempoLancio", label: t("fieldTempoLancio"), type: "selectOrText", options: castingTimeOptions, customLabel: t("ctCustom") },
     { name: "gittata", label: t("fieldGittata"), type: "range" },
-    { name: "durata", label: t("fieldDurata"), type: "text" },
+    { name: "durata", label: t("fieldDurata"), type: "selectOrText", options: durationOptions, customLabel: t("durCustom") },
     { name: "componenti", label: t("fieldComponenti"), type: "text" },
   ];
 

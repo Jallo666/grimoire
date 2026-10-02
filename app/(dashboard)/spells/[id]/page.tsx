@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { SPELL, UPDATE_SPELL, SHARE_SPELL_USER } from "@/lib/queries/spells";
+import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireFormSection from "@/components/ui/GrimoireFormSection";
@@ -52,14 +53,24 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     label: i === 0 ? ts("livelloOption0") : ts("livelloOptionN", { n: i }),
   }));
 
+  const castingTimeOptions = Object.entries(CASTING_TIME_MAP).map(([value, key]) => ({
+    value,
+    label: ts(key as Parameters<typeof ts>[0]),
+  }));
+
+  const durationOptions = Object.entries(DURATION_MAP).map(([value, key]) => ({
+    value,
+    label: ts(key as Parameters<typeof ts>[0]),
+  }));
+
   const fields: FieldConfig[] = [
     { name: "nome", label: ts("fieldNome"), type: "text", required: true },
     { name: "scuola", label: ts("fieldScuola"), type: "select", options: scuolaOptions },
     { name: "livello", label: ts("fieldLivello"), type: "select", options: livelloOptions },
     { name: "descrizione", label: ts("fieldDescrizione"), type: "textarea", rows: 5 },
-    { name: "tempoLancio", label: ts("fieldTempoLancio"), type: "text" },
+    { name: "tempoLancio", label: ts("fieldTempoLancio"), type: "selectOrText", options: castingTimeOptions, customLabel: ts("ctCustom") },
     { name: "gittata", label: ts("fieldGittata"), type: "range" },
-    { name: "durata", label: ts("fieldDurata"), type: "text" },
+    { name: "durata", label: ts("fieldDurata"), type: "selectOrText", options: durationOptions, customLabel: ts("durCustom") },
     { name: "componenti", label: ts("fieldComponenti"), type: "text" },
   ];
 
