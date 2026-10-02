@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 
@@ -15,6 +16,7 @@ export default function DashboardError({
   reset: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("errors");
   const code = error.graphQLErrors?.[0]?.extensions?.code;
 
   useEffect(() => {
@@ -26,16 +28,16 @@ export default function DashboardError({
   return (
     <main className="container py-5">
       <GrimoirePageTitle showBack>
-        {code === "FORBIDDEN" ? "Accesso negato" : "Errore"}
+        {code === "FORBIDDEN" ? t("accessDenied") : t("error")}
       </GrimoirePageTitle>
       <p style={{ color: "var(--g-text-muted)" }}>
         {code === "FORBIDDEN"
-          ? "Non sei membro di questa campagna."
-          : (error.message ?? "Si è verificato un errore imprevisto.")}
+          ? t("forbiddenDescription")
+          : (error.message ?? t("unexpectedError"))}
       </p>
       {code !== "FORBIDDEN" && (
         <GrimoireButton variant="outline-secondary" onClick={reset}>
-          Riprova
+          {t("retry")}
         </GrimoireButton>
       )}
     </main>

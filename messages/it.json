@@ -128,5 +128,21 @@
     "shareSuccess": "Incantesimo condiviso!",
     "shareButton": "Condividi",
     "cancelButton": "Annulla"
+  },
+  "ui": {
+    "save": "Salva",
+    "empty": "Nessun elemento.",
+    "actions": "Azioni",
+    "close": "Chiudi",
+    "back": "Torna indietro",
+    "owner": "Owner"
+  },
+  "errors": {
+    "accessDenied": "Accesso negato",
+    "error": "Errore",
+    "forbiddenDescription": "Non sei membro di questa campagna.",
+    "unexpectedError": "Si è verificato un errore imprevisto.",
+    "retry": "Riprova",
+    "somethingWentWrong": "Qualcosa è andato storto"
   }
 }

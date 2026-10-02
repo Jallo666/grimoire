@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function GrimoireModal({ show, onClose, title, children, size }: Props) {
+  const t = useTranslations("ui");
   const dark = useAppSelector((s) => s.theme.value === "dark");
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export default function GrimoireModal({ show, onClose, title, children, size }: 
               <h5 className="modal-title" style={{ color: "var(--g-text)" }}>
                 {title}
               </h5>
-              <button type="button" className="btn-close" onClick={onClose} aria-label="Chiudi" />
+              <button type="button" className="btn-close" onClick={onClose} aria-label={t("close")} />
             </div>
             <div className="modal-body">{children}</div>
           </div>

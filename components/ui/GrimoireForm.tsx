@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import GrimoireCard from "./GrimoireCard";
 import GrimoireInput from "./GrimoireInput";
 import GrimoireButton from "./GrimoireButton";
@@ -43,12 +44,14 @@ export default function GrimoireForm({
   initialValues,
   error,
   onSubmit,
-  submitLabel = "Salva",
+  submitLabel,
   loading = false,
   fetching = false,
   view = false,
   actions = [],
 }: Props) {
+  const t = useTranslations("ui");
+  const label = submitLabel ?? t("save");
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(fields.map((f) => [f.name, initialValues?.[f.name] ?? f.defaultValue ?? ""]))
   );
@@ -136,7 +139,7 @@ export default function GrimoireForm({
                   ))}
                 </div>
                 <GrimoireButton type="submit" loading={loading}>
-                  {submitLabel}
+                  {label}
                 </GrimoireButton>
               </>
             )}

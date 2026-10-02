@@ -128,5 +128,21 @@
     "shareSuccess": "Spell shared!",
     "shareButton": "Share",
     "cancelButton": "Cancel"
+  },
+  "ui": {
+    "save": "Save",
+    "empty": "No items.",
+    "actions": "Actions",
+    "close": "Close",
+    "back": "Go back",
+    "owner": "Owner"
+  },
+  "errors": {
+    "accessDenied": "Access denied",
+    "error": "Error",
+    "forbiddenDescription": "You are not a member of this campaign.",
+    "unexpectedError": "An unexpected error occurred.",
+    "retry": "Retry",
+    "somethingWentWrong": "Something went wrong"
   }
 }

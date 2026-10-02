@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 import GrimoireButton, { type Variant } from "./GrimoireButton";
 import GrimoireBadge from "./GrimoireBadge";
@@ -75,9 +76,11 @@ export default function GrimoireTable<T extends { id: string | number }>({
   renderActions,
   skeleton = false,
   skeletonRows = 3,
-  emptyMessage = "Nessun elemento.",
+  emptyMessage,
 }: Props<T>) {
+  const t = useTranslations("ui");
   const dark = useAppSelector((s) => s.theme.value === "dark");
+  const empty = emptyMessage ?? t("empty");
 
   const hasActions = !!(actions || renderActions);
   const colCount = columns.length + (hasActions ? 1 : 0);
@@ -94,7 +97,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
             ))}
             {hasActions && (
               <th scope="col" style={{ ...headerStyle, width: "1px", whiteSpace: "nowrap" }}>
-                Azioni
+                {t("actions")}
               </th>
             )}
           </tr>
@@ -115,7 +118,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
           ) : data.length === 0 ? (
             <tr>
               <td colSpan={colCount} className="text-center py-4" style={cellStyle}>
-                <span style={{ color: "var(--g-text-muted)" }}>{emptyMessage}</span>
+                <span style={{ color: "var(--g-text-muted)" }}>{empty}</span>
               </td>
             </tr>
           ) : (

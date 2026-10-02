@@ -3,7 +3,7 @@ import "./globals.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Providers } from "./providers";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getLocale, getMessages } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Grimoire",
@@ -11,9 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
   const messages = await getMessages();
   return (
-    <html lang="it">
+    <html lang={locale}>
       <body>
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>

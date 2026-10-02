@@ -40,6 +40,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [editingRole, setEditingRole] = useState("");
   const t = useTranslations("campaignDetail");
+  const tUi = useTranslations("ui");
 
   const statoOptions = [
     { value: "attiva", label: t("statoAttiva") },
@@ -82,7 +83,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           <span className="d-flex align-items-center gap-2">
             {u.nome ?? "—"}
             {row.userId === (meta.ownerId as number) && (
-              <GrimoireBadge>Owner</GrimoireBadge>
+              <GrimoireBadge>{tUi("owner")}</GrimoireBadge>
             )}
           </span>
         );

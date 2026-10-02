@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export default function GrimoirePageTitle({ children, showBack = false }: Props) {
+  const t = useTranslations("ui");
   const dark = useAppSelector((s) => s.theme.value === "dark");
   const router = useRouter();
 
@@ -18,7 +20,7 @@ export default function GrimoirePageTitle({ children, showBack = false }: Props)
         <button
           onClick={() => router.back()}
           className={`btn btn-outline-secondary btn-sm${dark ? " g-dark" : ""}`}
-          aria-label="Torna indietro"
+          aria-label={t("back")}
         >
           ←
         </button>
