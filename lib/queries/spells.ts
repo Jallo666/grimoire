@@ -46,11 +46,15 @@ export const CREATE_SPELL = gql`
     $durata: String
     $componenti: String
     $groupId: ID
+    $translationLocale: String
+    $translationNome: String
+    $translationDescrizione: String
   ) {
     createSpell(
       nome: $nome descrizione: $descrizione scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
       groupId: $groupId
+      translationLocale: $translationLocale translationNome: $translationNome translationDescrizione: $translationDescrizione
     ) { id nome }
   }
 `;

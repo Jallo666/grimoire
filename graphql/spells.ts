@@ -62,6 +62,9 @@ export const spellTypeDefs = gql`
       durata: String
       componenti: String
       groupId: ID
+      translationLocale: String
+      translationNome: String
+      translationDescrizione: String
     ): Spell!
 
     updateSpell(
@@ -213,7 +216,7 @@ export const spellResolvers = {
   Mutation: {
     createSpell: async (
       _: unknown,
-      args: { nome: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; groupId?: string },
+      args: { nome: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -221,6 +224,13 @@ export const spellResolvers = {
         ? Number(args.groupId)
         : await getOrCreateGroup(user.id, "generale", "Generale");
       return db.transaction(async (tx) => {
+        const translationsData: TranslationsMap = {};
+        if (args.translationLocale && args.translationNome?.trim()) {
+          translationsData[args.translationLocale] = {
+            nome: args.translationNome,
+            ...(args.translationDescrizione?.trim() ? { descrizione: args.translationDescrizione } : {}),
+          };
+        }
         const [spell] = await tx.insert(spells).values({
           creatorId: user.id,
           nome: args.nome,
@@ -231,6 +241,7 @@ export const spellResolvers = {
           gittata: args.gittata ?? null,
           durata: args.durata ?? null,
           componenti: args.componenti ?? null,
+          ...(Object.keys(translationsData).length > 0 ? { translations: translationsData } : {}),
         }).returning();
         await tx.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id, groupId });
         return toGql(spell, user.id, true, groupId, null);

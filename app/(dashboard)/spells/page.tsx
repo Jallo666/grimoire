@@ -8,6 +8,7 @@ import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
+import SpellViewModal from "./SpellViewModal";
 import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
@@ -15,12 +16,14 @@ import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
-import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 import GrimoireSelect from "@/components/ui/GrimoireSelect";
 import GrimoireInput from "@/components/ui/GrimoireInput";
+import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
+import GrimoireSelectOrText from "@/components/ui/GrimoireSelectOrText";
+import GrimoireComponentsInput from "@/components/ui/GrimoireComponentsInput";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
 
 type SpellGroup = { id: string; nome: string };
@@ -59,18 +62,27 @@ export default function SpellsPage() {
   const ritual = searchParams.get("ritual") ?? "";
   const groupFilter = searchParams.get("group") ?? "";
 
+  const t = useTranslations("spells");
+  const tUi = useTranslations("ui");
+  const locale = useLocale();
+  const secondaryLocale = locale === "it" ? "en" : "it";
+  const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
+
+  const [viewSpellId, setViewSpellId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [createFormError, setCreateFormError] = useState<string | null>(null);
+  const [createActiveLang, setCreateActiveLang] = useState<string>(locale);
+  const [createPrimary, setCreatePrimary] = useState({ nome: "", descrizione: "" });
+  const [createSecondary, setCreateSecondary] = useState({ nome: "", descrizione: "" });
+  const [createCommon, setCreateCommon] = useState({
+    scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "",
+  });
   const [showGroups, setShowGroups] = useState(false);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
   const [moveGroupId, setMoveGroupId] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
   const [renameId, setRenameId] = useState("");
   const [renameName, setRenameName] = useState("");
-
-  const t = useTranslations("spells");
-  const locale = useLocale();
-  const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
 
   function setParam(key: string, value: string) {
@@ -137,29 +149,20 @@ export default function SpellsPage() {
     ...groups.map((g) => ({ value: g.id, label: g.nome })),
   ];
 
-  const createFields: FieldConfig[] = [
-    { name: "nome", label: t("fieldNome"), type: "text", required: true },
-    { name: "groupId", label: t("groupLabel"), type: "select", options: groupSelectOptions },
-    { name: "scuola", label: t("fieldScuola"), type: "select", required: true, options: [
-      { value: "", label: t("scuolaEmpty") },
-      { value: "Abiurazione", label: t("scuolaAbiurazione") },
-      { value: "Ammaliamento", label: t("scuolaAmmaliamento") },
-      { value: "Divinazione", label: t("scuolaDivinazione") },
-      { value: "Evocazione", label: t("scuolaEvocazione") },
-      { value: "Illusione", label: t("scuolaIllusione") },
-      { value: "Invocazione", label: t("scuolaInvocazione") },
-      { value: "Necromanzia", label: t("scuolaNecromanzia") },
-      { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
-    ]},
-    { name: "livello", label: t("fieldLivello"), type: "select", required: true, defaultValue: "1", options: Array.from({ length: 10 }, (_, i) => ({
-      value: String(i), label: i === 0 ? t("livelloOption0") : t("livelloOptionN", { n: i }),
-    }))},
-    { name: "descrizione", label: t("fieldDescrizione"), type: "textarea", required: true, rows: 5 },
-    { name: "tempoLancio", label: t("fieldTempoLancio"), type: "selectOrText", required: true, options: castingTimeOptions, customLabel: t("ctCustom") },
-    { name: "gittata", label: t("fieldGittata"), type: "range", required: true },
-    { name: "durata", label: t("fieldDurata"), type: "selectOrText", required: true, options: durationOptions, customLabel: t("durCustom") },
-    { name: "componenti", label: t("fieldComponenti"), type: "components" },
+  const createScuolaOptions = [
+    { value: "", label: t("scuolaEmpty") },
+    { value: "Abiurazione", label: t("scuolaAbiurazione") },
+    { value: "Ammaliamento", label: t("scuolaAmmaliamento") },
+    { value: "Divinazione", label: t("scuolaDivinazione") },
+    { value: "Evocazione", label: t("scuolaEvocazione") },
+    { value: "Illusione", label: t("scuolaIllusione") },
+    { value: "Invocazione", label: t("scuolaInvocazione") },
+    { value: "Necromanzia", label: t("scuolaNecromanzia") },
+    { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
   ];
+  const createLivelloOptions = Array.from({ length: 10 }, (_, i) => ({
+    value: String(i), label: i === 0 ? t("livelloOption0") : t("livelloOptionN", { n: i }),
+  }));
 
   const vars = {
     search: search || undefined,
@@ -188,8 +191,16 @@ export default function SpellsPage() {
   const srdSpells = srdData?.srdSpells ?? [];
   const allSpells = allData?.allSpells ?? [];
 
+  function resetCreate() {
+    setCreatePrimary({ nome: "", descrizione: "" });
+    setCreateSecondary({ nome: "", descrizione: "" });
+    setCreateCommon({ scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "" });
+    setCreateActiveLang(locale);
+    setCreateFormError(null);
+  }
+
   const [createSpell, { loading: creating, error: createError }] = useMutation(CREATE_SPELL, {
-    onCompleted: () => { refetchMy(); refetchAll(); refetchGroups(); setShowCreate(false); },
+    onCompleted: () => { refetchMy(); refetchAll(); refetchGroups(); setShowCreate(false); resetCreate(); },
   });
   const [deleteSpell] = useMutation(DELETE_SPELL, {
     onCompleted: () => { refetchMy(); refetchAll(); },
@@ -213,18 +224,38 @@ export default function SpellsPage() {
     onCompleted: () => { refetchGroups(); refetchMy(); },
   });
 
-  async function handleCreate(values: Record<string, string>) {
+  async function handleCreateSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const missing: string[] = [];
+    if (!createPrimary.nome.trim()) missing.push(t("fieldNome"));
+    if (!createPrimary.descrizione.trim()) missing.push(t("fieldDescrizione"));
+    if (!createCommon.scuola) missing.push(t("fieldScuola"));
+    if (!createCommon.tempoLancio) missing.push(t("fieldTempoLancio"));
+    if (!createCommon.gittata) missing.push(t("fieldGittata"));
+    if (!createCommon.durata) missing.push(t("fieldDurata"));
+    if (missing.length > 0) {
+      // Switch to primary tab if required primary-lang fields are empty
+      if ((!createPrimary.nome.trim() || !createPrimary.descrizione.trim()) && createActiveLang !== locale) {
+        setCreateActiveLang(locale);
+      }
+      setCreateFormError(tUi("requiredFields", { fields: missing.join(", ") }));
+      return;
+    }
+    setCreateFormError(null);
     await createSpell({
       variables: {
-        nome: values.nome,
-        descrizione: values.descrizione || null,
-        scuola: values.scuola || null,
-        livello: Number(values.livello),
-        tempoLancio: values.tempoLancio || null,
-        gittata: values.gittata || null,
-        durata: values.durata || null,
-        componenti: values.componenti || null,
-        groupId: values.groupId || null,
+        nome: createPrimary.nome,
+        descrizione: createPrimary.descrizione || null,
+        scuola: createCommon.scuola || null,
+        livello: Number(createCommon.livello),
+        tempoLancio: createCommon.tempoLancio || null,
+        gittata: createCommon.gittata || null,
+        durata: createCommon.durata || null,
+        componenti: createCommon.componenti || null,
+        groupId: createCommon.groupId || null,
+        translationLocale: createSecondary.nome.trim() ? secondaryLocale : undefined,
+        translationNome: createSecondary.nome.trim() || undefined,
+        translationDescrizione: createSecondary.descrizione.trim() || undefined,
       },
     });
   }
@@ -285,7 +316,7 @@ export default function SpellsPage() {
           data={mySpells}
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
-            { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", href: `/spells/${s.id}` },
+            { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
             { label: t("moveToGroup"), variant: "outline-secondary", onClick: () => { setMoveSpell(s); setMoveGroupId(s.groupId ?? ""); } },
             { label: t("removeFromLibrary"), variant: "danger", onClick: () => removeSrdSpell({ variables: { spellId: s.id } }), hidden: !s.isSystem },
             { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
@@ -300,7 +331,7 @@ export default function SpellsPage() {
             data={srdSpells}
             emptyMessage={t("tableEmpty")}
             actions={(s) => [
-              { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", href: `/spells/${s.id}` },
+              { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
               { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } }) },
             ]}
           />
@@ -317,7 +348,7 @@ export default function SpellsPage() {
           data={allSpells}
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
-            { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", href: `/spells/${s.id}` },
+            { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
             { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.isSystem ? (s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } })) : undefined, hidden: !s.isSystem },
             { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
           ]}
@@ -327,7 +358,7 @@ export default function SpellsPage() {
       {/* Create spell modal */}
       <GrimoireModal
         show={showCreate}
-        onClose={() => { setShowCreate(false); setCreateFormError(null); }}
+        onClose={() => { setShowCreate(false); resetCreate(); }}
         title={t("createModalTitle")}
         size="lg"
         footer={
@@ -336,19 +367,134 @@ export default function SpellsPage() {
               <GrimoireAlert>{createFormError ?? createError?.message}</GrimoireAlert>
             )}
             <div className="d-flex gap-2 justify-content-end">
-              <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); setCreateFormError(null); }}>{t("cancelButton")}</GrimoireButton>
+              <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); resetCreate(); }}>{t("cancelButton")}</GrimoireButton>
               <GrimoireButton type="submit" form="create-spell-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
             </div>
           </div>
         }
       >
-        <GrimoireForm
-          id="create-spell-form"
-          hideFooter
-          fields={createFields}
-          onSubmit={handleCreate}
-          onValidationError={setCreateFormError}
-        />
+        <form id="create-spell-form" onSubmit={handleCreateSubmit} noValidate>
+          {/* Language tabs */}
+          <ul className="nav nav-tabs mb-3" style={{ borderColor: "var(--g-card-border)" }}>
+            <li className="nav-item">
+              <button
+                type="button"
+                className={`nav-link${createActiveLang === locale ? " active" : ""}`}
+                onClick={() => setCreateActiveLang(locale)}
+              >
+                {locale.toUpperCase()}
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                type="button"
+                className={`nav-link${createActiveLang === secondaryLocale ? " active" : ""}`}
+                onClick={() => setCreateActiveLang(secondaryLocale)}
+              >
+                {secondaryLocale.toUpperCase()}{" "}
+                <small style={{ fontSize: "0.75rem", opacity: 0.7 }}>{t("langTabOptional")}</small>
+              </button>
+            </li>
+          </ul>
+
+          {/* Language-specific fields */}
+          {createActiveLang === locale ? (
+            <>
+              <GrimoireInput
+                id="create-nome"
+                label={t("fieldNome")}
+                type="text"
+                required
+                value={createPrimary.nome}
+                onChange={(e) => setCreatePrimary((v) => ({ ...v, nome: e.target.value }))}
+              />
+              <GrimoireInput
+                id="create-desc"
+                label={t("fieldDescrizione")}
+                type="textarea"
+                required
+                rows={5}
+                value={createPrimary.descrizione}
+                onChange={(e) => setCreatePrimary((v) => ({ ...v, descrizione: e.target.value }))}
+              />
+            </>
+          ) : (
+            <>
+              <GrimoireInput
+                id="create-nome-alt"
+                label={`${t("fieldNome")} (${secondaryLocale.toUpperCase()})`}
+                type="text"
+                value={createSecondary.nome}
+                onChange={(e) => setCreateSecondary((v) => ({ ...v, nome: e.target.value }))}
+              />
+              <GrimoireInput
+                id="create-desc-alt"
+                label={`${t("fieldDescrizione")} (${secondaryLocale.toUpperCase()})`}
+                type="textarea"
+                rows={5}
+                value={createSecondary.descrizione}
+                onChange={(e) => setCreateSecondary((v) => ({ ...v, descrizione: e.target.value }))}
+              />
+            </>
+          )}
+
+          <hr style={{ borderColor: "var(--g-card-border)", margin: "1.25rem 0" }} />
+
+          {/* Common fields */}
+          <GrimoireInput
+            id="create-group"
+            label={t("groupLabel")}
+            type="select"
+            value={createCommon.groupId}
+            onChange={(e) => setCreateCommon((v) => ({ ...v, groupId: e.target.value }))}
+            options={groupSelectOptions}
+          />
+          <GrimoireInput
+            id="create-scuola"
+            label={t("fieldScuola")}
+            type="select"
+            required
+            value={createCommon.scuola}
+            onChange={(e) => setCreateCommon((v) => ({ ...v, scuola: e.target.value }))}
+            options={createScuolaOptions}
+          />
+          <GrimoireInput
+            id="create-livello"
+            label={t("fieldLivello")}
+            type="select"
+            value={createCommon.livello}
+            onChange={(e) => setCreateCommon((v) => ({ ...v, livello: e.target.value }))}
+            options={createLivelloOptions}
+          />
+          <GrimoireSelectOrText
+            id="create-tempo"
+            label={t("fieldTempoLancio")}
+            value={createCommon.tempoLancio}
+            onChange={(val) => setCreateCommon((v) => ({ ...v, tempoLancio: val }))}
+            options={castingTimeOptions}
+            customLabel={t("ctCustom")}
+          />
+          <GrimoireRangeInput
+            id="create-gittata"
+            label={t("fieldGittata")}
+            value={createCommon.gittata}
+            onChange={(val) => setCreateCommon((v) => ({ ...v, gittata: val }))}
+          />
+          <GrimoireSelectOrText
+            id="create-durata"
+            label={t("fieldDurata")}
+            value={createCommon.durata}
+            onChange={(val) => setCreateCommon((v) => ({ ...v, durata: val }))}
+            options={durationOptions}
+            customLabel={t("durCustom")}
+          />
+          <GrimoireComponentsInput
+            id="create-componenti"
+            label={t("fieldComponenti")}
+            value={createCommon.componenti}
+            onChange={(val) => setCreateCommon((v) => ({ ...v, componenti: val }))}
+          />
+        </form>
       </GrimoireModal>
 
       {/* Move to group modal */}
@@ -397,6 +543,7 @@ export default function SpellsPage() {
           <GrimoireButton loading={creatingGroup} onClick={() => newGroupName && createGroup({ variables: { nome: newGroupName } })}>{t("groupCreate")}</GrimoireButton>
         </div>
       </GrimoireModal>
+      <SpellViewModal spellId={viewSpellId} onClose={() => setViewSpellId(null)} />
     </GrimoirePage>
   );
 }

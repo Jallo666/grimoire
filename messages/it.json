@@ -108,6 +108,7 @@
     "fieldDurata": "Durata",
     "fieldComponenti": "Componenti",
     "fieldHigherLevel": "Ai livelli superiori",
+    "fieldMaterial": "Componente materiale",
     "livelloOption0": "Trucchetto (0)",
     "livelloOptionN": "Livello {n}",
     "scuolaEmpty": "—",
@@ -143,6 +144,7 @@
     "groupDelete": "Elimina",
     "groupNamePlaceholder": "Nome del gruppo...",
     "groupAutoLabel": "— (automatico)",
+    "langTabOptional": "(opzionale)",
     "addToLibrary": "Aggiungi",
     "alreadyInLibrary": "In libreria",
     "ct1Action": "1 azione",
@@ -214,7 +216,8 @@
     "translationDescrizione": "Descrizione tradotta",
     "translationHigherLevel": "Ai livelli superiori (traduzione)",
     "translationMaterial": "Componente materiale (traduzione)",
-    "translationSave": "Salva traduzione"
+    "translationSave": "Salva traduzione",
+    "editButton": "Modifica"
   },
   "ui": {
     "save": "Salva",
