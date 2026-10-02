@@ -87,7 +87,7 @@ export default function CampaignsPage() {
 
   return (
     <GrimoirePage>
-      <GrimoirePageTitle action={<GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>}>
+      <GrimoirePageTitle action={<GrimoireButton mobileIcon="plus-lg" onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>}>
         {t("pageTitle")}
       </GrimoirePageTitle>
 

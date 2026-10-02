@@ -34,12 +34,13 @@ export default function GrimoirePageTitle({ children, showBack = false, action }
   );
 
   if (action !== undefined) {
-    // Tablet e telefono: bottoni sotto il titolo (flex-column, 16px di spazio).
-    // Desktop da 992px: titolo a sinistra e bottoni a destra sulla stessa riga, come prima.
+    // Titolo a sinistra e bottoni a destra, sempre sulla stessa riga.
+    // Su mobile i bottoni del titolo usano mobileIcon (solo icona) per stare accanto al titolo;
+    // se lo spazio non basta va a capo il titolo, non i bottoni.
     return (
-      <div className="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center gap-lg-0 mb-4">
-        {titleBlock}
-        <div>{action}</div>
+      <div className="d-flex justify-content-between align-items-center gap-2 gap-lg-0 mb-4">
+        <div style={{ minWidth: 0 }}>{titleBlock}</div>
+        <div className="flex-shrink-0">{action}</div>
       </div>
     );
   }

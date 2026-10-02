@@ -313,8 +313,8 @@ export default function SpellsPage() {
     <GrimoirePage>
       <GrimoirePageTitle action={
         <GrimoireInlineGroup>
-          <GrimoireButton variant="outline-secondary" onClick={() => setShowGroups(true)}>{t("manageGroups")}</GrimoireButton>
-          <GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
+          <GrimoireButton variant="outline-secondary" mobileIcon="collection" onClick={() => setShowGroups(true)}>{t("manageGroups")}</GrimoireButton>
+          <GrimoireButton mobileIcon="plus-lg" onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
         </GrimoireInlineGroup>
       }>
         {t("pageTitle")}

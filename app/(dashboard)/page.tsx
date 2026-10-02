@@ -32,7 +32,7 @@ export default function HomePage() {
     <GrimoirePage>
       <GrimoirePageTitle action={
         <Link href="/campaigns">
-          <GrimoireButton variant="primary">{t("newCampaign")}</GrimoireButton>
+          <GrimoireButton variant="primary" mobileIcon="plus-lg">{t("newCampaign")}</GrimoireButton>
         </Link>
       }>
         {t("title")}

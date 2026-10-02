@@ -8,6 +8,8 @@ type Size = "sm" | "lg";
 type Props = {
   children?: React.ReactNode;
   icon?: string;
+  // Sotto i 992px mostra solo questa icona al posto del testo (da 992px in su: solo il testo, come sempre)
+  mobileIcon?: string;
   tooltip?: string;
   variant?: Variant;
   size?: Size;
@@ -22,6 +24,7 @@ type Props = {
 export default function GrimoireButton({
   children,
   icon,
+  mobileIcon,
   tooltip,
   variant = "primary",
   size,
@@ -44,6 +47,9 @@ export default function GrimoireButton({
     .filter(Boolean)
     .join(" ");
 
+  // Con mobileIcon il testo su mobile non si vede: resta come etichetta per i lettori di schermo
+  const ariaLabel = tooltip ?? (mobileIcon && typeof children === "string" ? children : undefined);
+
   return (
     <button
       type={type}
@@ -52,7 +58,7 @@ export default function GrimoireButton({
       disabled={disabled || loading}
       onClick={onClick}
       title={tooltip}
-      aria-label={tooltip}
+      aria-label={ariaLabel}
       style={iconOnly ? { width: "2rem", height: "2rem", padding: 0 } : undefined}
     >
       {loading ? (
@@ -60,7 +66,14 @@ export default function GrimoireButton({
       ) : icon ? (
         <GrimoireIcon name={icon} size={14} />
       ) : null}
-      {children}
+      {mobileIcon ? (
+        <>
+          <span className="d-lg-none"><GrimoireIcon name={mobileIcon} size={16} /></span>
+          <span className="d-none d-lg-inline">{children}</span>
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 }
