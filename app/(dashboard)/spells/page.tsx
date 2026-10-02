@@ -176,15 +176,15 @@ export default function SpellsPage() {
 
   const localeVar = { locale };
 
-  const { data: myData, refetch: refetchMy } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS, {
+  const { data: myData, loading: loadingMy, refetch: refetchMy } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS, {
     variables: { ...vars, ...localeVar, groupIds: groupFilter.length ? groupFilter : undefined },
     skip: tab !== "miei",
   });
-  const { data: srdData, refetch: refetchSrd } = useQuery<{ srdSpells: SpellRow[] }>(SRD_SPELLS, {
+  const { data: srdData, loading: loadingSrd, refetch: refetchSrd } = useQuery<{ srdSpells: SpellRow[] }>(SRD_SPELLS, {
     variables: { ...vars, ...localeVar },
     skip: tab !== "srd",
   });
-  const { data: allData, refetch: refetchAll } = useQuery<{ allSpells: SpellRow[] }>(ALL_SPELLS, {
+  const { data: allData, loading: loadingAll, refetch: refetchAll } = useQuery<{ allSpells: SpellRow[] }>(ALL_SPELLS, {
     variables: { ...vars, ...localeVar },
     skip: tab !== "tutti",
   });
@@ -192,6 +192,10 @@ export default function SpellsPage() {
   const mySpells = myData?.mySpells ?? [];
   const srdSpells = srdData?.srdSpells ?? [];
   const allSpells = allData?.allSpells ?? [];
+
+  // Skeleton nella tabella solo finché non ci sono ancora dati da mostrare
+  // (dopo un'aggiunta o una cancellazione la tabella resta visibile mentre si aggiorna)
+  const SKELETON_ROWS = 8;
 
   function resetCreate() {
     setCreatePrimary({ nome: "", descrizione: "" });
@@ -321,6 +325,8 @@ export default function SpellsPage() {
         <GrimoireTable
           columns={meiColumns}
           data={mySpells}
+          skeleton={loadingMy && !myData}
+          skeletonRows={SKELETON_ROWS}
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
             { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
@@ -336,6 +342,8 @@ export default function SpellsPage() {
           <GrimoireTable
             columns={[...baseColumns, ...extraColumns]}
             data={srdSpells}
+            skeleton={loadingSrd && !srdData}
+            skeletonRows={SKELETON_ROWS}
             emptyMessage={t("tableEmpty")}
             actions={(s) => [
               { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
@@ -353,6 +361,8 @@ export default function SpellsPage() {
         <GrimoireTable
           columns={[...baseColumns, ...extraColumns]}
           data={allSpells}
+          skeleton={loadingAll && !allData}
+          skeletonRows={SKELETON_ROWS}
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
             { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
