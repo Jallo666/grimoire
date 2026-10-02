@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
@@ -42,8 +43,14 @@ type SpellRow = {
 
 type TabKey = "miei" | "srd" | "tutti";
 
+const TAB_FROM_PARAM: Record<string, TabKey> = { mine: "miei", srd: "srd", all: "tutti" };
+const TAB_TO_PARAM: Record<TabKey, string> = { miei: "mine", srd: "srd", tutti: "all" };
+
 export default function SpellsPage() {
-  const [tab, setTab] = useState<TabKey>("miei");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [tab, setTab] = useState<TabKey>(TAB_FROM_PARAM[searchParams.get("tab") ?? ""] ?? "miei");
   const [showCreate, setShowCreate] = useState(false);
   const [showGroups, setShowGroups] = useState(false);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
@@ -204,6 +211,15 @@ export default function SpellsPage() {
     setSearch(""); setScuola(""); setLivello(""); setConcentration(""); setRitual(""); setGroupFilter("");
   }
 
+  function handleTabChange(k: string) {
+    const next = k as TabKey;
+    setTab(next);
+    resetFilters();
+    const params = new URLSearchParams();
+    params.set("tab", TAB_TO_PARAM[next]);
+    router.replace(`${pathname}?${params.toString()}`);
+  }
+
   const baseColumns: Column<SpellRow>[] = [
     { key: "nome", label: t("colNome"), sortable: true },
     { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: {
@@ -250,7 +266,7 @@ export default function SpellsPage() {
         {t("pageTitle")}
       </GrimoirePageTitle>
 
-      <GrimoireTabs tabs={tabs} active={tab} onChange={(k) => { setTab(k as TabKey); resetFilters(); }} />
+      <GrimoireTabs tabs={tabs} active={tab} onChange={handleTabChange} />
 
       {filters}
 
