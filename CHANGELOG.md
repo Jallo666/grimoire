@@ -3,6 +3,15 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.7.0] - 2026-10-02
+
+### Aggiunto
+- Filtri degli incantesimi su tablet e telefono (sotto i 992px) in una modale: si apre con l'icona a imbuto accanto alle tab, che mostra quanti filtri sono attivi. Dentro, le scelte sono pillole da toccare (gruppo, livello, scuola, concentrazione/rituale) e i filtri si applicano subito; "Azzera" li toglie tutti. Su desktop resta la riga di filtri.
+- Nuovi componenti `GrimoireChips`, `GrimoireFilterButton`, `GrimoireFilterModal`; prop `action` di `GrimoireTabs`.
+
+### Modificato
+- Su tablet e telefono non c'è più il pulsante "Filtri" a tutta larghezza introdotto in 0.5.0: più spazio per la tabella.
+
 ## [0.6.0] - 2026-10-02
 
 Tutte le modifiche valgono sotto i 992px (tablet e telefono); il desktop non cambia.
