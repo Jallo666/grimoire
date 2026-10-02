@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { ME, LOGOUT } from "@/lib/queries/users";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import ThemeToggle from "./ThemeToggle";
+import LocaleToggle from "./LocaleToggle";
 import type { User } from "@/db/types";
 
 const NAV_LINKS: { href: string; tKey: "home" | "campaigns" | "spells" }[] = [
@@ -44,6 +45,7 @@ export default function GrimoireNavbar() {
 
         <div className="d-flex align-items-center gap-3">
           <ThemeToggle />
+          <LocaleToggle />
           {user && (
             <span className="text-white small">{t("greeting", { name: user.nome ?? user.email })}</span>
           )}
