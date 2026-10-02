@@ -10,6 +10,8 @@ import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireHamburger from "@/components/ui/GrimoireHamburger";
 import GrimoireSidenav from "@/components/ui/GrimoireSidenav";
 import GrimoireSidenavLink from "@/components/ui/GrimoireSidenavLink";
+import AppLogo from "@/components/ui/AppLogo";
+import { MOBILE_HEADER_ID } from "@/components/ui/GrimoirePageTitle";
 import ThemeToggle from "./ThemeToggle";
 import LocaleToggle from "./LocaleToggle";
 import { THEME_STORAGE_KEY } from "./ThemeSync";
@@ -41,10 +43,12 @@ export default function GrimoireNavbar() {
     <>
       <nav className={`navbar navbar-expand-lg bg-primary ${styles.navbar}`} data-bs-theme="dark">
         <div className="container">
-          {/* Mobile: ☰ accanto al nome. Su desktop il ☰ è nascosto */}
-          <div className="d-flex align-items-center gap-2">
+          {/* Mobile: ☰ e poi titolo e bottoni della pagina (li mette GrimoirePageTitle nel posto qui sotto).
+              Desktop: solo il nome "Grimoire", il ☰ e il posto per il titolo sono nascosti */}
+          <div className="d-flex align-items-center gap-2 flex-grow-1 flex-lg-grow-0" style={{ minWidth: 0 }}>
             <GrimoireHamburger onClick={() => setMenuOpen(true)} />
-            <Link className="navbar-brand" href="/">Grimoire</Link>
+            <Link className="navbar-brand d-none d-lg-inline-block" href="/">Grimoire</Link>
+            <div id={MOBILE_HEADER_ID} className="d-flex d-lg-none flex-grow-1 align-items-center" style={{ minWidth: 0 }} />
           </div>
 
           {/* Desktop (da 992px): link e azioni nella barra, come prima. Sotto i 992px sono nel menu laterale */}
@@ -82,7 +86,9 @@ export default function GrimoireNavbar() {
       <GrimoireSidenav
         show={menuOpen}
         onClose={closeMenu}
-        title={user ? t("greeting", { name: user.nome ?? user.email }) : "Grimoire"}
+        title="Grimoire"
+        subtitle={user ? t("greeting", { name: user.nome ?? user.email }) : undefined}
+        logo={<AppLogo width={32} />}
         footer={
           <>
             <div className="d-flex justify-content-between align-items-center">

@@ -1,7 +1,11 @@
-/* Tablet e telefono (sotto i 992px): altezza fissa, così le pagine a tutta altezza
-   sanno esattamente quanto spazio resta sotto la navbar. Desktop: nessuna regola. */
+/* Tablet e telefono (sotto i 992px). Desktop: nessuna regola, barra blu come sempre. */
 @media (max-width: 991.98px) {
   .navbar {
+    /* altezza fissa: le pagine a tutta altezza sanno quanto spazio resta sotto la barra */
     height: var(--g-navbar-height);
+    /* colore della pagina con una linea sotto, invece del blu pieno
+       (!important perché deve vincere su bg-primary di Bootstrap, che usa !important) */
+    background-color: var(--g-body-bg) !important;
+    border-bottom: 1px solid var(--g-card-border);
   }
 }

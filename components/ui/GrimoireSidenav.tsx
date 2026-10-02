@@ -7,6 +7,9 @@ type Props = {
   show: boolean;
   onClose: () => void;
   title: string;
+  // Facoltativi: riga piccola sotto il titolo (es. "Ciao, Nome") e logo a sinistra del titolo
+  subtitle?: string;
+  logo?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
 };
@@ -14,7 +17,7 @@ type Props = {
 // Menu laterale che si apre da sinistra sopra la pagina.
 // Ha lo stesso aspetto della navbar (sfondo primario, testo bianco) in entrambi i temi.
 // Si chiude con la ✕, toccando lo sfondo scuro o premendo Esc.
-export default function GrimoireSidenav({ show, onClose, title, children, footer }: Props) {
+export default function GrimoireSidenav({ show, onClose, title, subtitle, logo, children, footer }: Props) {
   const t = useTranslations("ui");
 
   // Blocca lo scroll della pagina mentre il menu è aperto
@@ -48,7 +51,13 @@ export default function GrimoireSidenav({ show, onClose, title, children, footer
         style={{ width: "280px", maxWidth: "85vw" }}
       >
         <div className="offcanvas-header border-bottom border-light border-opacity-25">
-          <h5 className="offcanvas-title mb-0">{title}</h5>
+          <div className="d-flex align-items-center gap-2" style={{ minWidth: 0 }}>
+            {logo}
+            <div style={{ minWidth: 0 }}>
+              <h5 className="offcanvas-title mb-0">{title}</h5>
+              {subtitle && <div className="small opacity-75 text-truncate">{subtitle}</div>}
+            </div>
+          </div>
           <button type="button" className="btn-close" onClick={onClose} aria-label={t("close")} />
         </div>
         <div className="offcanvas-body d-flex flex-column gap-1">{children}</div>

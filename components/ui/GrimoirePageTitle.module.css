@@ -1,0 +1,25 @@
+/* Titolo della pagina dentro la barra in alto (solo sotto i 992px, vedi GrimoirePageTitle) */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.headerTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--g-page-title);
+  /* titolo troppo lungo: finisce con "…" invece di andare a capo */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerAction {
+  flex-shrink: 0;
+}
