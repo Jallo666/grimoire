@@ -5,7 +5,8 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1055;
+  /* sopra le modali di Bootstrap (1055), così funziona anche dentro una modale */
+  z-index: 1060;
   background-color: rgba(0, 0, 0, 0.5);
   animation: fadeIn 250ms ease-out both;
 }
@@ -15,7 +16,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1056;
+  z-index: 1061;
   max-width: 600px;
   margin: 0 auto;
   padding: 0.5rem 0 calc(0.75rem + env(safe-area-inset-bottom));

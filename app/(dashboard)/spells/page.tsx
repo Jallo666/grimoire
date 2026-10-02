@@ -611,33 +611,44 @@ export default function SpellsPage() {
       </GrimoireModal>
 
       {/* Manage groups modal */}
-      <GrimoireModal show={showGroups} onClose={() => setShowGroups(false)} title={t("groupsModalTitle")}>
-        <div style={{ marginBottom: "1rem" }}>
-          {groups.map((g) => (
-            <div key={g.id} className="d-flex gap-2 align-items-center mb-2">
-              {renameId === g.id ? (
-                <>
-                  <GrimoireInput id={`rename-${g.id}`} type="text" value={renameName} onChange={(e) => setRenameName(e.target.value)} />
-                  <GrimoireButton onClick={() => renameGroup({ variables: { id: g.id, nome: renameName } })}>{t("groupRename")}</GrimoireButton>
-                  <GrimoireButton variant="outline-secondary" onClick={() => setRenameId("")}>{t("cancelButton")}</GrimoireButton>
-                </>
-              ) : (
-                <>
-                  <span style={{ flex: 1, color: "var(--g-text)" }}>{g.nome}</span>
-                  <GrimoireButton variant="outline-secondary" onClick={() => { setRenameId(g.id); setRenameName(g.nome); }}>{t("groupRename")}</GrimoireButton>
-                  <GrimoireButton variant="danger" onClick={() => deleteGroup({ variables: { id: g.id } })}>{t("groupDelete")}</GrimoireButton>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-        {groups.length === 0 && (
-          <GrimoireAlert variant="info">{t("tableEmpty")}</GrimoireAlert>
+      {/* Gruppi: elenco con "Nuovo gruppo" in alto; "Rinomina" cambia il contenuto della modale */}
+      <GrimoireModal
+        show={showGroups}
+        onClose={() => { setShowGroups(false); setRenameId(""); }}
+        title={renameId ? t("groupRenameTitle") : t("groupsModalTitle")}
+        footer={
+          renameId ? (
+            <>
+              <GrimoireButton variant="outline-secondary" onClick={() => setRenameId("")}>{t("cancelButton")}</GrimoireButton>
+              <GrimoireButton onClick={() => renameName.trim() && renameGroup({ variables: { id: renameId, nome: renameName } })}>{t("groupRenameSave")}</GrimoireButton>
+            </>
+          ) : (
+            <GrimoireButton variant="outline-secondary" onClick={() => setShowGroups(false)}>{tUi("close")}</GrimoireButton>
+          )
+        }
+      >
+        {renameId ? (
+          <GrimoireInput id="rename-group" label={t("colNome")} type="text" value={renameName} onChange={(e) => setRenameName(e.target.value)} />
+        ) : (
+          <>
+            <GrimoireInlineGroup style={{ marginBottom: "1rem" }}>
+              <div style={{ flex: 1 }}>
+                <GrimoireInput id="new-group" type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder={t("groupNamePlaceholder")} />
+              </div>
+              <GrimoireButton loading={creatingGroup} onClick={() => newGroupName.trim() && createGroup({ variables: { nome: newGroupName } })}>{t("groupCreate")}</GrimoireButton>
+            </GrimoireInlineGroup>
+            <GrimoireTable
+              columns={[{ key: "nome", label: t("colNome"), sortable: true, leader: true }]}
+              data={groups}
+              defaultSort={{ key: "nome", dir: "asc" }}
+              emptyMessage={t("groupsEmpty")}
+              actions={(g) => [
+                { icon: "pencil", tooltip: t("groupRename"), variant: "outline-secondary", onClick: () => { setRenameId(g.id); setRenameName(g.nome); } },
+                { icon: "trash", tooltip: t("groupDelete"), variant: "danger", onClick: () => deleteGroup({ variables: { id: g.id } }) },
+              ]}
+            />
+          </>
         )}
-        <div className="d-flex gap-2 mt-3">
-          <GrimoireInput id="new-group" type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder={t("groupNamePlaceholder")} />
-          <GrimoireButton loading={creatingGroup} onClick={() => newGroupName && createGroup({ variables: { nome: newGroupName } })}>{t("groupCreate")}</GrimoireButton>
-        </div>
       </GrimoireModal>
       <SpellViewModal spellId={viewSpellId} onClose={() => setViewSpellId(null)} />
     </GrimoirePage>
