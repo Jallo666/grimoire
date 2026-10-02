@@ -3,6 +3,16 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.4.0] - 2026-10-02
+
+### Aggiunto
+- Filtri degli incantesimi a scelta multipla per gruppo, scuola e livello (nuovo componente `GrimoireMultiSelect`). Nell'URL i valori sono separati da virgola, es. `?livello=0,3`.
+
+### Corretto
+- Titoli di pagina su tablet e telefono: i bottoni vanno sotto il titolo invece di schiacciarsi accanto.
+- Meno spazio sopra e sotto le pagine su tablet e telefono (16px invece di 48px).
+- Tema scuro negli input: placeholder, freccette delle select, checkbox e menu a tendina ora sono leggibili.
+
 ## [0.3.0] - 2026-10-02
 
 ### Aggiunto
