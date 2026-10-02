@@ -2,8 +2,9 @@ import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
 import { eq, and, ilike, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers } from "@/db/schema";
+import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
+import { getOrCreateGroup } from "./spellGroups";
 import type { Context } from "./context";
 
 export const spellTypeDefs = gql`
@@ -27,10 +28,12 @@ export const spellTypeDefs = gql`
     isOwner: Boolean!
     isSystem: Boolean!
     inLibrary: Boolean!
+    groupId: ID
+    groupNome: String
   }
 
   type Query {
-    mySpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
+    mySpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, groupId: ID): [Spell!]!
     spell(id: ID!): Spell
     srdSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
     allSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
@@ -47,6 +50,7 @@ export const spellTypeDefs = gql`
       gittata: String
       durata: String
       componenti: String
+      groupId: ID
     ): Spell!
 
     updateSpell(
@@ -63,7 +67,7 @@ export const spellTypeDefs = gql`
 
     deleteSpell(id: ID!): Boolean!
 
-    addSrdSpellToLibrary(spellId: ID!): Boolean!
+    addSrdSpellToLibrary(spellId: ID!, groupId: ID): Boolean!
     removeSrdSpellFromLibrary(spellId: ID!): Boolean!
     shareSpellWithUser(spellId: ID!, email: String!): Boolean!
     shareSpellWithCampaign(spellId: ID!, campaignId: ID!): Boolean!
@@ -77,19 +81,27 @@ async function getSpellOrThrow(spellId: number) {
   return spell;
 }
 
-function toGql(spell: typeof spells.$inferSelect, userId: number | null, inLibrary: boolean) {
+function toGql(
+  spell: typeof spells.$inferSelect,
+  userId: number | null,
+  inLibrary: boolean,
+  groupId?: number | null,
+  groupNome?: string | null
+) {
   return {
     ...spell,
     createdAt: spell.createdAt.toISOString(),
     isOwner: spell.creatorId != null && spell.creatorId === userId,
     isSystem: spell.isSystem,
     inLibrary,
+    groupId: groupId ?? null,
+    groupNome: groupNome ?? null,
   };
 }
 
 export const spellResolvers = {
   Query: {
-    mySpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean }, context: Context) => {
+    mySpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; groupId?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const conditions = [eq(userSpellLibrary.userId, user.id)];
       if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
@@ -97,12 +109,14 @@ export const spellResolvers = {
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
+      if (args.groupId) conditions.push(eq(userSpellLibrary.groupId, Number(args.groupId)));
       const rows = await db
-        .select({ spell: spells })
+        .select({ spell: spells, lib: userSpellLibrary, group: spellGroups })
         .from(userSpellLibrary)
         .innerJoin(spells, eq(userSpellLibrary.spellId, spells.id))
+        .leftJoin(spellGroups, eq(userSpellLibrary.groupId, spellGroups.id))
         .where(and(...conditions));
-      return rows.map((r) => toGql(r.spell, user.id, true));
+      return rows.map((r) => toGql(r.spell, user.id, true, r.lib.groupId, r.group?.nome));
     },
 
     spell: async (_: unknown, args: { id: string }, context: Context) => {
@@ -171,10 +185,13 @@ export const spellResolvers = {
   Mutation: {
     createSpell: async (
       _: unknown,
-      args: { nome: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string },
+      args: { nome: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; groupId?: string },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
+      const groupId = args.groupId
+        ? Number(args.groupId)
+        : await getOrCreateGroup(user.id, "Generale");
       return db.transaction(async (tx) => {
         const [spell] = await tx.insert(spells).values({
           creatorId: user.id,
@@ -187,8 +204,8 @@ export const spellResolvers = {
           durata: args.durata ?? null,
           componenti: args.componenti ?? null,
         }).returning();
-        await tx.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id });
-        return toGql(spell, user.id, true);
+        await tx.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id, groupId });
+        return toGql(spell, user.id, true, groupId, null);
       });
     },
 
@@ -223,13 +240,18 @@ export const spellResolvers = {
       return true;
     },
 
-    addSrdSpellToLibrary: async (_: unknown, args: { spellId: string }, context: Context) => {
+    addSrdSpellToLibrary: async (_: unknown, args: { spellId: string; groupId?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.spellId));
       if (!spell.isSystem) throw new GraphQLError("Non è uno spell SRD", { extensions: { code: "BAD_USER_INPUT" } });
       const [existing] = await db.select().from(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
-      if (!existing) await db.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id });
+      if (!existing) {
+        const groupId = args.groupId
+          ? Number(args.groupId)
+          : await getOrCreateGroup(user.id, "Ufficiali");
+        await db.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id, groupId });
+      }
       return true;
     },
 

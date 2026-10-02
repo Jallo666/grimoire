@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   defaultUnitSystem: text("default_unit_system"),
   defaultCampaignLocale: text("default_campaign_locale"),
 });
+
 export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),
   nome: text("nome").notNull(),
@@ -48,10 +49,18 @@ export const spells = pgTable("spells", {
   sottoclassi: text("sottoclassi"),
 });
 
+export const spellGroups = pgTable("spell_groups", {
+  id: serial("id").primaryKey(),
+  nome: text("nome").notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const userSpellLibrary = pgTable("user_spell_library", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   spellId: integer("spell_id").references(() => spells.id).notNull(),
+  groupId: integer("group_id").references(() => spellGroups.id),
   addedAt: timestamp("added_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -62,4 +71,3 @@ export const campaignSpellLibrary = pgTable("campaign_spell_library", {
   sharedById: integer("shared_by_id").references(() => users.id).notNull(),
   sharedAt: timestamp("shared_at", { withTimezone: true }).defaultNow().notNull(),
 });
-

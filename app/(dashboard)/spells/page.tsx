@@ -6,17 +6,22 @@ import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
+import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
 import GrimoireModal from "@/components/ui/GrimoireModal";
+import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 import GrimoireSelect from "@/components/ui/GrimoireSelect";
 import GrimoireInput from "@/components/ui/GrimoireInput";
+import GrimoireAlert from "@/components/ui/GrimoireAlert";
+
+type SpellGroup = { id: string; nome: string };
 
 type SpellRow = {
   id: string;
@@ -30,6 +35,8 @@ type SpellRow = {
   concentration: boolean | null;
   ritual: boolean | null;
   classi: string | null;
+  groupId: string | null;
+  groupNome: string | null;
 };
 
 type TabKey = "miei" | "srd" | "tutti";
@@ -37,11 +44,18 @@ type TabKey = "miei" | "srd" | "tutti";
 export default function SpellsPage() {
   const [tab, setTab] = useState<TabKey>("miei");
   const [showCreate, setShowCreate] = useState(false);
+  const [showGroups, setShowGroups] = useState(false);
+  const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
+  const [moveGroupId, setMoveGroupId] = useState("");
+  const [newGroupName, setNewGroupName] = useState("");
+  const [renameId, setRenameId] = useState("");
+  const [renameName, setRenameName] = useState("");
   const [search, setSearch] = useState("");
   const [scuola, setScuola] = useState("");
   const [livello, setLivello] = useState("");
   const [concentration, setConcentration] = useState("");
   const [ritual, setRitual] = useState("");
+  const [groupFilter, setGroupFilter] = useState("");
   const t = useTranslations("spells");
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
@@ -51,6 +65,9 @@ export default function SpellsPage() {
     { key: "srd", label: t("tabSrd") },
     { key: "tutti", label: t("tabTutti") },
   ];
+
+  const { data: groupsData, refetch: refetchGroups } = useQuery<{ mySpellGroups: SpellGroup[] }>(MY_SPELL_GROUPS);
+  const groups = groupsData?.mySpellGroups ?? [];
 
   const scuolaOptions = [
     { value: "", label: t("filterAll") },
@@ -78,8 +95,16 @@ export default function SpellsPage() {
     { value: "true", label: t("si") },
   ];
 
+  const groupOptions = [
+    { value: "", label: t("filterAllGroups") },
+    ...groups.map((g) => ({ value: g.id, label: g.nome })),
+  ];
+
+  const groupSelectOptions = groups.map((g) => ({ value: g.id, label: g.nome }));
+
   const createFields: FieldConfig[] = [
     { name: "nome", label: t("fieldNome"), type: "text", required: true },
+    { name: "groupId", label: t("groupLabel"), type: "select", options: groupSelectOptions },
     { name: "scuola", label: t("fieldScuola"), type: "select", options: [
       { value: "", label: t("scuolaEmpty") },
       { value: "Abiurazione", label: t("scuolaAbiurazione") },
@@ -110,7 +135,7 @@ export default function SpellsPage() {
   };
 
   const { data: myData, refetch: refetchMy } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS, {
-    variables: vars,
+    variables: { ...vars, groupId: groupFilter || undefined },
     skip: tab !== "miei",
   });
   const { data: srdData, refetch: refetchSrd } = useQuery<{ srdSpells: SpellRow[] }>(SRD_SPELLS, {
@@ -127,31 +152,48 @@ export default function SpellsPage() {
   const allSpells = allData?.allSpells ?? [];
 
   const [createSpell, { loading: creating, error: createError }] = useMutation(CREATE_SPELL, {
-    onCompleted: () => { refetchMy(); refetchAll(); setShowCreate(false); },
+    onCompleted: () => { refetchMy(); refetchAll(); refetchGroups(); setShowCreate(false); },
   });
   const [deleteSpell] = useMutation(DELETE_SPELL, {
     onCompleted: () => { refetchMy(); refetchAll(); },
   });
   const [addSrdSpell] = useMutation(ADD_SRD_SPELL, {
-    onCompleted: () => { refetchMy(); refetchSrd(); refetchAll(); },
+    onCompleted: () => { refetchMy(); refetchSrd(); refetchAll(); refetchGroups(); },
   });
   const [removeSrdSpell] = useMutation(REMOVE_SRD_SPELL, {
     onCompleted: () => { refetchMy(); refetchSrd(); refetchAll(); },
+  });
+  const [moveToGroup] = useMutation(MOVE_SPELL_TO_GROUP, {
+    onCompleted: () => { refetchMy(); setMoveSpell(null); },
+  });
+  const [createGroup, { loading: creatingGroup }] = useMutation(CREATE_SPELL_GROUP, {
+    onCompleted: () => { refetchGroups(); setNewGroupName(""); },
+  });
+  const [renameGroup] = useMutation(RENAME_SPELL_GROUP, {
+    onCompleted: () => { refetchGroups(); setRenameId(""); setRenameName(""); },
+  });
+  const [deleteGroup] = useMutation(DELETE_SPELL_GROUP, {
+    onCompleted: () => { refetchGroups(); refetchMy(); },
   });
 
   async function handleCreate(values: Record<string, string>) {
     await createSpell({
       variables: {
-        nome: values.nome, descrizione: values.descrizione || null,
-        scuola: values.scuola || null, livello: Number(values.livello),
-        tempoLancio: values.tempoLancio || null, gittata: values.gittata || null,
-        durata: values.durata || null, componenti: values.componenti || null,
+        nome: values.nome,
+        descrizione: values.descrizione || null,
+        scuola: values.scuola || null,
+        livello: Number(values.livello),
+        tempoLancio: values.tempoLancio || null,
+        gittata: values.gittata || null,
+        durata: values.durata || null,
+        componenti: values.componenti || null,
+        groupId: values.groupId || null,
       },
     });
   }
 
   function resetFilters() {
-    setSearch(""); setScuola(""); setLivello(""); setConcentration(""); setRitual("");
+    setSearch(""); setScuola(""); setLivello(""); setConcentration(""); setRitual(""); setGroupFilter("");
   }
 
   const baseColumns: Column<SpellRow>[] = [
@@ -165,6 +207,11 @@ export default function SpellsPage() {
     { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
   ];
 
+  const meiColumns: Column<SpellRow>[] = [
+    ...baseColumns,
+    { key: "groupNome", label: t("colGruppo"), render: (v) => v ? <GrimoireBadge variant="primary">{String(v)}</GrimoireBadge> : null },
+  ];
+
   const extraColumns: Column<SpellRow>[] = [
     { key: "concentration", label: t("colConcentrazione"), render: (v) => v ? <GrimoireBadge variant="warning">{t("si")}</GrimoireBadge> : null },
     { key: "ritual", label: t("colRituale"), render: (v) => v ? <GrimoireBadge variant="secondary">{t("si")}</GrimoireBadge> : null },
@@ -174,6 +221,9 @@ export default function SpellsPage() {
   const filters = (
     <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
       <GrimoireInput id="spell-search" type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("searchPlaceholder")} />
+      {tab === "miei" && (
+        <GrimoireSelect id="spell-group" value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)} options={groupOptions} style={{ minWidth: "150px" }} />
+      )}
       <GrimoireSelect id="spell-scuola" value={scuola} onChange={(e) => setScuola(e.target.value)} options={scuolaOptions} style={{ minWidth: "160px" }} />
       <GrimoireSelect id="spell-livello" value={livello} onChange={(e) => setLivello(e.target.value)} options={livelloOptions} style={{ minWidth: "130px" }} />
       <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setConcentration(e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
@@ -184,7 +234,10 @@ export default function SpellsPage() {
   return (
     <GrimoirePage>
       <GrimoirePageTitle action={
-        <GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
+        <GrimoireInlineGroup>
+          <GrimoireButton variant="outline-secondary" onClick={() => setShowGroups(true)}>{t("manageGroups")}</GrimoireButton>
+          <GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
+        </GrimoireInlineGroup>
       }>
         {t("pageTitle")}
       </GrimoirePageTitle>
@@ -195,11 +248,12 @@ export default function SpellsPage() {
 
       {tab === "miei" && (
         <GrimoireTable
-          columns={baseColumns}
+          columns={meiColumns}
           data={mySpells}
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
             { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", href: `/spells/${s.id}` },
+            { label: t("moveToGroup"), variant: "outline-secondary", onClick: () => { setMoveSpell(s); setMoveGroupId(s.groupId ?? ""); } },
             { label: t("removeFromLibrary"), variant: "danger", onClick: () => removeSrdSpell({ variables: { spellId: s.id } }), hidden: !s.isSystem },
             { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
           ]}
@@ -237,6 +291,7 @@ export default function SpellsPage() {
         />
       )}
 
+      {/* Create spell modal */}
       <GrimoireModal show={showCreate} onClose={() => setShowCreate(false)} title={t("createModalTitle")} size="lg">
         <GrimoireForm
           fields={createFields}
@@ -246,6 +301,53 @@ export default function SpellsPage() {
           error={createError?.message}
           actions={[{ label: t("cancelButton"), onClick: () => setShowCreate(false) }]}
         />
+      </GrimoireModal>
+
+      {/* Move to group modal */}
+      <GrimoireModal show={!!moveSpell} onClose={() => setMoveSpell(null)} title={t("moveModalTitle")}>
+        <GrimoireSelect
+          id="move-group"
+          label={t("groupLabel")}
+          value={moveGroupId}
+          onChange={(e) => setMoveGroupId(e.target.value)}
+          options={groupSelectOptions}
+        />
+        <GrimoireModalActions>
+          <GrimoireButton variant="outline-secondary" onClick={() => setMoveSpell(null)}>{t("cancelButton")}</GrimoireButton>
+          <GrimoireButton onClick={() => moveSpell && moveGroupId && moveToGroup({ variables: { spellId: moveSpell.id, groupId: moveGroupId } })}>
+            {t("groupSave")}
+          </GrimoireButton>
+        </GrimoireModalActions>
+      </GrimoireModal>
+
+      {/* Manage groups modal */}
+      <GrimoireModal show={showGroups} onClose={() => setShowGroups(false)} title={t("groupsModalTitle")}>
+        <div style={{ marginBottom: "1rem" }}>
+          {groups.map((g) => (
+            <div key={g.id} className="d-flex gap-2 align-items-center mb-2">
+              {renameId === g.id ? (
+                <>
+                  <GrimoireInput id={`rename-${g.id}`} type="text" value={renameName} onChange={(e) => setRenameName(e.target.value)} />
+                  <GrimoireButton onClick={() => renameGroup({ variables: { id: g.id, nome: renameName } })}>{t("groupRename")}</GrimoireButton>
+                  <GrimoireButton variant="outline-secondary" onClick={() => setRenameId("")}>{t("cancelButton")}</GrimoireButton>
+                </>
+              ) : (
+                <>
+                  <span style={{ flex: 1, color: "var(--g-text)" }}>{g.nome}</span>
+                  <GrimoireButton variant="outline-secondary" onClick={() => { setRenameId(g.id); setRenameName(g.nome); }}>{t("groupRename")}</GrimoireButton>
+                  <GrimoireButton variant="danger" onClick={() => deleteGroup({ variables: { id: g.id } })}>{t("groupDelete")}</GrimoireButton>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+        {groups.length === 0 && (
+          <GrimoireAlert variant="info">{t("tableEmpty")}</GrimoireAlert>
+        )}
+        <div className="d-flex gap-2 mt-3">
+          <GrimoireInput id="new-group" type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder={t("groupNamePlaceholder")} />
+          <GrimoireButton loading={creatingGroup} onClick={() => newGroupName && createGroup({ variables: { nome: newGroupName } })}>{t("groupCreate")}</GrimoireButton>
+        </div>
       </GrimoireModal>
     </GrimoirePage>
   );

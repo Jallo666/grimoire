@@ -1,11 +1,11 @@
 import { gql } from "graphql-tag";
 
-const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi createdAt`;
-const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi creatorId isOwner isSystem inLibrary createdAt`;
+const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi groupId groupNome createdAt`;
+const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi creatorId isOwner isSystem inLibrary groupId groupNome createdAt`;
 
 export const MY_SPELLS = gql`
-  query MySpells($search: String, $scuola: String, $livello: Int, $concentration: Boolean, $ritual: Boolean) {
-    mySpells(search: $search, scuola: $scuola, livello: $livello, concentration: $concentration, ritual: $ritual) { ${SPELL_FIELDS} }
+  query MySpells($search: String, $scuola: String, $livello: Int, $concentration: Boolean, $ritual: Boolean, $groupId: ID) {
+    mySpells(search: $search, scuola: $scuola, livello: $livello, concentration: $concentration, ritual: $ritual, groupId: $groupId) { ${SPELL_FIELDS} }
   }
 `;
 
@@ -45,10 +45,12 @@ export const CREATE_SPELL = gql`
     $gittata: String
     $durata: String
     $componenti: String
+    $groupId: ID
   ) {
     createSpell(
       nome: $nome descrizione: $descrizione scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
+      groupId: $groupId
     ) { id nome }
   }
 `;
@@ -77,7 +79,7 @@ export const DELETE_SPELL = gql`
 `;
 
 export const ADD_SRD_SPELL = gql`
-  mutation AddSrdSpellToLibrary($spellId: ID!) { addSrdSpellToLibrary(spellId: $spellId) }
+  mutation AddSrdSpellToLibrary($spellId: ID!, $groupId: ID) { addSrdSpellToLibrary(spellId: $spellId, groupId: $groupId) }
 `;
 
 export const REMOVE_SRD_SPELL = gql`
