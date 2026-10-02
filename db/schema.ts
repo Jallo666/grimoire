@@ -24,3 +24,32 @@ export const campaignMembers = pgTable("campaign_members", {
   ruolo: text("ruolo").notNull(),
 });
 
+export const spells = pgTable("spells", {
+  id: serial("id").primaryKey(),
+  creatorId: integer("creator_id").references(() => users.id).notNull(),
+  nome: text("nome").notNull(),
+  descrizione: text("descrizione"),
+  scuola: text("scuola"),
+  livello: integer("livello").notNull().default(1),
+  tempoLancio: text("tempo_lancio"),
+  gittata: text("gittata"),
+  durata: text("durata"),
+  componenti: text("componenti"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const userSpellLibrary = pgTable("user_spell_library", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  spellId: integer("spell_id").references(() => spells.id).notNull(),
+  addedAt: timestamp("added_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const campaignSpellLibrary = pgTable("campaign_spell_library", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").references(() => campaigns.id).notNull(),
+  spellId: integer("spell_id").references(() => spells.id).notNull(),
+  sharedById: integer("shared_by_id").references(() => users.id).notNull(),
+  sharedAt: timestamp("shared_at", { withTimezone: true }).defaultNow().notNull(),
+});
+

@@ -11,6 +11,7 @@ import type { User } from "@/db/types";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/campaigns", label: "Campagne" },
+  { href: "/spells", label: "Incantesimi" },
 ];
 
 export default function GrimoireNavbar() {
