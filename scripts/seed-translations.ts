@@ -5,11 +5,18 @@
  * Uso: npx ts-node -r tsconfig-paths/register scripts/seed-translations.ts
  */
 
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import * as fs from "fs";
 import * as path from "path";
 import { eq, and } from "drizzle-orm";
-import { db } from "@/db";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { spells } from "@/db/schema";
+
+const client = postgres(process.env.DATABASE_URL!);
+const db = drizzle(client);
 
 const INPUT = path.join(__dirname, "srd-translations-it.json");
 
