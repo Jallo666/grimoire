@@ -3,6 +3,19 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.6.0] - 2026-10-02
+
+Tutte le modifiche valgono sotto i 992px (tablet e telefono); il desktop non cambia.
+
+### Aggiunto
+- Tabelle: la colonna leader (il nome) resta ferma a sinistra e le altre scorrono di lato; ogni cella su una riga sola, così le righe sono basse (prop di colonna `leader`).
+- Tabelle a tutta altezza in incantesimi e campagne: la tabella prende lo spazio rimasto sotto titolo, tab e filtri, scorre al suo interno e i titoli delle colonne restano fermi (prop `fillHeight` di `GrimoirePage` e `GrimoireTable`).
+- Bottoni accanto al titolo solo con icona (＋ nuovo, gruppi), così stanno sulla stessa riga del titolo (prop `mobileIcon` di `GrimoireButton`).
+
+### Modificato
+- I bottoni del titolo non vanno più sotto il titolo (introdotto in 0.4.0): restano sulla stessa riga.
+- Navbar ad altezza fissa (`--g-navbar-height`, 56px).
+
 ## [0.5.1] - 2026-10-02
 
 ### Corretto
