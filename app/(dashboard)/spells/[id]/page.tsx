@@ -71,7 +71,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     { name: "tempoLancio", label: ts("fieldTempoLancio"), type: "selectOrText", options: castingTimeOptions, customLabel: ts("ctCustom") },
     { name: "gittata", label: ts("fieldGittata"), type: "range" },
     { name: "durata", label: ts("fieldDurata"), type: "selectOrText", options: durationOptions, customLabel: ts("durCustom") },
-    { name: "componenti", label: ts("fieldComponenti"), type: "text" },
+    { name: "componenti", label: ts("fieldComponenti"), type: "components" },
   ];
 
   const { data, loading, error, refetch } = useQuery<{ spell: SpellDetail }>(SPELL, { variables: { id } });

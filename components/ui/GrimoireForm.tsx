@@ -6,13 +6,14 @@ import GrimoireCard from "./GrimoireCard";
 import GrimoireInput from "./GrimoireInput";
 import GrimoireRangeInput from "./GrimoireRangeInput";
 import GrimoireSelectOrText from "./GrimoireSelectOrText";
+import GrimoireComponentsInput from "./GrimoireComponentsInput";
 import GrimoireButton from "./GrimoireButton";
 import GrimoireAlert from "./GrimoireAlert";
 
 export type FieldConfig = {
   name: string;
   label?: string;
-  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea" | "range" | "selectOrText";
+  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea" | "range" | "selectOrText" | "components";
   placeholder?: string;
   required?: boolean;
   defaultValue?: string;
@@ -123,6 +124,16 @@ export default function GrimoireForm({
                 options={f.options ?? []}
                 customLabel={f.customLabel ?? "—"}
                 placeholder={f.placeholder}
+                skeleton={fetching}
+                disabled={view}
+              />
+            ) : f.type === "components" ? (
+              <GrimoireComponentsInput
+                key={f.name}
+                id={f.name}
+                label={f.label}
+                value={values[f.name] ?? ""}
+                onChange={(val) => setValues((v) => ({ ...v, [f.name]: val }))}
                 skeleton={fetching}
                 disabled={view}
               />

@@ -191,7 +191,11 @@
     "rangeSpecialLabel": "Valore speciale",
     "rangeNumericLabel": "Distanza",
     "rangeSpecialNone": "— (numerico)",
-    "no": "No"
+    "no": "No",
+    "compV": "Verbale (V)",
+    "compS": "Somatico (S)",
+    "compM": "Materiale (M)",
+    "compMaterialPlaceholder": "Componente materiale..."
   },
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",

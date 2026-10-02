@@ -153,7 +153,7 @@ export default function SpellsPage() {
     { name: "tempoLancio", label: t("fieldTempoLancio"), type: "selectOrText", options: castingTimeOptions, customLabel: t("ctCustom") },
     { name: "gittata", label: t("fieldGittata"), type: "range" },
     { name: "durata", label: t("fieldDurata"), type: "selectOrText", options: durationOptions, customLabel: t("durCustom") },
-    { name: "componenti", label: t("fieldComponenti"), type: "text" },
+    { name: "componenti", label: t("fieldComponenti"), type: "components" },
   ];
 
   const vars = {

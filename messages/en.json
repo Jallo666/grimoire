@@ -191,7 +191,11 @@
     "rangeSpecialLabel": "Special value",
     "rangeNumericLabel": "Distance",
     "rangeSpecialNone": "— (numeric)",
-    "no": "No"
+    "no": "No",
+    "compV": "Verbal (V)",
+    "compS": "Somatic (S)",
+    "compM": "Material (M)",
+    "compMaterialPlaceholder": "Material component..."
   },
   "spellDetail": {
     "formTitle": "Spell details",
