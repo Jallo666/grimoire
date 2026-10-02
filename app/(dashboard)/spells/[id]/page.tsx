@@ -56,7 +56,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     { name: "nome", label: ts("fieldNome"), type: "text", required: true },
     { name: "scuola", label: ts("fieldScuola"), type: "select", options: scuolaOptions },
     { name: "livello", label: ts("fieldLivello"), type: "select", options: livelloOptions },
-    { name: "descrizione", label: ts("fieldDescrizione"), type: "text" },
+    { name: "descrizione", label: ts("fieldDescrizione"), type: "textarea", rows: 5 },
     { name: "tempoLancio", label: ts("fieldTempoLancio"), type: "text" },
     { name: "gittata", label: ts("fieldGittata"), type: "text" },
     { name: "durata", label: ts("fieldDurata"), type: "text" },
@@ -75,7 +75,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     return (
       <GrimoirePage>
         <GrimoirePageTitle showBack> </GrimoirePageTitle>
-        <GrimoireFormSection>
+        <GrimoireFormSection full>
           <GrimoireForm title={t("formTitle")} fields={fields} onSubmit={() => {}} fetching />
         </GrimoireFormSection>
       </GrimoirePage>
@@ -120,7 +120,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
         {spell.nome}
       </GrimoirePageTitle>
 
-      <GrimoireFormSection>
+      <GrimoireFormSection full>
         <GrimoireForm
           key={spell.id}
           title={t("formTitle")}

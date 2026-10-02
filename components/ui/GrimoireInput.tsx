@@ -7,14 +7,15 @@ export type InputOption = { value: string; label: string };
 type Props = {
   id: string;
   label?: string;
-  type?: "text" | "email" | "password" | "checkbox" | "select";
+  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea";
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   placeholder?: string;
   required?: boolean;
   skeleton?: boolean;
   disabled?: boolean;
   options?: InputOption[];
+  rows?: number;
 };
 
 export default function GrimoireInput({
@@ -28,6 +29,7 @@ export default function GrimoireInput({
   skeleton = false,
   disabled = false,
   options = [],
+  rows = 4,
 }: Props) {
   const dark = useAppSelector((s) => s.theme.value === "dark");
 
@@ -104,6 +106,34 @@ export default function GrimoireInput({
     );
   }
 
+  if (type === "textarea") {
+    return (
+      <div className="mb-3">
+        {label && (
+          <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
+            {label}
+          </label>
+        )}
+        <textarea
+          id={id}
+          className={`form-control${dark ? " g-dark" : ""}`}
+          value={value}
+          onChange={onChange as React.ChangeEventHandler<HTMLTextAreaElement>}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          rows={rows}
+          style={{
+            backgroundColor: "var(--g-input-bg)",
+            borderColor: "var(--g-input-border)",
+            color: "var(--g-input-text)",
+            resize: "vertical",
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={label ? "mb-3" : undefined}>
       {label && (
@@ -116,7 +146,7 @@ export default function GrimoireInput({
         type={type}
         className={`form-control${dark ? " g-dark" : ""}`}
         value={value}
-        onChange={onChange}
+        onChange={onChange as React.ChangeEventHandler<HTMLInputElement>}
         placeholder={placeholder}
         required={required}
         disabled={disabled}

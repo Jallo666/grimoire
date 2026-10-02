@@ -1,22 +1,29 @@
 import { gql } from "graphql-tag";
 
+const SPELL_FIELDS = `id nome scuola livello isOwner isSystem inLibrary concentration ritual classi createdAt`;
+const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi creatorId isOwner isSystem inLibrary createdAt`;
+
 export const MY_SPELLS = gql`
-  query MySpells {
-    mySpells {
-      id nome descrizione scuola livello
-      tempoLancio gittata durata componenti
-      creatorId isOwner createdAt
-    }
+  query MySpells($search: String, $scuola: String, $livello: Int, $concentration: Boolean, $ritual: Boolean) {
+    mySpells(search: $search, scuola: $scuola, livello: $livello, concentration: $concentration, ritual: $ritual) { ${SPELL_FIELDS} }
+  }
+`;
+
+export const SRD_SPELLS = gql`
+  query SrdSpells($search: String, $scuola: String, $livello: Int, $concentration: Boolean, $ritual: Boolean) {
+    srdSpells(search: $search, scuola: $scuola, livello: $livello, concentration: $concentration, ritual: $ritual) { ${SPELL_FIELDS} }
+  }
+`;
+
+export const ALL_SPELLS = gql`
+  query AllSpells($search: String, $scuola: String, $livello: Int, $concentration: Boolean, $ritual: Boolean) {
+    allSpells(search: $search, scuola: $scuola, livello: $livello, concentration: $concentration, ritual: $ritual) { ${SPELL_FIELDS} }
   }
 `;
 
 export const SPELL = gql`
   query Spell($id: ID!) {
-    spell(id: $id) {
-      id nome descrizione scuola livello
-      tempoLancio gittata durata componenti
-      creatorId isOwner createdAt
-    }
+    spell(id: $id) { ${SPELL_FULL_FIELDS} }
   }
 `;
 
@@ -67,6 +74,14 @@ export const UPDATE_SPELL = gql`
 
 export const DELETE_SPELL = gql`
   mutation DeleteSpell($id: ID!) { deleteSpell(id: $id) }
+`;
+
+export const ADD_SRD_SPELL = gql`
+  mutation AddSrdSpellToLibrary($spellId: ID!) { addSrdSpellToLibrary(spellId: $spellId) }
+`;
+
+export const REMOVE_SRD_SPELL = gql`
+  mutation RemoveSrdSpellFromLibrary($spellId: ID!) { removeSrdSpellFromLibrary(spellId: $spellId) }
 `;
 
 export const SHARE_SPELL_USER = gql`

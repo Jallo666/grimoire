@@ -30,7 +30,7 @@ export const campaignMembers = pgTable("campaign_members", {
 
 export const spells = pgTable("spells", {
   id: serial("id").primaryKey(),
-  creatorId: integer("creator_id").references(() => users.id).notNull(),
+  creatorId: integer("creator_id").references(() => users.id),
   nome: text("nome").notNull(),
   descrizione: text("descrizione"),
   scuola: text("scuola"),
@@ -40,6 +40,12 @@ export const spells = pgTable("spells", {
   durata: text("durata"),
   componenti: text("componenti"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  isSystem: boolean("is_system").notNull().default(false),
+  concentration: boolean("concentration"),
+  ritual: boolean("ritual"),
+  higherLevel: text("higher_level"),
+  classi: text("classi"),
+  sottoclassi: text("sottoclassi"),
 });
 
 export const userSpellLibrary = pgTable("user_spell_library", {

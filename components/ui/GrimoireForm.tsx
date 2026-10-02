@@ -10,11 +10,12 @@ import GrimoireAlert from "./GrimoireAlert";
 export type FieldConfig = {
   name: string;
   label?: string;
-  type?: "text" | "email" | "password" | "checkbox" | "select";
+  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea";
   placeholder?: string;
   required?: boolean;
   defaultValue?: string;
   options?: { value: string; label: string }[];
+  rows?: number;
 };
 
 export type FormAction = {
@@ -57,7 +58,7 @@ export default function GrimoireForm({
   );
 
   function handleChange(name: string) {
-    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
       setValues((v) => ({ ...v, [name]: e.target.value }));
   }
 
@@ -111,6 +112,7 @@ export default function GrimoireForm({
               skeleton={fetching}
               disabled={view}
               options={f.options}
+              rows={f.rows}
             />
           ))}
         </div>

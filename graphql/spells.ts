@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ilike, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
@@ -17,14 +17,23 @@ export const spellTypeDefs = gql`
     gittata: String
     durata: String
     componenti: String
-    creatorId: Int!
+    higherLevel: String
+    concentration: Boolean
+    ritual: Boolean
+    classi: String
+    sottoclassi: String
+    creatorId: Int
     createdAt: String!
     isOwner: Boolean!
+    isSystem: Boolean!
+    inLibrary: Boolean!
   }
 
   type Query {
-    mySpells: [Spell!]!
+    mySpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
     spell(id: ID!): Spell
+    srdSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
+    allSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
     campaignSpells(campaignId: ID!): [Spell!]!
   }
 
@@ -54,6 +63,8 @@ export const spellTypeDefs = gql`
 
     deleteSpell(id: ID!): Boolean!
 
+    addSrdSpellToLibrary(spellId: ID!): Boolean!
+    removeSrdSpellFromLibrary(spellId: ID!): Boolean!
     shareSpellWithUser(spellId: ID!, email: String!): Boolean!
     shareSpellWithCampaign(spellId: ID!, campaignId: ID!): Boolean!
     removeSpellFromCampaign(spellId: ID!, campaignId: ID!): Boolean!
@@ -66,44 +77,94 @@ async function getSpellOrThrow(spellId: number) {
   return spell;
 }
 
+function toGql(spell: typeof spells.$inferSelect, userId: number | null, inLibrary: boolean) {
+  return {
+    ...spell,
+    createdAt: spell.createdAt.toISOString(),
+    isOwner: spell.creatorId != null && spell.creatorId === userId,
+    isSystem: spell.isSystem,
+    inLibrary,
+  };
+}
+
 export const spellResolvers = {
   Query: {
-    mySpells: async (_: unknown, __: unknown, context: Context) => {
+    mySpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean }, context: Context) => {
       const user = assertAuthenticated(context);
+      const conditions = [eq(userSpellLibrary.userId, user.id)];
+      if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
+      if (args.livello !== undefined) conditions.push(eq(spells.livello, args.livello));
+      if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
+      if (args.concentration === true) conditions.push(eq(spells.concentration, true));
+      if (args.ritual === true) conditions.push(eq(spells.ritual, true));
       const rows = await db
         .select({ spell: spells })
         .from(userSpellLibrary)
         .innerJoin(spells, eq(userSpellLibrary.spellId, spells.id))
-        .where(eq(userSpellLibrary.userId, user.id));
-      return rows.map((r) => ({ ...r.spell, isOwner: r.spell.creatorId === user.id }));
+        .where(and(...conditions));
+      return rows.map((r) => toGql(r.spell, user.id, true));
     },
 
     spell: async (_: unknown, args: { id: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.id));
-      const [entry] = await db
-        .select()
-        .from(userSpellLibrary)
-        .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id)))
-        .limit(1);
+      if (spell.isSystem) return toGql(spell, user.id, false);
+      const [entry] = await db.select().from(userSpellLibrary)
+        .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
       if (!entry) throw new GraphQLError("Non autorizzato", { extensions: { code: "FORBIDDEN" } });
-      return { ...spell, isOwner: spell.creatorId === user.id };
+      return toGql(spell, user.id, true);
+    },
+
+    srdSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean }, context: Context) => {
+      assertAuthenticated(context);
+      const user = context.user!;
+
+      const conditions = [eq(spells.isSystem, true), isNull(spells.creatorId)];
+      if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
+      if (args.livello !== undefined) conditions.push(eq(spells.livello, args.livello));
+      if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
+      if (args.concentration === true) conditions.push(eq(spells.concentration, true));
+      if (args.ritual === true) conditions.push(eq(spells.ritual, true));
+
+      const rows = await db.select().from(spells).where(and(...conditions));
+
+      const libraryRows = await db.select({ spellId: userSpellLibrary.spellId })
+        .from(userSpellLibrary).where(eq(userSpellLibrary.userId, user.id));
+      const inLibrarySet = new Set(libraryRows.map((r) => r.spellId));
+
+      return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id)));
+    },
+
+    allSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean }, context: Context) => {
+      const user = assertAuthenticated(context);
+
+      const conditions = [];
+      if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
+      if (args.livello !== undefined) conditions.push(eq(spells.livello, args.livello));
+      if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
+      if (args.concentration === true) conditions.push(eq(spells.concentration, true));
+      if (args.ritual === true) conditions.push(eq(spells.ritual, true));
+
+      const rows = conditions.length
+        ? await db.select().from(spells).where(and(...conditions))
+        : await db.select().from(spells);
+
+      const libraryRows = await db.select({ spellId: userSpellLibrary.spellId })
+        .from(userSpellLibrary).where(eq(userSpellLibrary.userId, user.id));
+      const inLibrarySet = new Set(libraryRows.map((r) => r.spellId));
+
+      return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id)));
     },
 
     campaignSpells: async (_: unknown, args: { campaignId: string }, context: Context) => {
       const user = assertAuthenticated(context);
-      const [member] = await db
-        .select()
-        .from(campaignMembers)
-        .where(and(eq(campaignMembers.campaignId, Number(args.campaignId)), eq(campaignMembers.userId, user.id)))
-        .limit(1);
+      const [member] = await db.select().from(campaignMembers)
+        .where(and(eq(campaignMembers.campaignId, Number(args.campaignId)), eq(campaignMembers.userId, user.id))).limit(1);
       if (!member) throw new GraphQLError("Non sei membro di questa campagna", { extensions: { code: "FORBIDDEN" } });
-      const rows = await db
-        .select({ spell: spells })
-        .from(campaignSpellLibrary)
+      const rows = await db.select({ spell: spells }).from(campaignSpellLibrary)
         .innerJoin(spells, eq(campaignSpellLibrary.spellId, spells.id))
         .where(eq(campaignSpellLibrary.campaignId, Number(args.campaignId)));
-      return rows.map((r) => ({ ...r.spell, isOwner: r.spell.creatorId === user.id }));
+      return rows.map((r) => toGql(r.spell, user.id, false));
     },
   },
 
@@ -115,22 +176,19 @@ export const spellResolvers = {
     ) => {
       const user = assertAuthenticated(context);
       return db.transaction(async (tx) => {
-        const [spell] = await tx
-          .insert(spells)
-          .values({
-            creatorId: user.id,
-            nome: args.nome,
-            descrizione: args.descrizione ?? null,
-            scuola: args.scuola ?? null,
-            livello: args.livello ?? 1,
-            tempoLancio: args.tempoLancio ?? null,
-            gittata: args.gittata ?? null,
-            durata: args.durata ?? null,
-            componenti: args.componenti ?? null,
-          })
-          .returning();
+        const [spell] = await tx.insert(spells).values({
+          creatorId: user.id,
+          nome: args.nome,
+          descrizione: args.descrizione ?? null,
+          scuola: args.scuola ?? null,
+          livello: args.livello ?? 1,
+          tempoLancio: args.tempoLancio ?? null,
+          gittata: args.gittata ?? null,
+          durata: args.durata ?? null,
+          componenti: args.componenti ?? null,
+        }).returning();
         await tx.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id });
-        return { ...spell, isOwner: true };
+        return toGql(spell, user.id, true);
       });
     },
 
@@ -152,7 +210,7 @@ export const spellResolvers = {
       if (args.durata !== undefined) updates.durata = args.durata;
       if (args.componenti !== undefined) updates.componenti = args.componenti;
       const [updated] = await db.update(spells).set(updates).where(eq(spells.id, spell.id)).returning();
-      return { ...updated, isOwner: true };
+      return toGql(updated, user.id, true);
     },
 
     deleteSpell: async (_: unknown, args: { id: string }, context: Context) => {
@@ -162,6 +220,25 @@ export const spellResolvers = {
       await db.delete(userSpellLibrary).where(eq(userSpellLibrary.spellId, spell.id));
       await db.delete(campaignSpellLibrary).where(eq(campaignSpellLibrary.spellId, spell.id));
       await db.delete(spells).where(eq(spells.id, spell.id));
+      return true;
+    },
+
+    addSrdSpellToLibrary: async (_: unknown, args: { spellId: string }, context: Context) => {
+      const user = assertAuthenticated(context);
+      const spell = await getSpellOrThrow(Number(args.spellId));
+      if (!spell.isSystem) throw new GraphQLError("Non è uno spell SRD", { extensions: { code: "BAD_USER_INPUT" } });
+      const [existing] = await db.select().from(userSpellLibrary)
+        .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
+      if (!existing) await db.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id });
+      return true;
+    },
+
+    removeSrdSpellFromLibrary: async (_: unknown, args: { spellId: string }, context: Context) => {
+      const user = assertAuthenticated(context);
+      const spell = await getSpellOrThrow(Number(args.spellId));
+      if (!spell.isSystem) throw new GraphQLError("Non è uno spell SRD", { extensions: { code: "BAD_USER_INPUT" } });
+      await db.delete(userSpellLibrary)
+        .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id)));
       return true;
     },
 
