@@ -4,7 +4,8 @@
     "campaigns": "Campaigns",
     "spells": "Spells",
     "greeting": "Hi, {name}",
-    "logout": "Logout"
+    "logout": "Logout",
+    "profile": "My profile"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -136,6 +137,33 @@
     "close": "Close",
     "back": "Go back",
     "owner": "Owner"
+  },
+  "profile": {
+    "pageTitle": "My profile",
+    "emailSection": "Change email",
+    "emailCurrent": "Current email",
+    "emailNew": "New email",
+    "emailPassword": "Current password",
+    "emailSave": "Update email",
+    "emailSuccess": "Email updated!",
+    "passwordSection": "Change password",
+    "passwordCurrent": "Current password",
+    "passwordNew": "New password",
+    "passwordConfirm": "Confirm new password",
+    "passwordSave": "Update password",
+    "passwordSuccess": "Password updated!",
+    "passwordMismatch": "Passwords do not match",
+    "prefsSection": "Preferences",
+    "prefsTheme": "Default theme",
+    "prefsThemeSystem": "Follow system",
+    "prefsThemeLight": "Light",
+    "prefsThemeDark": "Dark",
+    "prefsLocale": "Default language",
+    "prefsLocaleSystem": "Follow browser",
+    "prefsLocaleit": "Italiano",
+    "prefsLocaleen": "English",
+    "prefsSave": "Save preferences",
+    "prefsSuccess": "Preferences saved!"
   },
   "errors": {
     "accessDenied": "Access denied",

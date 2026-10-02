@@ -4,21 +4,28 @@ import { useEffect } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { setTheme } from "@/store/themeSlice";
 
+export const THEME_STORAGE_KEY = "grimoire-theme";
+
+export function applyTheme(dark: boolean, dispatch: ReturnType<typeof useAppDispatch>) {
+  dispatch(setTheme(dark ? "dark" : "light"));
+  document.body.classList.toggle("g-dark", dark);
+  document.body.style.backgroundColor = "var(--g-body-bg)";
+}
+
 export default function ThemeSync() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === "dark" || stored === "light") {
+      applyTheme(stored === "dark", dispatch);
+      return;
+    }
+
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = (dark: boolean) => {
-      const t = dark ? "dark" : "light";
-      dispatch(setTheme(t));
-      document.body.classList.toggle("g-dark", dark);
-      document.body.style.backgroundColor = "var(--g-body-bg)";
-    };
+    applyTheme(mq.matches, dispatch);
 
-    apply(mq.matches);
-
-    const handler = (e: MediaQueryListEvent) => apply(e.matches);
+    const handler = (e: MediaQueryListEvent) => applyTheme(e.matches, dispatch);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, [dispatch]);

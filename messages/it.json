@@ -4,7 +4,8 @@
     "campaigns": "Campagne",
     "spells": "Incantesimi",
     "greeting": "Ciao, {name}",
-    "logout": "Logout"
+    "logout": "Logout",
+    "profile": "Il mio profilo"
   },
   "auth": {
     "loginTitle": "Accedi",
@@ -136,6 +137,33 @@
     "close": "Chiudi",
     "back": "Torna indietro",
     "owner": "Owner"
+  },
+  "profile": {
+    "pageTitle": "Il mio profilo",
+    "emailSection": "Cambia email",
+    "emailCurrent": "Email attuale",
+    "emailNew": "Nuova email",
+    "emailPassword": "Password attuale",
+    "emailSave": "Aggiorna email",
+    "emailSuccess": "Email aggiornata!",
+    "passwordSection": "Cambia password",
+    "passwordCurrent": "Password attuale",
+    "passwordNew": "Nuova password",
+    "passwordConfirm": "Conferma nuova password",
+    "passwordSave": "Aggiorna password",
+    "passwordSuccess": "Password aggiornata!",
+    "passwordMismatch": "Le password non coincidono",
+    "prefsSection": "Preferenze",
+    "prefsTheme": "Tema predefinito",
+    "prefsThemeSystem": "Segui il sistema",
+    "prefsThemeLight": "Chiaro",
+    "prefsThemeDark": "Scuro",
+    "prefsLocale": "Lingua predefinita",
+    "prefsLocaleSystem": "Segui il browser",
+    "prefsLocaleit": "Italiano",
+    "prefsLocaleen": "English",
+    "prefsSave": "Salva preferenze",
+    "prefsSuccess": "Preferenze salvate!"
   },
   "errors": {
     "accessDenied": "Accesso negato",

@@ -13,6 +13,8 @@ export const userTypeDefs = gql`
     id: ID!
     email: String!
     nome: String
+    defaultTheme: String
+    defaultLocale: String
   }
 
   type Query {
@@ -24,6 +26,9 @@ export const userTypeDefs = gql`
     register(email: String!, password: String!, nome: String!): User!
     login(email: String!, password: String!): User!
     logout: Boolean!
+    updateEmail(newEmail: String!, password: String!): User!
+    updatePassword(currentPassword: String!, newPassword: String!): Boolean!
+    updatePreferences(defaultTheme: String, defaultLocale: String): User!
   }
 `;
 
@@ -35,6 +40,14 @@ const SESSION_COOKIE = {
   path: "/",
 };
 
+const USER_FIELDS = {
+  id: users.id,
+  email: users.email,
+  nome: users.nome,
+  defaultTheme: users.defaultTheme,
+  defaultLocale: users.defaultLocale,
+};
+
 export const userResolvers = {
   Query: {
     users: async (_: unknown, __: unknown, context: Context) => {
@@ -42,8 +55,14 @@ export const userResolvers = {
       return db.select({ id: users.id, email: users.email, nome: users.nome }).from(users);
     },
 
-    me: (_: unknown, __: unknown, context: Context) => {
-      return context.user ?? null;
+    me: async (_: unknown, __: unknown, context: Context) => {
+      if (!context.user) return null;
+      const [user] = await db
+        .select(USER_FIELDS)
+        .from(users)
+        .where(eq(users.id, context.user.id))
+        .limit(1);
+      return user ?? null;
     },
   },
 
@@ -57,7 +76,7 @@ export const userResolvers = {
       const result = await db
         .insert(users)
         .values({ email: args.email, nome: args.nome, passwordHash })
-        .returning({ id: users.id, email: users.email, nome: users.nome });
+        .returning(USER_FIELDS);
       const user = result[0];
       const token = generateToken(user.id);
       const cookieStore = await cookies();
@@ -78,13 +97,60 @@ export const userResolvers = {
       const token = generateToken(user.id);
       const cookieStore = await cookies();
       cookieStore.set("session", token, SESSION_COOKIE);
-      return { id: user.id, email: user.email, nome: user.nome };
+      return { id: user.id, email: user.email, nome: user.nome, defaultTheme: user.defaultTheme, defaultLocale: user.defaultLocale };
     },
 
     logout: async () => {
       const cookieStore = await cookies();
       cookieStore.delete("session");
       return true;
+    },
+
+    updateEmail: async (_: unknown, args: { newEmail: string; password: string }, context: Context) => {
+      assertAuthenticated(context);
+      const [current] = await db.select().from(users).where(eq(users.id, context.user!.id)).limit(1);
+      const valid = await verifyPassword(args.password, current.passwordHash);
+      if (!valid) {
+        throw new GraphQLError("Password non corretta", { extensions: { code: "FORBIDDEN" } });
+      }
+      const existing = await db.select().from(users).where(eq(users.email, args.newEmail)).limit(1);
+      if (existing.length > 0 && existing[0].id !== context.user!.id) {
+        throw new GraphQLError("Email già in uso", { extensions: { code: "CONFLICT" } });
+      }
+      const [updated] = await db
+        .update(users)
+        .set({ email: args.newEmail })
+        .where(eq(users.id, context.user!.id))
+        .returning(USER_FIELDS);
+      return updated;
+    },
+
+    updatePassword: async (_: unknown, args: { currentPassword: string; newPassword: string }, context: Context) => {
+      assertAuthenticated(context);
+      const [current] = await db.select().from(users).where(eq(users.id, context.user!.id)).limit(1);
+      const valid = await verifyPassword(args.currentPassword, current.passwordHash);
+      if (!valid) {
+        throw new GraphQLError("Password attuale non corretta", { extensions: { code: "FORBIDDEN" } });
+      }
+      if (args.newPassword.length < 8) {
+        throw new GraphQLError("La nuova password deve essere di almeno 8 caratteri", { extensions: { code: "BAD_USER_INPUT" } });
+      }
+      const passwordHash = await hashPassword(args.newPassword);
+      await db.update(users).set({ passwordHash }).where(eq(users.id, context.user!.id));
+      return true;
+    },
+
+    updatePreferences: async (_: unknown, args: { defaultTheme?: string | null; defaultLocale?: string | null }, context: Context) => {
+      assertAuthenticated(context);
+      const patch: Partial<{ defaultTheme: string | null; defaultLocale: string | null }> = {};
+      if (args.defaultTheme !== undefined) patch.defaultTheme = args.defaultTheme || null;
+      if (args.defaultLocale !== undefined) patch.defaultLocale = args.defaultLocale || null;
+      const [updated] = await db
+        .update(users)
+        .set(patch)
+        .where(eq(users.id, context.user!.id))
+        .returning(USER_FIELDS);
+      return updated;
     },
   },
 };

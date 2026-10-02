@@ -8,6 +8,7 @@ import { ME, LOGOUT } from "@/lib/queries/users";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import ThemeToggle from "./ThemeToggle";
 import LocaleToggle from "./LocaleToggle";
+import { THEME_STORAGE_KEY } from "./ThemeSync";
 import type { User } from "@/db/types";
 
 const NAV_LINKS: { href: string; tKey: "home" | "campaigns" | "spells" }[] = [
@@ -21,7 +22,10 @@ export default function GrimoireNavbar() {
   const t = useTranslations("nav");
   const { data } = useQuery<{ me: Pick<User, "id" | "email" | "nome"> | null }>(ME);
   const [logout] = useMutation(LOGOUT, {
-    onCompleted: () => { window.location.href = "/login"; },
+    onCompleted: () => {
+      localStorage.removeItem(THEME_STORAGE_KEY);
+      window.location.href = "/login";
+    },
   });
 
   const user = data?.me;
@@ -47,7 +51,13 @@ export default function GrimoireNavbar() {
           <ThemeToggle />
           <LocaleToggle />
           {user && (
-            <span className="text-white small">{t("greeting", { name: user.nome ?? user.email })}</span>
+            <Link
+              href="/profile"
+              className={`nav-link text-white small${pathname === "/profile" ? " fw-bold" : " opacity-75"}`}
+              title={t("profile")}
+            >
+              {t("greeting", { name: user.nome ?? user.email })}
+            </Link>
           )}
           <GrimoireButton variant="outline-light" size="sm" onClick={() => logout()}>
             {t("logout")}

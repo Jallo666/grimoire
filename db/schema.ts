@@ -5,6 +5,8 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   nome: text("nome"),
   passwordHash: text("password_hash").notNull(),
+  defaultTheme: text("default_theme"),
+  defaultLocale: text("default_locale"),
 });
 export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),
