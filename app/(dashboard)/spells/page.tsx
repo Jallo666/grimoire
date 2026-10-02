@@ -197,13 +197,13 @@ export default function SpellsPage() {
   }
 
   const baseColumns: Column<SpellRow>[] = [
-    { key: "nome", label: t("colNome") },
-    { key: "scuola", label: t("colScuola"), type: "badge", badgeColors: {
+    { key: "nome", label: t("colNome"), sortable: true },
+    { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: {
       Abiurazione: "primary", Ammaliamento: "warning", Divinazione: "success",
       Evocazione: "danger", Illusione: "secondary", Invocazione: "primary",
       Necromanzia: "danger", Trasmutazione: "success",
     }},
-    { key: "livello", label: t("colLivello"), render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
+    { key: "livello", label: t("colLivello"), sortable: true, render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
     { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
   ];
 

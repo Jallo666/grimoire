@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
@@ -11,6 +12,7 @@ type BadgeVariant = "secondary" | "primary" | "success" | "danger" | "warning";
 export type Column<T> = {
   key: keyof T;
   label: string;
+  sortable?: boolean;
   type?: "badge";
   badgeColors?: Partial<Record<string, BadgeVariant>>;
   render?: (value: T[keyof T], row: T, meta: Record<string, unknown>) => React.ReactNode;
@@ -68,6 +70,20 @@ function ActionButton({ action }: { action: TableAction }) {
   return btn;
 }
 
+type SortDir = "asc" | "desc";
+
+function compareValues(a: unknown, b: unknown, dir: SortDir): number {
+  const aVal = a == null ? "" : a;
+  const bVal = b == null ? "" : b;
+  let result = 0;
+  if (typeof aVal === "number" && typeof bVal === "number") {
+    result = aVal - bVal;
+  } else {
+    result = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+  }
+  return dir === "asc" ? result : -result;
+}
+
 export default function GrimoireTable<T extends { id: string | number }>({
   columns,
   data,
@@ -81,6 +97,22 @@ export default function GrimoireTable<T extends { id: string | number }>({
   const t = useTranslations("ui");
   const dark = useAppSelector((s) => s.theme.value === "dark");
   const empty = emptyMessage ?? t("empty");
+  const [sortKey, setSortKey] = useState<keyof T | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  function handleSort(key: keyof T) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
+  const sorted = useMemo(() => {
+    if (!sortKey) return data;
+    return [...data].sort((a, b) => compareValues(a[sortKey], b[sortKey], sortDir));
+  }, [data, sortKey, sortDir]);
 
   const hasActions = !!(actions || renderActions);
   const colCount = columns.length + (hasActions ? 1 : 0);
@@ -91,8 +123,25 @@ export default function GrimoireTable<T extends { id: string | number }>({
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={String(col.key)} scope="col" style={headerStyle}>
+              <th
+                key={String(col.key)}
+                scope="col"
+                style={{
+                  ...headerStyle,
+                  cursor: col.sortable ? "pointer" : undefined,
+                  userSelect: col.sortable ? "none" : undefined,
+                }}
+                onClick={col.sortable ? () => handleSort(col.key) : undefined}
+              >
                 {col.label}
+                {col.sortable && sortKey === col.key && (
+                  <span style={{ marginLeft: "4px", fontSize: "0.7rem" }}>
+                    {sortDir === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+                {col.sortable && sortKey !== col.key && (
+                  <span style={{ marginLeft: "4px", fontSize: "0.7rem", opacity: 0.3 }}>▲▼</span>
+                )}
               </th>
             ))}
             {hasActions && (
@@ -115,14 +164,14 @@ export default function GrimoireTable<T extends { id: string | number }>({
                 ))}
               </tr>
             ))
-          ) : data.length === 0 ? (
+          ) : sorted.length === 0 ? (
             <tr>
               <td colSpan={colCount} className="text-center py-4" style={cellStyle}>
                 <span style={{ color: "var(--g-text-muted)" }}>{empty}</span>
               </td>
             </tr>
           ) : (
-            data.map((row) => {
+            sorted.map((row) => {
               const rawActions = actions?.(row);
               const rowActions = Array.isArray(rawActions) ? rawActions.filter((a) => !a.hidden) : [];
               return (
