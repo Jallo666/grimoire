@@ -7,6 +7,7 @@ import { LOGIN } from "@/lib/queries/users";
 import GrimoireAuthLayout from "@/components/ui/GrimoireAuthLayout";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import AppLogo from "@/components/ui/AppLogo";
+import GrimoireVersion from "@/components/ui/GrimoireVersion";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function LoginPage() {
   }
 
   return (
-    <GrimoireAuthLayout logo={<AppLogo className="w-100" />}>
+    <GrimoireAuthLayout logo={<AppLogo fullWidth />}>
       <GrimoireForm
         title={t("loginTitle")}
         subtitle={t("loginSubtitle")}
@@ -37,6 +38,7 @@ export default function LoginPage() {
         error={error?.message}
         actions={[{ label: t("loginGoRegister"), onClick: () => router.push("/register") }]}
       />
+      <GrimoireVersion />
     </GrimoireAuthLayout>
   );
 }
