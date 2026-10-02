@@ -3,6 +3,14 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.4.1] - 2026-10-02
+
+### Modificato
+- Tema unico: l'unico interruttore è `data-bs-theme` sul `<body>`, che cambia insieme i nostri colori (`--g-…` in `styles/palette.css`) e quelli di Bootstrap. I componenti non leggono più il tema: usano solo le variabili `--g-…`.
+
+### Corretto
+- Nel tema scuro anche gli elementi Bootstrap senza colori nostri (es. la ✕ delle modali, testi e link) usano i colori scuri.
+
 ## [0.4.0] - 2026-10-02
 
 ### Aggiunto
