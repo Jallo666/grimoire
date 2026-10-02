@@ -8,6 +8,8 @@ import { ME, UPDATE_EMAIL, UPDATE_PASSWORD, UPDATE_PREFERENCES } from "@/lib/que
 import { applyTheme, THEME_STORAGE_KEY } from "@/components/features/ThemeSync";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
+import GrimoireCardGrid from "@/components/ui/GrimoireCardGrid";
+import GrimoireCardGridItem from "@/components/ui/GrimoireCardGridItem";
 import GrimoireFormSection from "@/components/ui/GrimoireFormSection";
 import GrimoireCard from "@/components/ui/GrimoireCard";
 import GrimoireInput from "@/components/ui/GrimoireInput";
@@ -120,103 +122,109 @@ export default function ProfilePage() {
     <GrimoirePage>
       <GrimoirePageTitle>{t("pageTitle")}</GrimoirePageTitle>
 
-      <GrimoireFormSection>
-        <GrimoireCard title={t("emailSection")}>
-          {me && (
-            <p style={{ color: "var(--g-text-muted)", marginBottom: "1rem", fontSize: "0.875rem" }}>
-              {t("emailCurrent")}: <strong style={{ color: "var(--g-text)" }}>{me.email}</strong>
-            </p>
-          )}
-          {emailMsg && (
-            <GrimoireAlert variant={emailMsg.ok ? "success" : "danger"}>{emailMsg.text}</GrimoireAlert>
-          )}
-          <form onSubmit={handleEmailSubmit}>
-            <GrimoireInput
-              id="email-new"
-              label={t("emailNew")}
-              type="email"
-              value={emailNew}
-              onChange={(e) => setEmailNew(e.target.value)}
-              required
-            />
-            <GrimoireInput
-              id="email-pass"
-              label={t("emailPassword")}
-              type="password"
-              value={emailPass}
-              onChange={(e) => setEmailPass(e.target.value)}
-              required
-            />
-            <GrimoireButton type="submit" loading={updatingEmail}>{t("emailSave")}</GrimoireButton>
-          </form>
-        </GrimoireCard>
+      <GrimoireCardGrid mb>
+        <GrimoireCardGridItem half>
+          <GrimoireCard title={t("emailSection")}>
+            {me && (
+              <p style={{ color: "var(--g-text-muted)", marginBottom: "1rem", fontSize: "0.875rem" }}>
+                {t("emailCurrent")}: <strong style={{ color: "var(--g-text)" }}>{me.email}</strong>
+              </p>
+            )}
+            {emailMsg && (
+              <GrimoireAlert variant={emailMsg.ok ? "success" : "danger"}>{emailMsg.text}</GrimoireAlert>
+            )}
+            <form onSubmit={handleEmailSubmit}>
+              <GrimoireInput
+                id="email-new"
+                label={t("emailNew")}
+                type="email"
+                value={emailNew}
+                onChange={(e) => setEmailNew(e.target.value)}
+                required
+              />
+              <GrimoireInput
+                id="email-pass"
+                label={t("emailPassword")}
+                type="password"
+                value={emailPass}
+                onChange={(e) => setEmailPass(e.target.value)}
+                required
+              />
+              <GrimoireButton type="submit" loading={updatingEmail}>{t("emailSave")}</GrimoireButton>
+            </form>
+          </GrimoireCard>
+        </GrimoireCardGridItem>
 
-        <GrimoireCard title={t("passwordSection")}>
-          {passMsg && (
-            <GrimoireAlert variant={passMsg.ok ? "success" : "danger"}>{passMsg.text}</GrimoireAlert>
+        <GrimoireCardGridItem half>
+          <GrimoireCard title={t("passwordSection")}>
+            {passMsg && (
+              <GrimoireAlert variant={passMsg.ok ? "success" : "danger"}>{passMsg.text}</GrimoireAlert>
+            )}
+            <form onSubmit={handlePasswordSubmit}>
+              <GrimoireInput
+                id="pass-old"
+                label={t("passwordCurrent")}
+                type="password"
+                value={passOld}
+                onChange={(e) => setPassOld(e.target.value)}
+                required
+              />
+              <GrimoireInput
+                id="pass-new"
+                label={t("passwordNew")}
+                type="password"
+                value={passNew}
+                onChange={(e) => setPassNew(e.target.value)}
+                required
+              />
+              <GrimoireInput
+                id="pass-confirm"
+                label={t("passwordConfirm")}
+                type="password"
+                value={passConfirm}
+                onChange={(e) => setPassConfirm(e.target.value)}
+                required
+              />
+              <GrimoireButton type="submit" loading={updatingPassword}>{t("passwordSave")}</GrimoireButton>
+            </form>
+          </GrimoireCard>
+        </GrimoireCardGridItem>
+      </GrimoireCardGrid>
+
+      <GrimoireFormSection>
+        <GrimoireCard title={t("prefsSection")}>
+          {prefsMsg && (
+            <GrimoireAlert variant={prefsMsg.ok ? "success" : "danger"}>{prefsMsg.text}</GrimoireAlert>
           )}
-          <form onSubmit={handlePasswordSubmit}>
+          <form onSubmit={handlePrefsSubmit}>
             <GrimoireInput
-              id="pass-old"
-              label={t("passwordCurrent")}
-              type="password"
-              value={passOld}
-              onChange={(e) => setPassOld(e.target.value)}
-              required
+              id="pref-theme"
+              label={t("prefsTheme")}
+              type="select"
+              value={prefTheme}
+              onChange={(e) => setPrefTheme(e.target.value)}
+              options={[
+                { value: "", label: t("prefsThemeSystem") },
+                { value: "light", label: t("prefsThemeLight") },
+                { value: "dark", label: t("prefsThemeDark") },
+              ]}
             />
             <GrimoireInput
-              id="pass-new"
-              label={t("passwordNew")}
-              type="password"
-              value={passNew}
-              onChange={(e) => setPassNew(e.target.value)}
-              required
+              id="pref-locale"
+              label={t("prefsLocale")}
+              type="select"
+              value={prefLocale}
+              onChange={(e) => setPrefLocale(e.target.value)}
+              options={[
+                { value: "", label: t("prefsLocaleSystem") },
+                { value: "it", label: t("prefsLocaleit") },
+                { value: "en", label: t("prefsLocaleen") },
+              ]}
             />
-            <GrimoireInput
-              id="pass-confirm"
-              label={t("passwordConfirm")}
-              type="password"
-              value={passConfirm}
-              onChange={(e) => setPassConfirm(e.target.value)}
-              required
-            />
-            <GrimoireButton type="submit" loading={updatingPassword}>{t("passwordSave")}</GrimoireButton>
+            <GrimoireButton type="submit" loading={updatingPrefs}>{t("prefsSave")}</GrimoireButton>
           </form>
         </GrimoireCard>
       </GrimoireFormSection>
-
-      <GrimoireCard title={t("prefsSection")}>
-        {prefsMsg && (
-          <GrimoireAlert variant={prefsMsg.ok ? "success" : "danger"}>{prefsMsg.text}</GrimoireAlert>
-        )}
-        <form onSubmit={handlePrefsSubmit}>
-          <GrimoireInput
-            id="pref-theme"
-            label={t("prefsTheme")}
-            type="select"
-            value={prefTheme}
-            onChange={(e) => setPrefTheme(e.target.value)}
-            options={[
-              { value: "", label: t("prefsThemeSystem") },
-              { value: "light", label: t("prefsThemeLight") },
-              { value: "dark", label: t("prefsThemeDark") },
-            ]}
-          />
-          <GrimoireInput
-            id="pref-locale"
-            label={t("prefsLocale")}
-            type="select"
-            value={prefLocale}
-            onChange={(e) => setPrefLocale(e.target.value)}
-            options={[
-              { value: "", label: t("prefsLocaleSystem") },
-              { value: "it", label: t("prefsLocaleit") },
-              { value: "en", label: t("prefsLocaleen") },
-            ]}
-          />
-          <GrimoireButton type="submit" loading={updatingPrefs}>{t("prefsSave")}</GrimoireButton>
-        </form>
-      </GrimoireCard>
     </GrimoirePage>
   );
 }
