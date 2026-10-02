@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import GrimoireButton, { type Variant } from "./GrimoireButton";
 import GrimoireBadge from "./GrimoireBadge";
+import styles from "./GrimoireTable.module.css";
 
 type BadgeVariant = "secondary" | "primary" | "success" | "danger" | "warning";
 
@@ -15,6 +16,9 @@ export type Column<T> = {
   type?: "badge";
   badgeColors?: Partial<Record<string, BadgeVariant>>;
   render?: (value: T[keyof T], row: T, meta: Record<string, unknown>) => React.ReactNode;
+  // Solo sotto i 992px: la colonna resta ferma a sinistra e le altre scorrono di lato.
+  // Da usare su una sola colonna, di solito la prima (es. il nome).
+  leader?: boolean;
 };
 
 export type TableAction = {
@@ -117,13 +121,14 @@ export default function GrimoireTable<T extends { id: string | number }>({
 
   return (
     <div className="table-responsive">
-      <table className="table table-hover mb-0">
+      <table className={`table table-hover mb-0 ${styles.table}`}>
         <thead>
           <tr>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
                 scope="col"
+                className={col.leader ? styles.leader : undefined}
                 style={{
                   ...headerStyle,
                   cursor: col.sortable ? "pointer" : undefined,
@@ -175,7 +180,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
               return (
                 <tr key={row.id}>
                   {columns.map((col) => (
-                    <td key={String(col.key)} style={cellStyle}>
+                    <td key={String(col.key)} className={col.leader ? styles.leader : undefined} style={cellStyle}>
                       {col.render
                         ? col.render(row[col.key], row, meta)
                         : col.type === "badge"

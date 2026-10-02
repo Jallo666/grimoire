@@ -50,7 +50,7 @@ export default function CampaignsPage() {
   ];
 
   const columns: Column<CampaignRow>[] = [
-    { key: "nome", label: t("colNome") },
+    { key: "nome", label: t("colNome"), leader: true },
     { key: "stato", label: t("colStato"), type: "badge", badgeColors: { attiva: "success", in_pausa: "warning", conclusa: "secondary" } },
     {
       key: "owner",

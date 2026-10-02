@@ -270,7 +270,7 @@ export default function SpellsPage() {
   }
 
   const baseColumns: Column<SpellRow>[] = [
-    { key: "nome", label: t("colNome"), sortable: true },
+    { key: "nome", label: t("colNome"), sortable: true, leader: true },
     { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: {
       Abiurazione: "primary", Ammaliamento: "warning", Divinazione: "success",
       Evocazione: "danger", Illusione: "secondary", Invocazione: "primary",

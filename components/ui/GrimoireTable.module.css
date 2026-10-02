@@ -1,0 +1,30 @@
+/* Tablet e telefono (sotto i 992px). Desktop (da 992px): nessuna regola, resta tutto come prima. */
+@media (max-width: 991.98px) {
+  /* Ogni cella su una riga sola: righe basse, la tabella scorre di lato col dito */
+  .table th,
+  .table td {
+    white-space: nowrap;
+  }
+
+  /* Colonna leader: resta ferma a sinistra mentre le altre le scorrono sotto.
+     Il testo può andare a capo, così un nome lungo non la allarga troppo. */
+  .table .leader {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    white-space: normal;
+    min-width: 140px;
+    max-width: 45vw;
+  }
+
+  /* Linea a destra della colonna leader, per separarla da quelle che scorrono */
+  .table .leader::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: var(--g-table-border);
+  }
+}

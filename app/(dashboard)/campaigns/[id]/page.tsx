@@ -76,7 +76,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
   ];
 
   const pickerColumns: Column<UserRow>[] = [
-    { key: "nome", label: t("colNome"), render: (v) => String(v ?? "—") },
+    { key: "nome", label: t("colNome"), render: (v) => String(v ?? "—"), leader: true },
     { key: "email", label: t("colEmail") },
   ];
 
