@@ -234,6 +234,9 @@
     "filters": "Filtri",
     "showResults": "Mostra risultati",
     "cancel": "Annulla",
+    "view": "Vista",
+    "viewTable": "Tabella",
+    "viewCards": "Card",
     "back": "Torna indietro",
     "owner": "Owner",
     "version": "Versione {version}"

@@ -1,0 +1,65 @@
+/* Griglia di card: 1 colonna su telefono, 2 da 768px, 3 da 992px (come la home) */
+.grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Card toccabile: si "abbassa" leggermente quando la premi */
+.card {
+  cursor: pointer;
+  border-radius: 0.375rem;
+  transition: transform 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--g-text-muted);
+}
+
+/* Tablet e telefono (sotto i 992px) */
+@media (max-width: 991.98px) {
+  .grid {
+    gap: 0.75rem;
+  }
+
+  /* fillHeight: le card scorrono nello spazio rimasto, titolo e tab restano fermi */
+  .fill {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Nessuna card: messaggio al centro dello spazio */
+  .fill .empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

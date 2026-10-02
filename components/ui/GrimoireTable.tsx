@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import GrimoireButton, { type Variant } from "./GrimoireButton";
 import GrimoireBadge from "./GrimoireBadge";
-import GrimoireActionSheet from "./GrimoireActionSheet";
+import GrimoireActionSheet, { type SheetAction } from "./GrimoireActionSheet";
 import styles from "./GrimoireTable.module.css";
+import { compareValues, type SortDir } from "@/lib/compareValues";
 
 type BadgeVariant = "secondary" | "primary" | "success" | "danger" | "warning";
 
@@ -62,6 +63,18 @@ const headerStyle = {
   color: "var(--g-table-header-text)",
 };
 
+// Trasforma le azioni della tabella nelle voci del menu dal basso (GrimoireActionSheet):
+// il testo è label o tooltip, le azioni "danger" sono in rosso
+export function toSheetActions(actions: TableAction[]): SheetAction[] {
+  return actions.filter((a) => !a.hidden).map((a) => ({
+    label: a.label ?? a.tooltip ?? "",
+    icon: a.icon,
+    danger: a.variant === "danger",
+    href: a.href,
+    onClick: a.onClick,
+  }));
+}
+
 function ActionButton({ action }: { action: TableAction }) {
   const btn = (
     <GrimoireButton
@@ -79,20 +92,6 @@ function ActionButton({ action }: { action: TableAction }) {
     return <Link href={action.href}>{btn}</Link>;
   }
   return btn;
-}
-
-type SortDir = "asc" | "desc";
-
-function compareValues(a: unknown, b: unknown, dir: SortDir): number {
-  const aVal = a == null ? "" : a;
-  const bVal = b == null ? "" : b;
-  let result = 0;
-  if (typeof aVal === "number" && typeof bVal === "number") {
-    result = aVal - bVal;
-  } else {
-    result = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
-  }
-  return dir === "asc" ? result : -result;
 }
 
 export default function GrimoireTable<T extends { id: string | number }>({
@@ -249,13 +248,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
       {sheetRow && (
         <GrimoireActionSheet
           title={String(sheetRow[titleColumn.key] ?? "")}
-          actions={visibleActions(sheetRow).map((a) => ({
-            label: a.label ?? a.tooltip ?? "",
-            icon: a.icon,
-            danger: a.variant === "danger",
-            href: a.href,
-            onClick: a.onClick,
-          }))}
+          actions={toSheetActions(visibleActions(sheetRow))}
           onClose={() => setSheetRow(null)}
         />
       )}

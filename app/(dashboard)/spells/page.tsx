@@ -7,13 +7,17 @@ import { useTranslations, useLocale } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
+import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
 import SpellViewModal from "./SpellViewModal";
 import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
-import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
+import GrimoireTable, { type Column, type TableAction } from "@/components/ui/GrimoireTable";
+import GrimoireCardView from "@/components/ui/GrimoireCardView";
+import GrimoireViewToggle, { type ViewMode } from "@/components/ui/GrimoireViewToggle";
+import GrimoireSpellCard from "@/components/features/GrimoireSpellCard";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
@@ -68,6 +72,8 @@ export default function SpellsPage() {
   const concentration = searchParams.get("concentration") ?? "";
   const ritual = searchParams.get("ritual") ?? "";
   const groupFilter = getListParam("group");
+  // Vista della lista: tabella (predefinita) o card, salvata nell'URL (?view=cards)
+  const view: ViewMode = searchParams.get("view") === "cards" ? "cards" : "table";
 
   const t = useTranslations("spells");
   const tUi = useTranslations("ui");
@@ -114,12 +120,13 @@ export default function SpellsPage() {
   }
 
   function resetFilters() {
-    setParams({ search: "", group: "", scuola: "", livello: "", concentration: "", ritual: "" });
+    setParams({ search: "", group: "", scuola: "", livello: "", concentration: "", ritual: "" }); // la vista resta
   }
 
   function handleTabChange(k: string) {
     const next = k as TabKey;
-    router.replace(`${pathname}?tab=${TAB_TO_PARAM[next]}`);
+    // Cambiando tab i filtri si azzerano, la vista scelta resta
+    router.replace(`${pathname}?tab=${TAB_TO_PARAM[next]}${view === "cards" ? "&view=cards" : ""}`);
   }
 
   const tabs = [
@@ -286,11 +293,7 @@ export default function SpellsPage() {
 
   const baseColumns: Column<SpellRow>[] = [
     { key: "nome", label: t("colNome"), sortable: true, leader: true },
-    { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: {
-      Abiurazione: "primary", Ammaliamento: "warning", Divinazione: "success",
-      Evocazione: "danger", Illusione: "secondary", Invocazione: "primary",
-      Necromanzia: "danger", Trasmutazione: "success",
-    }, badgeLabels: Object.fromEntries(scuolaOptions.map((o) => [o.value, o.label])) },
+    { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: SCUOLA_BADGE_COLORS, badgeLabels: Object.fromEntries(scuolaOptions.map((o) => [o.value, o.label])) },
     { key: "livello", label: t("colLivello"), sortable: true, render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
     { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
   ];
@@ -308,6 +311,63 @@ export default function SpellsPage() {
 
   // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
   const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, concentration, ritual].filter(Boolean).length;
+
+  // Azioni di ogni tab (bottoni della tabella su desktop, menu dal basso su mobile e nelle card)
+  const myActions = (s: SpellRow): TableAction[] => [
+    { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
+    { label: t("moveToGroup"), variant: "outline-secondary", onClick: () => { setMoveSpell(s); setMoveGroupId(s.groupId ?? ""); } },
+    { label: t("removeFromLibrary"), variant: "danger", onClick: () => removeSrdSpell({ variables: { spellId: s.id } }), hidden: !s.isSystem },
+    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
+  ];
+  const srdActions = (s: SpellRow): TableAction[] => [
+    { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
+    { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } }) },
+  ];
+  const allActions = (s: SpellRow): TableAction[] => [
+    { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
+    { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.isSystem ? (s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } })) : undefined, hidden: !s.isSystem },
+    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
+  ];
+
+  // Disegna la lista nella vista scelta: tabella o card. Entrambe partono ordinate per livello, poi per nome
+  function spellList(list: SpellRow[], loading: boolean, columns: Column<SpellRow>[], actions: (s: SpellRow) => TableAction[]) {
+    if (view === "cards") {
+      return (
+        <GrimoireCardView
+          data={list}
+          renderCard={(s) => (
+            <GrimoireSpellCard
+              nome={s.nome}
+              scuola={s.scuola}
+              livello={s.livello}
+              gittata={s.gittata}
+              concentration={s.concentration}
+              ritual={s.ritual}
+              groupNome={tab === "miei" ? s.groupNome : null}
+            />
+          )}
+          title={(s) => s.nome}
+          actions={actions}
+          sort={{ key: "livello", dir: "asc", thenBy: "nome" }}
+          skeleton={loading}
+          emptyMessage={t("tableEmpty")}
+          fillHeight
+        />
+      );
+    }
+    return (
+      <GrimoireTable
+        columns={columns}
+        data={list}
+        skeleton={loading}
+        skeletonRows={SKELETON_ROWS}
+        fillHeight
+        defaultSort={{ key: "livello", dir: "asc" }}
+        emptyMessage={t("tableEmpty")}
+        actions={actions}
+      />
+    );
+  }
 
   const filters = (
     <GrimoireFilterPanel>
@@ -366,45 +426,22 @@ export default function SpellsPage() {
         tabs={tabs}
         active={tab}
         onChange={handleTabChange}
-        action={<GrimoireFilterButton activeCount={activeFilterCount} onClick={() => setShowFilters(true)} />}
+        action={
+          <GrimoireInlineGroup>
+            <GrimoireViewToggle value={view} onChange={(v) => setParam("view", v === "cards" ? "cards" : "")} />
+            <GrimoireFilterButton activeCount={activeFilterCount} onClick={() => setShowFilters(true)} />
+          </GrimoireInlineGroup>
+        }
       />
 
       {filters}
       {filtersModal}
 
-      {tab === "miei" && (
-        <GrimoireTable
-          columns={meiColumns}
-          data={mySpells}
-          skeleton={loadingMy && !myData}
-          skeletonRows={SKELETON_ROWS}
-          fillHeight
-          defaultSort={{ key: "livello", dir: "asc" }}
-          emptyMessage={t("tableEmpty")}
-          actions={(s) => [
-            { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
-            { label: t("moveToGroup"), variant: "outline-secondary", onClick: () => { setMoveSpell(s); setMoveGroupId(s.groupId ?? ""); } },
-            { label: t("removeFromLibrary"), variant: "danger", onClick: () => removeSrdSpell({ variables: { spellId: s.id } }), hidden: !s.isSystem },
-            { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
-          ]}
-        />
-      )}
+      {tab === "miei" && spellList(mySpells, loadingMy && !myData, meiColumns, myActions)}
 
       {tab === "srd" && (
         <>
-          <GrimoireTable
-            columns={[...baseColumns, ...extraColumns]}
-            data={srdSpells}
-            skeleton={loadingSrd && !srdData}
-            skeletonRows={SKELETON_ROWS}
-            fillHeight
-            defaultSort={{ key: "livello", dir: "asc" }}
-            emptyMessage={t("tableEmpty")}
-            actions={(s) => [
-              { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
-              { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } }) },
-            ]}
-          />
+          {spellList(srdSpells, loadingSrd && !srdData, [...baseColumns, ...extraColumns], srdActions)}
           <p style={{ marginTop: "1rem", fontSize: "0.75rem", color: "var(--g-text-muted)" }}>
             {t("srdAttribution")} —{" "}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" style={{ color: "var(--g-text-muted)" }}>CC BY 4.0</a>
@@ -412,22 +449,7 @@ export default function SpellsPage() {
         </>
       )}
 
-      {tab === "tutti" && (
-        <GrimoireTable
-          columns={[...baseColumns, ...extraColumns]}
-          data={allSpells}
-          skeleton={loadingAll && !allData}
-          skeletonRows={SKELETON_ROWS}
-          fillHeight
-          defaultSort={{ key: "livello", dir: "asc" }}
-          emptyMessage={t("tableEmpty")}
-          actions={(s) => [
-            { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
-            { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.isSystem ? (s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } })) : undefined, hidden: !s.isSystem },
-            { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
-          ]}
-        />
-      )}
+      {tab === "tutti" && spellList(allSpells, loadingAll && !allData, [...baseColumns, ...extraColumns], allActions)}
 
       {/* Create spell modal */}
       <GrimoireModal
