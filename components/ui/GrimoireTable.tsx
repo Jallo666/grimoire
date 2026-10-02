@@ -40,6 +40,9 @@ type Props<T extends { id: string | number }> = {
   skeleton?: boolean;
   skeletonRows?: number;
   emptyMessage?: string;
+  // Solo sotto i 992px, dentro una GrimoirePage con fillHeight: la tabella prende lo spazio
+  // rimasto e scorre al suo interno, con i titoli delle colonne fermi in alto
+  fillHeight?: boolean;
 };
 
 const cellStyle = {
@@ -96,6 +99,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
   skeleton = false,
   skeletonRows = 3,
   emptyMessage,
+  fillHeight = false,
 }: Props<T>) {
   const t = useTranslations("ui");
   const empty = emptyMessage ?? t("empty");
@@ -120,7 +124,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
   const colCount = columns.length + (hasActions ? 1 : 0);
 
   return (
-    <div className="table-responsive">
+    <div className={`table-responsive${fillHeight ? ` ${styles.fill}` : ""}`}>
       <table className={`table table-hover mb-0 ${styles.table}`}>
         <thead>
           <tr>

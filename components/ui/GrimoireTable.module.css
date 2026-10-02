@@ -28,3 +28,26 @@
     background-color: var(--g-table-border);
   }
 }
+
+/* Tabella a tutta altezza (prop fillHeight), solo sotto i 992px.
+   Usata dentro una GrimoirePage con fillHeight: prende lo spazio rimasto, scorre al suo
+   interno in entrambe le direzioni e i titoli delle colonne restano fermi in alto.
+   Anche vuota occupa tutto lo spazio, così la pagina non "salta" cambiando filtro. */
+@media (max-width: 991.98px) {
+  .fill {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .fill thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  /* Angolo in alto a sinistra (titolo della colonna leader): fermo in entrambe le direzioni */
+  .fill thead th.leader {
+    z-index: 3;
+  }
+}

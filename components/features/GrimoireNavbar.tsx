@@ -13,6 +13,7 @@ import GrimoireSidenavLink from "@/components/ui/GrimoireSidenavLink";
 import ThemeToggle from "./ThemeToggle";
 import LocaleToggle from "./LocaleToggle";
 import { THEME_STORAGE_KEY } from "./ThemeSync";
+import styles from "./GrimoireNavbar.module.css";
 import type { User } from "@/db/types";
 
 const NAV_LINKS: { href: string; tKey: "home" | "campaigns" | "spells" }[] = [
@@ -38,7 +39,7 @@ export default function GrimoireNavbar() {
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+      <nav className={`navbar navbar-expand-lg bg-primary ${styles.navbar}`} data-bs-theme="dark">
         <div className="container">
           {/* Mobile: ☰ accanto al nome. Su desktop il ☰ è nascosto */}
           <div className="d-flex align-items-center gap-2">

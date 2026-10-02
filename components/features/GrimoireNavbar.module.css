@@ -1,0 +1,7 @@
+/* Tablet e telefono (sotto i 992px): altezza fissa, così le pagine a tutta altezza
+   sanno esattamente quanto spazio resta sotto la navbar. Desktop: nessuna regola. */
+@media (max-width: 991.98px) {
+  .navbar {
+    height: var(--g-navbar-height);
+  }
+}

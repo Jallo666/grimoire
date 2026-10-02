@@ -86,7 +86,7 @@ export default function CampaignsPage() {
   }
 
   return (
-    <GrimoirePage>
+    <GrimoirePage fillHeight>
       <GrimoirePageTitle action={<GrimoireButton mobileIcon="plus-lg" onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>}>
         {t("pageTitle")}
       </GrimoirePageTitle>
@@ -94,6 +94,7 @@ export default function CampaignsPage() {
       <GrimoireTable
         columns={columns}
         data={campaigns}
+        fillHeight
         emptyMessage={t("tableEmpty")}
         actions={(c) => {
           const isOwner = meId !== undefined && c.owner?.id === String(meId);

@@ -1,0 +1,11 @@
+/* Pagina a tutta altezza (prop fillHeight), solo sotto i 992px.
+   La pagina è alta quanto lo schermo meno la navbar: gli elementi sopra (titolo, tab, filtri)
+   tengono la loro altezza e la tabella con fillHeight prende tutto lo spazio che resta.
+   Desktop (da 992px): nessuna regola, la pagina scorre come sempre. */
+@media (max-width: 991.98px) {
+  .fill {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--g-navbar-height));
+  }
+}

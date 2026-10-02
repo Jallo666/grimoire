@@ -310,7 +310,7 @@ export default function SpellsPage() {
   );
 
   return (
-    <GrimoirePage>
+    <GrimoirePage fillHeight>
       <GrimoirePageTitle action={
         <GrimoireInlineGroup>
           <GrimoireButton variant="outline-secondary" mobileIcon="collection" onClick={() => setShowGroups(true)}>{t("manageGroups")}</GrimoireButton>
@@ -330,6 +330,7 @@ export default function SpellsPage() {
           data={mySpells}
           skeleton={loadingMy && !myData}
           skeletonRows={SKELETON_ROWS}
+          fillHeight
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
             { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
@@ -347,6 +348,7 @@ export default function SpellsPage() {
             data={srdSpells}
             skeleton={loadingSrd && !srdData}
             skeletonRows={SKELETON_ROWS}
+            fillHeight
             emptyMessage={t("tableEmpty")}
             actions={(s) => [
               { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
@@ -366,6 +368,7 @@ export default function SpellsPage() {
           data={allSpells}
           skeleton={loadingAll && !allData}
           skeletonRows={SKELETON_ROWS}
+          fillHeight
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
             { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
