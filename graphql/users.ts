@@ -15,6 +15,8 @@ export const userTypeDefs = gql`
     nome: String
     defaultTheme: String
     defaultLocale: String
+    defaultUnitSystem: String
+    defaultCampaignLocale: String
   }
 
   type Query {
@@ -28,7 +30,7 @@ export const userTypeDefs = gql`
     logout: Boolean!
     updateEmail(newEmail: String!, password: String!): User!
     updatePassword(currentPassword: String!, newPassword: String!): Boolean!
-    updatePreferences(defaultTheme: String, defaultLocale: String): User!
+    updatePreferences(defaultTheme: String, defaultLocale: String, defaultUnitSystem: String, defaultCampaignLocale: String): User!
   }
 `;
 
@@ -46,6 +48,8 @@ const USER_FIELDS = {
   nome: users.nome,
   defaultTheme: users.defaultTheme,
   defaultLocale: users.defaultLocale,
+  defaultUnitSystem: users.defaultUnitSystem,
+  defaultCampaignLocale: users.defaultCampaignLocale,
 };
 
 export const userResolvers = {
@@ -140,11 +144,13 @@ export const userResolvers = {
       return true;
     },
 
-    updatePreferences: async (_: unknown, args: { defaultTheme?: string | null; defaultLocale?: string | null }, context: Context) => {
+    updatePreferences: async (_: unknown, args: { defaultTheme?: string | null; defaultLocale?: string | null; defaultUnitSystem?: string | null; defaultCampaignLocale?: string | null }, context: Context) => {
       assertAuthenticated(context);
-      const patch: Partial<{ defaultTheme: string | null; defaultLocale: string | null }> = {};
+      const patch: Partial<{ defaultTheme: string | null; defaultLocale: string | null; defaultUnitSystem: string | null; defaultCampaignLocale: string | null }> = {};
       if (args.defaultTheme !== undefined) patch.defaultTheme = args.defaultTheme || null;
       if (args.defaultLocale !== undefined) patch.defaultLocale = args.defaultLocale || null;
+      if (args.defaultUnitSystem !== undefined) patch.defaultUnitSystem = args.defaultUnitSystem || null;
+      if (args.defaultCampaignLocale !== undefined) patch.defaultCampaignLocale = args.defaultCampaignLocale || null;
       const [updated] = await db
         .update(users)
         .set(patch)

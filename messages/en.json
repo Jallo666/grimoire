@@ -163,7 +163,17 @@
     "prefsLocaleit": "Italiano",
     "prefsLocaleen": "English",
     "prefsSave": "Save preferences",
-    "prefsSuccess": "Preferences saved!"
+    "prefsSuccess": "Preferences saved!",
+    "campaignPrefsSection": "Campaign preferences",
+    "prefUnitSystem": "Preferred unit system",
+    "prefUnitNone": "No preference",
+    "prefUnitMetri": "Metres (m)",
+    "prefUnitPiedi": "Feet (ft)",
+    "prefUnitQuadretti": "Squares",
+    "prefCampaignLocale": "Campaign language",
+    "prefCampaignLocaleNone": "No preference",
+    "prefCampaignLocaleit": "Italiano",
+    "prefCampaignLocaleen": "English"
   },
   "errors": {
     "accessDenied": "Access denied",

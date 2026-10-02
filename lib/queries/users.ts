@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 
 export const ME = gql`
-  query Me { me { id email nome defaultTheme defaultLocale } }
+  query Me { me { id email nome defaultTheme defaultLocale defaultUnitSystem defaultCampaignLocale } }
 `;
 
 export const ME_ID = gql`
@@ -37,9 +37,9 @@ export const UPDATE_PASSWORD = gql`
 `;
 
 export const UPDATE_PREFERENCES = gql`
-  mutation UpdatePreferences($defaultTheme: String, $defaultLocale: String) {
-    updatePreferences(defaultTheme: $defaultTheme, defaultLocale: $defaultLocale) {
-      id email nome defaultTheme defaultLocale
+  mutation UpdatePreferences($defaultTheme: String, $defaultLocale: String, $defaultUnitSystem: String, $defaultCampaignLocale: String) {
+    updatePreferences(defaultTheme: $defaultTheme, defaultLocale: $defaultLocale, defaultUnitSystem: $defaultUnitSystem, defaultCampaignLocale: $defaultCampaignLocale) {
+      id email nome defaultTheme defaultLocale defaultUnitSystem defaultCampaignLocale
     }
   }
 `;

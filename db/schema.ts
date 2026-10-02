@@ -7,6 +7,8 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   defaultTheme: text("default_theme"),
   defaultLocale: text("default_locale"),
+  defaultUnitSystem: text("default_unit_system"),
+  defaultCampaignLocale: text("default_campaign_locale"),
 });
 export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),

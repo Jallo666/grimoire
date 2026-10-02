@@ -163,7 +163,17 @@
     "prefsLocaleit": "Italiano",
     "prefsLocaleen": "English",
     "prefsSave": "Salva preferenze",
-    "prefsSuccess": "Preferenze salvate!"
+    "prefsSuccess": "Preferenze salvate!",
+    "campaignPrefsSection": "Preferenze campagne",
+    "prefUnitSystem": "Sistema metrico preferito",
+    "prefUnitNone": "Nessuna preferenza",
+    "prefUnitMetri": "Metri (m)",
+    "prefUnitPiedi": "Piedi (ft)",
+    "prefUnitQuadretti": "Quadretti",
+    "prefCampaignLocale": "Lingua campagne",
+    "prefCampaignLocaleNone": "Nessuna preferenza",
+    "prefCampaignLocaleit": "Italiano",
+    "prefCampaignLocaleen": "English"
   },
   "errors": {
     "accessDenied": "Accesso negato",
