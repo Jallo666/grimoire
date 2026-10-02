@@ -131,7 +131,10 @@ export default function SpellsPage() {
     ...groups.map((g) => ({ value: g.id, label: g.nome })),
   ];
 
-  const groupSelectOptions = groups.map((g) => ({ value: g.id, label: g.nome }));
+  const groupSelectOptions = [
+    { value: "", label: t("groupAutoLabel") },
+    ...groups.map((g) => ({ value: g.id, label: g.nome })),
+  ];
 
   const createFields: FieldConfig[] = [
     { name: "nome", label: t("fieldNome"), type: "text", required: true },

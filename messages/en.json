@@ -142,6 +142,7 @@
     "groupRename": "Rename",
     "groupDelete": "Delete",
     "groupNamePlaceholder": "Group name...",
+    "groupAutoLabel": "— (automatic)",
     "addToLibrary": "Add",
     "alreadyInLibrary": "In library",
     "ct1Action": "1 action",
