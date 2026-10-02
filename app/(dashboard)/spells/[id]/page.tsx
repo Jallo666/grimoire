@@ -58,7 +58,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     { name: "livello", label: ts("fieldLivello"), type: "select", options: livelloOptions },
     { name: "descrizione", label: ts("fieldDescrizione"), type: "textarea", rows: 5 },
     { name: "tempoLancio", label: ts("fieldTempoLancio"), type: "text" },
-    { name: "gittata", label: ts("fieldGittata"), type: "text" },
+    { name: "gittata", label: ts("fieldGittata"), type: "range" },
     { name: "durata", label: ts("fieldDurata"), type: "text" },
     { name: "componenti", label: ts("fieldComponenti"), type: "text" },
   ];

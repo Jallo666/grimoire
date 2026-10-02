@@ -5,8 +5,16 @@ import { useQuery } from "@apollo/client/react";
 import { useAppDispatch } from "@/store/hooks";
 import { ME } from "@/lib/queries/users";
 import { applyTheme, THEME_STORAGE_KEY } from "./ThemeSync";
+import { setUnitSystem, type UnitSystem } from "@/store/prefsSlice";
 
-type MeData = { me: { id: string; defaultTheme: string | null; defaultLocale: string | null } | null };
+type MeData = {
+  me: {
+    id: string;
+    defaultTheme: string | null;
+    defaultLocale: string | null;
+    defaultUnitSystem: string | null;
+  } | null;
+};
 
 export default function UserPreferencesSync() {
   const dispatch = useAppDispatch();
@@ -29,6 +37,12 @@ export default function UserPreferencesSync() {
         document.cookie = `NEXT_LOCALE=${me.defaultLocale}; path=/; max-age=31536000; SameSite=Lax`;
         window.location.reload();
       }
+    }
+
+    const validUnits: UnitSystem[] = ["piedi", "metri", "quadretti", ""];
+    const unit = me.defaultUnitSystem as UnitSystem;
+    if (validUnits.includes(unit)) {
+      dispatch(setUnitSystem(unit));
     }
   }, [data, dispatch]);
 

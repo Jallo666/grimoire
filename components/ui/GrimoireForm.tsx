@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import GrimoireCard from "./GrimoireCard";
 import GrimoireInput from "./GrimoireInput";
+import GrimoireRangeInput from "./GrimoireRangeInput";
 import GrimoireButton from "./GrimoireButton";
 import GrimoireAlert from "./GrimoireAlert";
 
 export type FieldConfig = {
   name: string;
   label?: string;
-  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea";
+  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea" | "range";
   placeholder?: string;
   required?: boolean;
   defaultValue?: string;
@@ -99,22 +100,34 @@ export default function GrimoireForm({
       <form onSubmit={handleSubmit}>
         <div className="card-body px-4 py-3">
           {error && <GrimoireAlert>{error}</GrimoireAlert>}
-          {fields.map((f) => (
-            <GrimoireInput
-              key={f.name}
-              id={f.name}
-              label={f.label}
-              type={f.type}
-              placeholder={f.placeholder}
-              required={f.required}
-              value={values[f.name] ?? ""}
-              onChange={handleChange(f.name)}
-              skeleton={fetching}
-              disabled={view}
-              options={f.options}
-              rows={f.rows}
-            />
-          ))}
+          {fields.map((f) =>
+            f.type === "range" ? (
+              <GrimoireRangeInput
+                key={f.name}
+                id={f.name}
+                label={f.label}
+                value={values[f.name] ?? ""}
+                onChange={(val) => setValues((v) => ({ ...v, [f.name]: val }))}
+                skeleton={fetching}
+                disabled={view}
+              />
+            ) : (
+              <GrimoireInput
+                key={f.name}
+                id={f.name}
+                label={f.label}
+                type={f.type}
+                placeholder={f.placeholder}
+                required={f.required}
+                value={values[f.name] ?? ""}
+                onChange={handleChange(f.name)}
+                skeleton={fetching}
+                disabled={view}
+                options={f.options}
+                rows={f.rows}
+              />
+            )
+          )}
         </div>
 
         {!view && (

@@ -134,6 +134,18 @@
     "colRituale": "Ritual",
     "colClassi": "Classes",
     "si": "Yes",
+    "colGittata": "Range",
+    "rangeTouch": "Touch",
+    "rangeSelf": "Self",
+    "rangeSight": "Sight",
+    "rangeSpecial": "Special",
+    "rangeUnlimited": "Unlimited",
+    "rangeUnitPiedi": "Feet",
+    "rangeUnitMetri": "Metres",
+    "rangeUnitQuadretti": "Squares",
+    "rangeSpecialLabel": "Special value",
+    "rangeNumericLabel": "Distance",
+    "rangeSpecialNone": "— (numeric)",
     "no": "No"
   },
   "spellDetail": {

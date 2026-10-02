@@ -1,6 +1,6 @@
 import { gql } from "graphql-tag";
 
-const SPELL_FIELDS = `id nome scuola livello isOwner isSystem inLibrary concentration ritual classi createdAt`;
+const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi createdAt`;
 const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi creatorId isOwner isSystem inLibrary createdAt`;
 
 export const MY_SPELLS = gql`

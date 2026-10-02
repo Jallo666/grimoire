@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
+import { useAppSelector } from "@/store/hooks";
+import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
@@ -21,6 +23,7 @@ type SpellRow = {
   nome: string;
   scuola: string | null;
   livello: number;
+  gittata: string | null;
   isOwner: boolean;
   isSystem: boolean;
   inLibrary: boolean;
@@ -40,6 +43,8 @@ export default function SpellsPage() {
   const [concentration, setConcentration] = useState("");
   const [ritual, setRitual] = useState("");
   const t = useTranslations("spells");
+  const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
+  const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
 
   const tabs = [
     { key: "miei", label: t("tabMiei") },
@@ -91,7 +96,7 @@ export default function SpellsPage() {
     }))},
     { name: "descrizione", label: t("fieldDescrizione"), type: "textarea", rows: 5 },
     { name: "tempoLancio", label: t("fieldTempoLancio"), type: "text" },
-    { name: "gittata", label: t("fieldGittata"), type: "text" },
+    { name: "gittata", label: t("fieldGittata"), type: "range" },
     { name: "durata", label: t("fieldDurata"), type: "text" },
     { name: "componenti", label: t("fieldComponenti"), type: "text" },
   ];
@@ -157,6 +162,7 @@ export default function SpellsPage() {
       Necromanzia: "danger", Trasmutazione: "success",
     }},
     { key: "livello", label: t("colLivello"), render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
+    { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
   ];
 
   const extraColumns: Column<SpellRow>[] = [
