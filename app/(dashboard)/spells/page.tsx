@@ -321,14 +321,24 @@ export default function SpellsPage() {
       )}
 
       {/* Create spell modal */}
-      <GrimoireModal show={showCreate} onClose={() => setShowCreate(false)} title={t("createModalTitle")} size="lg">
+      <GrimoireModal
+        show={showCreate}
+        onClose={() => setShowCreate(false)}
+        title={t("createModalTitle")}
+        size="lg"
+        footer={
+          <div className="d-flex gap-2 justify-content-end w-100">
+            <GrimoireButton variant="outline-secondary" onClick={() => setShowCreate(false)}>{t("cancelButton")}</GrimoireButton>
+            <GrimoireButton type="submit" form="create-spell-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
+          </div>
+        }
+      >
         <GrimoireForm
+          id="create-spell-form"
+          hideFooter
           fields={createFields}
           onSubmit={handleCreate}
-          submitLabel={t("createSubmit")}
-          loading={creating}
           error={createError?.message}
-          actions={[{ label: t("cancelButton"), onClick: () => setShowCreate(false) }]}
         />
       </GrimoireModal>
 

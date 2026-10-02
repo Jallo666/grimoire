@@ -9,10 +9,11 @@ type Props = {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
   size?: "sm" | "lg" | "xl";
 };
 
-export default function GrimoireModal({ show, onClose, title, children, size }: Props) {
+export default function GrimoireModal({ show, onClose, title, children, footer, size }: Props) {
   const t = useTranslations("ui");
   const dark = useAppSelector((s) => s.theme.value === "dark");
 
@@ -66,6 +67,11 @@ export default function GrimoireModal({ show, onClose, title, children, size }: 
               <button type="button" className="btn-close" onClick={onClose} aria-label={t("close")} />
             </div>
             <div className="modal-body">{children}</div>
+            {footer && (
+              <div className="modal-footer" style={{ borderColor: "var(--g-card-border)" }}>
+                {footer}
+              </div>
+            )}
           </div>
         </div>
       </div>

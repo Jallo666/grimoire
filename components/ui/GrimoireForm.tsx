@@ -40,6 +40,8 @@ type Props = {
   fetching?: boolean;
   view?: boolean;
   actions?: FormAction[];
+  id?: string;
+  hideFooter?: boolean;
 };
 
 export default function GrimoireForm({
@@ -54,6 +56,8 @@ export default function GrimoireForm({
   fetching = false,
   view = false,
   actions = [],
+  id,
+  hideFooter = false,
 }: Props) {
   const t = useTranslations("ui");
   const label = submitLabel ?? t("save");
@@ -100,7 +104,7 @@ export default function GrimoireForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form id={id} onSubmit={handleSubmit}>
         <div className="card-body px-4 py-3">
           {error && <GrimoireAlert>{error}</GrimoireAlert>}
           {fields.map((f) =>
@@ -156,7 +160,7 @@ export default function GrimoireForm({
           )}
         </div>
 
-        {!view && (
+        {!view && !hideFooter && (
           <div
             className="card-footer px-4 py-3 d-flex justify-content-between align-items-center border-top"
             style={{ backgroundColor: "var(--g-card-bg)", borderColor: "var(--g-card-border)" }}

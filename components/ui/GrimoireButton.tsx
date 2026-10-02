@@ -16,6 +16,7 @@ type Props = {
   disabled?: boolean;
   loading?: boolean;
   type?: "button" | "submit" | "reset";
+  form?: string;
   onClick?: () => void;
 };
 
@@ -29,6 +30,7 @@ export default function GrimoireButton({
   disabled = false,
   loading = false,
   type = "button",
+  form,
   onClick,
 }: Props) {
   const dark = useAppSelector((s) => s.theme.value === "dark");
@@ -49,6 +51,7 @@ export default function GrimoireButton({
   return (
     <button
       type={type}
+      form={form}
       className={classes}
       disabled={disabled || loading}
       onClick={onClick}
