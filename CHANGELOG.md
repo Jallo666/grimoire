@@ -3,6 +3,12 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.8.1] - 2026-10-02
+
+### Corretto
+- Tabelle a tutta altezza su tablet e telefono: lo sfondo della tabella arriva fino in fondo allo schermo anche con lo skeleton o senza righe.
+- Tabella vuota: il messaggio "nessun elemento" sta al centro dello spazio invece che subito sotto i titoli.
+
 ## [0.8.0] - 2026-10-02
 
 ### Aggiunto
