@@ -3,6 +3,12 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.11.0] - 2026-10-02
+
+### Modificato
+- Barra in alto su tablet e telefono (sotto i 992px) in stile app: ☰ senza bordo, titolo della pagina e i suoi bottoni nella barra stessa; la riga del titolo sotto la barra sparisce (più spazio per il contenuto). La barra ha il colore della pagina con una linea sotto invece del blu pieno. Desktop invariato.
+- Menu laterale: logo e "Grimoire" in cima, saluto come riga piccola sotto.
+
 ## [0.10.3] - 2026-10-02
 
 ### Corretto
