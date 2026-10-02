@@ -3,6 +3,12 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.10.3] - 2026-10-02
+
+### Corretto
+- Modale dei gruppi uguale alle altre: "Nuovo gruppo" in alto, gruppi in una tabella (su mobile: tocco sulla riga e menu dal basso), footer con Chiudi, Rinomina con Annulla / Salva nella stessa modale, messaggio di lista vuota che segue il tema.
+- Il menu che sale dal basso ora compare sopra le modali.
+
 ## [0.10.2] - 2026-10-02
 
 ### Modificato
