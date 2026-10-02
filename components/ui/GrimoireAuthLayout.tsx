@@ -8,7 +8,8 @@ export default function GrimoireAuthLayout({ children, logo }: Props) {
       <div className="row justify-content-center">
         <div className="col-12 col-md-6 col-lg-4">
           {logo && <div className={`text-center mb-4 ${styles.logo}`}>{logo}</div>}
-          {children}
+          {/* Contenitore separato: senza, la card (h-100) si allunga quanto tutta la colonna, logo compreso */}
+          <div>{children}</div>
         </div>
       </div>
     </main>
