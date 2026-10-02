@@ -379,6 +379,7 @@ export default function SpellsPage() {
           skeleton={loadingMy && !myData}
           skeletonRows={SKELETON_ROWS}
           fillHeight
+          defaultSort={{ key: "livello", dir: "asc" }}
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
             { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
@@ -397,6 +398,7 @@ export default function SpellsPage() {
             skeleton={loadingSrd && !srdData}
             skeletonRows={SKELETON_ROWS}
             fillHeight
+            defaultSort={{ key: "livello", dir: "asc" }}
             emptyMessage={t("tableEmpty")}
             actions={(s) => [
               { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
@@ -417,6 +419,7 @@ export default function SpellsPage() {
           skeleton={loadingAll && !allData}
           skeletonRows={SKELETON_ROWS}
           fillHeight
+          defaultSort={{ key: "livello", dir: "asc" }}
           emptyMessage={t("tableEmpty")}
           actions={(s) => [
             { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },

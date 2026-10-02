@@ -46,6 +46,8 @@ type Props<T extends { id: string | number }> = {
   // Solo sotto i 992px, dentro una GrimoirePage con fillHeight: la tabella prende lo spazio
   // rimasto e scorre al suo interno, con i titoli delle colonne fermi in alto
   fillHeight?: boolean;
+  // Ordinamento iniziale (es. { key: "livello", dir: "asc" }); l'utente può poi cambiarlo dai titoli
+  defaultSort?: { key: keyof T; dir: SortDir };
 };
 
 const cellStyle = {
@@ -103,11 +105,12 @@ export default function GrimoireTable<T extends { id: string | number }>({
   skeletonRows = 3,
   emptyMessage,
   fillHeight = false,
+  defaultSort,
 }: Props<T>) {
   const t = useTranslations("ui");
   const empty = emptyMessage ?? t("empty");
-  const [sortKey, setSortKey] = useState<keyof T | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortKey, setSortKey] = useState<keyof T | null>(defaultSort?.key ?? null);
+  const [sortDir, setSortDir] = useState<SortDir>(defaultSort?.dir ?? "asc");
 
   function handleSort(key: keyof T) {
     if (sortKey === key) {
@@ -123,7 +126,12 @@ export default function GrimoireTable<T extends { id: string | number }>({
     // Con badgeLabels si riordina per il testo mostrato (es. il nome tradotto), non per il valore salvato
     const labels = columns.find((c) => c.key === sortKey)?.badgeLabels;
     const valueOf = (row: T) => (labels ? labels[String(row[sortKey])] ?? row[sortKey] : row[sortKey]);
-    return [...data].sort((a, b) => compareValues(valueOf(a), valueOf(b), sortDir));
+    // A parità di valore, ordine alfabetico sulla colonna leader (es. il nome)
+    const tieKey = columns.find((c) => c.leader)?.key;
+    return [...data].sort((a, b) =>
+      compareValues(valueOf(a), valueOf(b), sortDir) ||
+      (tieKey && tieKey !== sortKey ? compareValues(a[tieKey], b[tieKey], "asc") : 0)
+    );
   }, [data, columns, sortKey, sortDir]);
 
   const hasActions = !!(actions || renderActions);
