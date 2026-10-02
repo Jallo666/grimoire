@@ -134,6 +134,7 @@
     "removeFromLibrary": "Rimuovi",
     "colGruppo": "Gruppo",
     "filterAllGroups": "Tutti i gruppi",
+    "filterOther": "Altro",
     "moveToGroup": "Sposta",
     "moveModalTitle": "Sposta in un gruppo",
     "groupLabel": "Gruppo",
@@ -231,6 +232,7 @@
     "openMenu": "Apri menu",
     "clearSelection": "Azzera",
     "filters": "Filtri",
+    "showResults": "Mostra risultati",
     "back": "Torna indietro",
     "owner": "Owner",
     "version": "Versione {version}"

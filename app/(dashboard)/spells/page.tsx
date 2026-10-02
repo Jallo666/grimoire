@@ -22,6 +22,9 @@ import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 import GrimoireSelect from "@/components/ui/GrimoireSelect";
 import GrimoireMultiSelect from "@/components/ui/GrimoireMultiSelect";
 import GrimoireFilterPanel from "@/components/ui/GrimoireFilterPanel";
+import GrimoireFilterButton from "@/components/ui/GrimoireFilterButton";
+import GrimoireFilterModal from "@/components/ui/GrimoireFilterModal";
+import GrimoireChips from "@/components/ui/GrimoireChips";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireSearchInput from "@/components/ui/GrimoireSearchInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
@@ -82,6 +85,7 @@ export default function SpellsPage() {
     scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "",
   });
   const [showGroups, setShowGroups] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
   const [moveGroupId, setMoveGroupId] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
@@ -93,13 +97,24 @@ export default function SpellsPage() {
     return (searchParams.get(key) ?? "").split(",").filter(Boolean);
   }
 
-  function setParam(key: string, value: string) {
-    // Legge l'URL attuale (non quello del render): la ricerca parte 300ms dopo
-    // e nel frattempo potrebbe essere cambiato un altro filtro
+  // Cambia uno o più filtri nell'URL in un colpo solo (valore vuoto = filtro tolto).
+  // Legge l'URL attuale (non quello del render): la ricerca parte 300ms dopo
+  // e nel frattempo potrebbe essere cambiato un altro filtro
+  function setParams(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
-    if (value) params.set(key, value);
-    else params.delete(key);
+    for (const [key, value] of Object.entries(updates)) {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    }
     router.replace(`${pathname}?${params.toString()}`);
+  }
+
+  function setParam(key: string, value: string) {
+    setParams({ [key]: value });
+  }
+
+  function resetFilters() {
+    setParams({ search: "", group: "", scuola: "", livello: "", concentration: "", ritual: "" });
   }
 
   function handleTabChange(k: string) {
@@ -295,7 +310,7 @@ export default function SpellsPage() {
   const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, concentration, ritual].filter(Boolean).length;
 
   const filters = (
-    <GrimoireFilterPanel activeCount={activeFilterCount}>
+    <GrimoireFilterPanel>
       <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
         <GrimoireSearchInput id="spell-search" value={search} onSearch={(v) => setParam("search", v)} placeholder={t("searchPlaceholder")} />
         {tab === "miei" && (
@@ -309,6 +324,33 @@ export default function SpellsPage() {
     </GrimoireFilterPanel>
   );
 
+  // Concentrazione e Rituale nella modale: un gruppo di pillole "Altro"
+  const otherValues = [concentration === "true" ? "concentration" : "", ritual === "true" ? "ritual" : ""].filter(Boolean);
+
+  // Filtri su tablet e telefono: modale con pillole, aperta dall'icona accanto alle tab
+  const filtersModal = (
+    <GrimoireFilterModal show={showFilters} onClose={() => setShowFilters(false)} onReset={resetFilters}>
+      <GrimoireSearchInput id="spell-search-mobile" value={search} onSearch={(v) => setParam("search", v)} placeholder={t("searchPlaceholder")} />
+      {tab === "miei" && groupOptions.length > 0 && (
+        <GrimoireChips label={t("colGruppo")} options={groupOptions} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} />
+      )}
+      <GrimoireChips label={t("colLivello")} options={livelloOptions} value={livelli} onChange={(v) => setParam("livello", v.join(","))} />
+      <GrimoireChips label={t("colScuola")} options={scuolaOptions} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} />
+      <GrimoireChips
+        label={t("filterOther")}
+        options={[
+          { value: "concentration", label: t("colConcentrazione") },
+          { value: "ritual", label: t("colRituale") },
+        ]}
+        value={otherValues}
+        onChange={(v) => setParams({
+          concentration: v.includes("concentration") ? "true" : "",
+          ritual: v.includes("ritual") ? "true" : "",
+        })}
+      />
+    </GrimoireFilterModal>
+  );
+
   return (
     <GrimoirePage fillHeight>
       <GrimoirePageTitle action={
@@ -320,9 +362,15 @@ export default function SpellsPage() {
         {t("pageTitle")}
       </GrimoirePageTitle>
 
-      <GrimoireTabs tabs={tabs} active={tab} onChange={handleTabChange} />
+      <GrimoireTabs
+        tabs={tabs}
+        active={tab}
+        onChange={handleTabChange}
+        action={<GrimoireFilterButton activeCount={activeFilterCount} onClick={() => setShowFilters(true)} />}
+      />
 
       {filters}
+      {filtersModal}
 
       {tab === "miei" && (
         <GrimoireTable

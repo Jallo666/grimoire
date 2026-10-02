@@ -9,9 +9,11 @@ type Props = {
   tabs: Tab[];
   active: string;
   onChange: (key: string) => void;
+  // Facoltativo: qualcosa da mettere a destra delle tab (es. l'icona dei filtri)
+  action?: React.ReactNode;
 };
 
-export default function GrimoireTabs({ tabs, active, onChange }: Props) {
+export default function GrimoireTabs({ tabs, active, onChange, action }: Props) {
   return (
     <ul className={`nav nav-tabs mb-4 ${styles.tabs}`} style={{ borderColor: "var(--g-card-border)" }}>
       {tabs.map((tab) => {
@@ -34,6 +36,7 @@ export default function GrimoireTabs({ tabs, active, onChange }: Props) {
           </li>
         );
       })}
+      {action && <li className="nav-item ms-auto ps-2 d-flex align-items-center">{action}</li>}
     </ul>
   );
 }
