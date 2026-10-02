@@ -3,18 +3,19 @@ import "./globals.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Providers } from "./providers";
 import { NextIntlClientProvider } from "next-intl";
-import messages from "../messages/it.json";
+import { getMessages } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Grimoire",
   description: "Gestione campagne",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const messages = await getMessages();
   return (
     <html lang="it">
       <body>
-        <NextIntlClientProvider locale="it" messages={messages}>
+        <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
