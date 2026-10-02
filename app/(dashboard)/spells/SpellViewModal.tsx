@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ import { SPELL } from "@/lib/queries/spells";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
+import styles from "./SpellViewModal.module.css";
 
 type Translation = {
   locale: string;
@@ -85,16 +86,57 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
 
   const spell = data?.spell;
 
+  // Da che lato arriva il nuovo incantesimo, per l'animazione di entrata
+  const [direction, setDirection] = useState<"prev" | "next" | null>(null);
+
+  // Chiudendo si azzera il lato: il prossimo incantesimo aperto dalla lista non deve scivolare
+  function close() {
+    setDirection(null);
+    onClose();
+  }
+
+  function goPrev() {
+    if (!onPrev) return;
+    setDirection("prev");
+    onPrev();
+  }
+
+  function goNext() {
+    if (!onNext) return;
+    setDirection("next");
+    onNext();
+  }
+
   // Frecce ← → della tastiera: incantesimo precedente / successivo
   useEffect(() => {
     if (!spellId) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "ArrowLeft") onPrev?.();
-      if (e.key === "ArrowRight") onNext?.();
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [spellId, onPrev, onNext]);
+  });
+
+  // Swipe: dito verso sinistra = successivo, verso destra = precedente.
+  // Conta solo se il movimento è lungo almeno 60px e chiaramente orizzontale
+  // (così scorrere in giù una descrizione lunga non cambia incantesimo).
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (dx < 0) goNext();
+    else goPrev();
+  }
 
   function getLangData(lang: string) {
     if (!spell) return null;
@@ -119,7 +161,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
   return (
     <GrimoireModal
       show={!!spellId}
-      onClose={onClose}
+      onClose={close}
       title={title}
       size="lg"
       fullscreenOnMobile
@@ -130,7 +172,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
               <GrimoireButton
                 variant="outline-secondary"
                 mobileIcon="pencil"
-                onClick={() => { onClose(); router.push(`/spells/${spell.id}`); }}
+                onClick={() => { close(); router.push(`/spells/${spell.id}`); }}
               >
                 {tDetail("editButton")}
               </GrimoireButton>
@@ -138,95 +180,104 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
           </div>
           {position && (
             <div className="d-flex align-items-center gap-2">
-              <GrimoireButton variant="outline-secondary" icon="chevron-left" tooltip={tUi("previous")} disabled={!onPrev} onClick={onPrev} />
+              <GrimoireButton variant="outline-secondary" icon="chevron-left" tooltip={tUi("previous")} disabled={!onPrev} onClick={goPrev} />
               <small style={{ color: "var(--g-text-muted)", whiteSpace: "nowrap" }}>{position.current} / {position.total}</small>
-              <GrimoireButton variant="outline-secondary" icon="chevron-right" tooltip={tUi("next")} disabled={!onNext} onClick={onNext} />
+              <GrimoireButton variant="outline-secondary" icon="chevron-right" tooltip={tUi("next")} disabled={!onNext} onClick={goNext} />
             </div>
           )}
-          <GrimoireButton variant="outline-secondary" onClick={onClose}>
-            {t("cancelButton")}
+          <GrimoireButton variant="outline-secondary" onClick={close}>
+            {tUi("close")}
           </GrimoireButton>
         </div>
       }
     >
-      {loading ? (
-        // Skeleton con la stessa forma del contenuto: descrizione, poi scuola, livello, tempo, gittata, durata
-        <>
-          <GrimoireSkeletonText lines={6} />
-          <GrimoireSkeletonText />
-          <GrimoireSkeletonText />
-          <GrimoireSkeletonText />
-          <GrimoireSkeletonText />
-          <GrimoireSkeletonText />
-        </>
-      ) : spell ? (
-        <>
-          {/* Language tabs */}
-          <ul className="nav nav-tabs mb-3" style={{ borderColor: "var(--g-card-border)" }}>
-            <li className="nav-item">
-              <button
-                type="button"
-                className={`nav-link${viewLang === locale ? " active" : ""}`}
-                onClick={() => setViewLang(locale)}
-              >
-                {locale.toUpperCase()}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                type="button"
-                className={`nav-link${viewLang === secondaryLocale ? " active" : ""}`}
-                onClick={() => setViewLang(secondaryLocale)}
-              >
-                {secondaryLocale.toUpperCase()}
-              </button>
-            </li>
-          </ul>
+      {/* key: cambiando incantesimo il contenuto si ricrea e l'animazione di entrata riparte */}
+      <div
+        key={spellId ?? ""}
+        className={direction === "next" ? styles.fromRight : direction === "prev" ? styles.fromLeft : undefined}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ minHeight: "100%" }}
+      >
+        {loading ? (
+          // Skeleton con la stessa forma del contenuto: descrizione, poi scuola, livello, tempo, gittata, durata
+          <>
+            <GrimoireSkeletonText lines={6} />
+            <GrimoireSkeletonText />
+            <GrimoireSkeletonText />
+            <GrimoireSkeletonText />
+            <GrimoireSkeletonText />
+            <GrimoireSkeletonText />
+          </>
+        ) : spell ? (
+          <>
+            {/* Language tabs */}
+            <ul className="nav nav-tabs mb-3" style={{ borderColor: "var(--g-card-border)" }}>
+              <li className="nav-item">
+                <button
+                  type="button"
+                  className={`nav-link${viewLang === locale ? " active" : ""}`}
+                  onClick={() => setViewLang(locale)}
+                >
+                  {locale.toUpperCase()}
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  type="button"
+                  className={`nav-link${viewLang === secondaryLocale ? " active" : ""}`}
+                  onClick={() => setViewLang(secondaryLocale)}
+                >
+                  {secondaryLocale.toUpperCase()}
+                </button>
+              </li>
+            </ul>
 
-          {/* Language-specific fields */}
-          <Field label={t("fieldDescrizione")} value={langData?.descrizione} multiline />
-          <Field label={t("fieldHigherLevel")} value={langData?.highLevel} multiline />
-          <Field label={t("fieldMaterial")} value={langData?.material} multiline />
+            {/* Language-specific fields */}
+            <Field label={t("fieldDescrizione")} value={langData?.descrizione} multiline />
+            <Field label={t("fieldHigherLevel")} value={langData?.highLevel} multiline />
+            <Field label={t("fieldMaterial")} value={langData?.material} multiline />
 
-          <hr style={{ borderColor: "var(--g-card-border)", margin: "1rem 0" }} />
+            <hr style={{ borderColor: "var(--g-card-border)", margin: "1rem 0" }} />
 
-          {/* Common metadata */}
-          <div className="row g-0 mb-1">
-            <div className="col-6">
-              <Field label={t("fieldScuola")} value={scuolaLabel(spell.scuola)} />
-            </div>
-            <div className="col-6">
-              <Field
-                label={t("fieldLivello")}
-                value={spell.livello === 0 ? t("trucchetto") : t("livelloShort", { n: spell.livello })}
-              />
-            </div>
-          </div>
-          <div className="row g-0 mb-1">
-            <div className="col-6">
-              <Field label={t("fieldTempoLancio")} value={spell.tempoLancio} />
-            </div>
-            <div className="col-6">
-              <Field label={t("fieldGittata")} value={formatRange(spell.gittata, unitSystem, tRange)} />
-            </div>
-          </div>
-          <Field label={t("fieldDurata")} value={spell.durata} />
-          <Field label={t("fieldComponenti")} value={spell.componenti} />
-          <div className="row g-0">
-            {spell.concentration !== null && (
+            {/* Common metadata */}
+            <div className="row g-0 mb-1">
               <div className="col-6">
-                <Field label={t("colConcentrazione")} value={spell.concentration ? t("si") : t("no")} />
+                <Field label={t("fieldScuola")} value={scuolaLabel(spell.scuola)} />
               </div>
-            )}
-            {spell.ritual !== null && (
               <div className="col-6">
-                <Field label={t("colRituale")} value={spell.ritual ? t("si") : t("no")} />
+                <Field
+                  label={t("fieldLivello")}
+                  value={spell.livello === 0 ? t("trucchetto") : t("livelloShort", { n: spell.livello })}
+                />
               </div>
-            )}
-          </div>
-          <Field label={t("colClassi")} value={spell.classi} />
-        </>
-      ) : null}
+            </div>
+            <div className="row g-0 mb-1">
+              <div className="col-6">
+                <Field label={t("fieldTempoLancio")} value={spell.tempoLancio} />
+              </div>
+              <div className="col-6">
+                <Field label={t("fieldGittata")} value={formatRange(spell.gittata, unitSystem, tRange)} />
+              </div>
+            </div>
+            <Field label={t("fieldDurata")} value={spell.durata} />
+            <Field label={t("fieldComponenti")} value={spell.componenti} />
+            <div className="row g-0">
+              {spell.concentration !== null && (
+                <div className="col-6">
+                  <Field label={t("colConcentrazione")} value={spell.concentration ? t("si") : t("no")} />
+                </div>
+              )}
+              {spell.ritual !== null && (
+                <div className="col-6">
+                  <Field label={t("colRituale")} value={spell.ritual ? t("si") : t("no")} />
+                </div>
+              )}
+            </div>
+            <Field label={t("colClassi")} value={spell.classi} />
+          </>
+        ) : null}
+      </div>
     </GrimoireModal>
   );
 }
