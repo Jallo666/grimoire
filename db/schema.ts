@@ -53,6 +53,7 @@ export const spellGroups = pgTable("spell_groups", {
   id: serial("id").primaryKey(),
   nome: text("nome").notNull(),
   userId: integer("user_id").references(() => users.id).notNull(),
+  kind: text("kind"), // "generale" | "ufficiali" | null (custom)
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

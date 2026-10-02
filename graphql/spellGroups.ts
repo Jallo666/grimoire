@@ -24,14 +24,14 @@ export const spellGroupTypeDefs = gql`
   }
 `;
 
-export async function getOrCreateGroup(userId: number, nome: string): Promise<number> {
+export async function getOrCreateGroup(userId: number, kind: "generale" | "ufficiali", defaultNome: string): Promise<number> {
   const [existing] = await db
     .select()
     .from(spellGroups)
-    .where(and(eq(spellGroups.userId, userId), eq(spellGroups.nome, nome)))
+    .where(and(eq(spellGroups.userId, userId), eq(spellGroups.kind, kind)))
     .limit(1);
   if (existing) return existing.id;
-  const [created] = await db.insert(spellGroups).values({ nome, userId }).returning();
+  const [created] = await db.insert(spellGroups).values({ nome: defaultNome, userId, kind }).returning();
   return created.id;
 }
 

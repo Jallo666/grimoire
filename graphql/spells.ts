@@ -191,7 +191,7 @@ export const spellResolvers = {
       const user = assertAuthenticated(context);
       const groupId = args.groupId
         ? Number(args.groupId)
-        : await getOrCreateGroup(user.id, "Generale");
+        : await getOrCreateGroup(user.id, "generale", "Generale");
       return db.transaction(async (tx) => {
         const [spell] = await tx.insert(spells).values({
           creatorId: user.id,
@@ -249,7 +249,7 @@ export const spellResolvers = {
       if (!existing) {
         const groupId = args.groupId
           ? Number(args.groupId)
-          : await getOrCreateGroup(user.id, "Ufficiali");
+          : await getOrCreateGroup(user.id, "ufficiali", "Ufficiali");
         await db.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id, groupId });
       }
       return true;
