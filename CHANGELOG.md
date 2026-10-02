@@ -3,6 +3,14 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.12.0] - 2026-10-02
+
+### Aggiunto
+- Dettaglio incantesimo: frecce ‹ › per passare al precedente/successivo nell'ordine mostrato (filtri, riordino, tabella o card), con la posizione "3 / 42"; frecce ← → della tastiera; su mobile swipe a sinistra/destra. Il nuovo incantesimo entra scivolando dal lato giusto. Prop `onOrderChange` di `GrimoireTable` e `GrimoireCardView`.
+
+### Modificato
+- Dettaglio incantesimo: "Chiudi" al posto di "Annulla"; su mobile "Modifica" è solo un'icona.
+
 ## [0.11.0] - 2026-10-02
 
 ### Modificato
