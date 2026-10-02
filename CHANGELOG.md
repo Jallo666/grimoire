@@ -3,6 +3,11 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.8.0] - 2026-10-02
+
+### Aggiunto
+- Tabelle su tablet e telefono (sotto i 992px): toccando una riga sale dal basso un menu con le azioni di quella riga (dettaglio, elimina, …), con animazione: lo sfondo si scurisce, il pannello sale con una curva morbida e le voci entrano a cascata; alla chiusura tutto riscende. La colonna Azioni su mobile è nascosta. Nuovo componente `GrimoireActionSheet`. Su desktop non cambia nulla.
+
 ## [0.7.0] - 2026-10-02
 
 ### Aggiunto
