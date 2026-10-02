@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useLocale } from "next-intl";
+import { useMutation, useQuery } from "@apollo/client/react";
+import { ME, UPDATE_PREFERENCES } from "@/lib/queries/users";
 
 const LOCALES = [
   { code: "it", flag: "🇮🇹", label: "Italiano" },
@@ -12,6 +14,8 @@ export default function LocaleToggle() {
   const locale = useLocale();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { data } = useQuery<{ me: { id: string } | null }>(ME);
+  const [updatePreferences] = useMutation(UPDATE_PREFERENCES);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -25,6 +29,9 @@ export default function LocaleToggle() {
     setOpen(false);
     if (code === locale) return;
     document.cookie = `NEXT_LOCALE=${code}; path=/; max-age=31536000; SameSite=Lax`;
+    if (data?.me) {
+      updatePreferences({ variables: { defaultLocale: code } });
+    }
     window.location.reload();
   }
 
