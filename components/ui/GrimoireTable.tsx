@@ -123,6 +123,9 @@ export default function GrimoireTable<T extends { id: string | number }>({
 
   const hasActions = !!(actions || renderActions);
 
+  // Tabella a tutta altezza e vuota: su mobile il messaggio va al centro dello spazio
+  const showCenteredEmpty = fillHeight && !skeleton && sorted.length === 0;
+
   // Sotto i 992px la colonna Azioni è nascosta: toccando una riga sale dal basso
   // un menu con le stesse azioni (solo per le azioni definite con "actions")
   const sheetEnabled = !!actions && !renderActions;
@@ -140,7 +143,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
   const colCount = columns.length + (hasActions ? 1 : 0);
 
   return (
-    <div className={`table-responsive${fillHeight ? ` ${styles.fill}` : ""}`}>
+    <div className={`table-responsive${fillHeight ? ` ${styles.fill}` : ""}${showCenteredEmpty ? ` ${styles.fillEmpty}` : ""}`}>
       <table className={`table table-hover mb-0 ${styles.table}`}>
         <thead>
           <tr>
@@ -188,7 +191,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
               </tr>
             ))
           ) : sorted.length === 0 ? (
-            <tr>
+            <tr className={showCenteredEmpty ? styles.emptyRow : undefined}>
               <td colSpan={colCount} className="text-center py-4" style={cellStyle}>
                 <span style={{ color: "var(--g-text-muted)" }}>{empty}</span>
               </td>
@@ -227,6 +230,8 @@ export default function GrimoireTable<T extends { id: string | number }>({
           )}
         </tbody>
       </table>
+
+      {showCenteredEmpty && <div className={styles.emptyMessage}>{empty}</div>}
 
       {sheetRow && (
         <GrimoireActionSheet

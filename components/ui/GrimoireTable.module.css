@@ -67,3 +67,30 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* Tabella a tutta altezza e vuota: il messaggio "nessun elemento" sta al centro dello spazio.
+   Su desktop il messaggio centrale è nascosto e resta la riga normale dentro la tabella. */
+.emptyMessage {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .fillEmpty {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .emptyRow {
+    display: none;
+  }
+
+  .emptyMessage {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--g-text-muted);
+  }
+}
