@@ -23,6 +23,7 @@ import GrimoireSelect from "@/components/ui/GrimoireSelect";
 import GrimoireMultiSelect from "@/components/ui/GrimoireMultiSelect";
 import GrimoireFilterPanel from "@/components/ui/GrimoireFilterPanel";
 import GrimoireInput from "@/components/ui/GrimoireInput";
+import GrimoireSearchInput from "@/components/ui/GrimoireSearchInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
 import GrimoireSelectOrText from "@/components/ui/GrimoireSelectOrText";
 import GrimoireComponentsInput from "@/components/ui/GrimoireComponentsInput";
@@ -93,7 +94,9 @@ export default function SpellsPage() {
   }
 
   function setParam(key: string, value: string) {
-    const params = new URLSearchParams(searchParams.toString());
+    // Legge l'URL attuale (non quello del render): la ricerca parte 300ms dopo
+    // e nel frattempo potrebbe essere cambiato un altro filtro
+    const params = new URLSearchParams(window.location.search);
     if (value) params.set(key, value);
     else params.delete(key);
     router.replace(`${pathname}?${params.toString()}`);
@@ -294,7 +297,7 @@ export default function SpellsPage() {
   const filters = (
     <GrimoireFilterPanel activeCount={activeFilterCount}>
       <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
-        <GrimoireInput id="spell-search" type="text" value={search} onChange={(e) => setParam("search", e.target.value)} placeholder={t("searchPlaceholder")} />
+        <GrimoireSearchInput id="spell-search" value={search} onSearch={(v) => setParam("search", v)} placeholder={t("searchPlaceholder")} />
         {tab === "miei" && (
           <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} style={{ minWidth: "150px" }} />
         )}
