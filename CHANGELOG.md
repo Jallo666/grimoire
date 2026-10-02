@@ -3,6 +3,11 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.10.2] - 2026-10-02
+
+### Modificato
+- Testo a 18px su tablet e telefono (prima 17px); navbar di conseguenza a 63px. Desktop invariato.
+
 ## [0.10.1] - 2026-10-02
 
 ### Modificato
