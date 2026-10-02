@@ -1,0 +1,122 @@
+/* Menu che sale dal basso (action sheet).
+   Apertura: lo sfondo si scurisce e il pannello sale con una curva morbida (stile iOS),
+   poi le voci entrano una dopo l'altra. Chiusura: tutto riscende e sparisce. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1055;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 250ms ease-out both;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1056;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0.5rem 0 calc(0.75rem + env(safe-area-inset-bottom));
+  border-radius: 16px 16px 0 0;
+  background-color: var(--g-card-bg);
+  color: var(--g-text);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+  animation: slideUp 380ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+/* Lineetta in cima al pannello */
+.handle {
+  width: 36px;
+  height: 4px;
+  margin: 0.25rem auto 0.75rem;
+  border-radius: 2px;
+  background-color: var(--g-text-muted);
+  opacity: 0.4;
+}
+
+.title {
+  padding: 0 1.25rem 0.5rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font-size: 1rem;
+  /* entrano una dopo l'altra: il ritardo lo mette il componente (animationDelay) */
+  animation: itemIn 300ms ease-out both;
+}
+
+.item:active {
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+.danger {
+  color: var(--bs-danger);
+}
+
+.cancel {
+  justify-content: center;
+  font-weight: 600;
+  border-top: 1px solid var(--g-card-border);
+  margin-top: 0.25rem;
+}
+
+/* Chiusura: lo sfondo sfuma e il pannello riscende */
+.closing.backdrop {
+  animation: fadeOut 220ms ease-in both;
+}
+
+.closing.sheet {
+  animation: slideDown 220ms ease-in both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes itemIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* "Riduci animazioni" attivo sul telefono: quasi istantaneo (non 0, così la chiusura
+   arriva comunque alla fine dell'animazione e il menu sparisce) */
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .sheet,
+  .item,
+  .closing.backdrop,
+  .closing.sheet {
+    animation-duration: 1ms;
+    animation-delay: 0ms !important;
+  }
+}

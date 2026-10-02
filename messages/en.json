@@ -233,6 +233,7 @@
     "clearSelection": "Clear",
     "filters": "Filters",
     "showResults": "Show results",
+    "cancel": "Cancel",
     "back": "Go back",
     "owner": "Owner",
     "version": "Version {version}"

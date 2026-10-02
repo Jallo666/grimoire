@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import GrimoireButton, { type Variant } from "./GrimoireButton";
 import GrimoireBadge from "./GrimoireBadge";
+import GrimoireActionSheet from "./GrimoireActionSheet";
 import styles from "./GrimoireTable.module.css";
 
 type BadgeVariant = "secondary" | "primary" | "success" | "danger" | "warning";
@@ -121,6 +122,21 @@ export default function GrimoireTable<T extends { id: string | number }>({
   }, [data, sortKey, sortDir]);
 
   const hasActions = !!(actions || renderActions);
+
+  // Sotto i 992px la colonna Azioni è nascosta: toccando una riga sale dal basso
+  // un menu con le stesse azioni (solo per le azioni definite con "actions")
+  const sheetEnabled = !!actions && !renderActions;
+  const [sheetRow, setSheetRow] = useState<T | null>(null);
+  const titleColumn = columns.find((c) => c.leader) ?? columns[0];
+
+  function handleRowClick(row: T) {
+    if (!sheetEnabled || !window.matchMedia("(max-width: 991.98px)").matches) return;
+    if (visibleActions(row).length > 0) setSheetRow(row);
+  }
+
+  function visibleActions(row: T) {
+    return (actions?.(row) ?? []).filter((a) => !a.hidden);
+  }
   const colCount = columns.length + (hasActions ? 1 : 0);
 
   return (
@@ -152,7 +168,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
               </th>
             ))}
             {hasActions && (
-              <th scope="col" style={{ ...headerStyle, width: "1px", whiteSpace: "nowrap" }}>
+              <th scope="col" className={sheetEnabled ? styles.actionsColumn : undefined} style={{ ...headerStyle, width: "1px", whiteSpace: "nowrap" }}>
                 {t("actions")}
               </th>
             )}
@@ -182,7 +198,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
               const rawActions = actions?.(row);
               const rowActions = Array.isArray(rawActions) ? rawActions.filter((a) => !a.hidden) : [];
               return (
-                <tr key={row.id}>
+                <tr key={row.id} className={sheetEnabled ? styles.tappableRow : undefined} onClick={() => handleRowClick(row)}>
                   {columns.map((col) => (
                     <td key={String(col.key)} className={col.leader ? styles.leader : undefined} style={cellStyle}>
                       {col.render
@@ -193,7 +209,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
                     </td>
                   ))}
                   {hasActions && (
-                    <td style={{ ...cellStyle, whiteSpace: "nowrap" }}>
+                    <td className={sheetEnabled ? styles.actionsColumn : undefined} style={{ ...cellStyle, whiteSpace: "nowrap" }}>
                       {renderActions ? (
                         renderActions(row)
                       ) : (
@@ -211,6 +227,20 @@ export default function GrimoireTable<T extends { id: string | number }>({
           )}
         </tbody>
       </table>
+
+      {sheetRow && (
+        <GrimoireActionSheet
+          title={String(sheetRow[titleColumn.key] ?? "")}
+          actions={visibleActions(sheetRow).map((a) => ({
+            label: a.label ?? a.tooltip ?? "",
+            icon: a.icon,
+            danger: a.variant === "danger",
+            href: a.href,
+            onClick: a.onClick,
+          }))}
+          onClose={() => setSheetRow(null)}
+        />
+      )}
     </div>
   );
 }

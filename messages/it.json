@@ -233,6 +233,7 @@
     "clearSelection": "Azzera",
     "filters": "Filtri",
     "showResults": "Mostra risultati",
+    "cancel": "Annulla",
     "back": "Torna indietro",
     "owner": "Owner",
     "version": "Versione {version}"
