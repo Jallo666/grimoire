@@ -3,6 +3,15 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.9.0] - 2026-10-02
+
+### Aggiunto
+- Liste di incantesimi ordinate per livello all'apertura (a parità di livello per nome), con la freccetta già sulla colonna Livello (prop `defaultSort` di `GrimoireTable`).
+- Dettaglio incantesimo: skeleton con la forma del contenuto mentre carica (nuovo componente `GrimoireSkeletonText`) e, su tablet e telefono, modale a schermo intero (prop `fullscreenOnMobile` di `GrimoireModal`).
+
+### Corretto
+- Scuole tradotte nei badge della tabella e nel dettaglio (prima restavano in italiano); il riordino per scuola segue il nome tradotto (prop `badgeLabels` di `GrimoireTable`).
+
 ## [0.8.1] - 2026-10-02
 
 ### Corretto
