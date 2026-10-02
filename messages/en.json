@@ -240,6 +240,8 @@
     "view": "View",
     "viewTable": "Table",
     "viewCards": "Cards",
+    "previous": "Previous",
+    "next": "Next",
     "back": "Go back",
     "owner": "Owner",
     "version": "Version {version}"

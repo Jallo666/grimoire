@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations, useLocale } from "next-intl";
@@ -82,6 +82,13 @@ export default function SpellsPage() {
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
 
   const [viewSpellId, setViewSpellId] = useState<string | null>(null);
+  // id degli incantesimi nell'ordine in cui sono mostrati (tabella o card), per ‹ › nel dettaglio
+  const [visibleIds, setVisibleIds] = useState<string[]>([]);
+  const handleOrderChange = useCallback((rows: SpellRow[]) => {
+    const ids = rows.map((r) => r.id);
+    // stesso ordine di prima: nessun aggiornamento (evita di ridisegnare la pagina per niente)
+    setVisibleIds((prev) => (prev.join() === ids.join() ? prev : ids));
+  }, []);
   const [showCreate, setShowCreate] = useState(false);
   const [createFormError, setCreateFormError] = useState<string | null>(null);
   const [createActiveLang, setCreateActiveLang] = useState<string>(locale);
@@ -352,6 +359,7 @@ export default function SpellsPage() {
           skeleton={loading}
           emptyMessage={t("tableEmpty")}
           fillHeight
+          onOrderChange={handleOrderChange}
         />
       );
     }
@@ -365,9 +373,15 @@ export default function SpellsPage() {
         defaultSort={{ key: "livello", dir: "asc" }}
         emptyMessage={t("tableEmpty")}
         actions={actions}
+        onOrderChange={handleOrderChange}
       />
     );
   }
+
+  // Precedente / successivo nel dettaglio, nell'ordine mostrato
+  const viewIndex = viewSpellId ? visibleIds.indexOf(viewSpellId) : -1;
+  const prevSpellId = viewIndex > 0 ? visibleIds[viewIndex - 1] : null;
+  const nextSpellId = viewIndex >= 0 && viewIndex < visibleIds.length - 1 ? visibleIds[viewIndex + 1] : null;
 
   const filters = (
     <GrimoireFilterPanel>
@@ -650,7 +664,13 @@ export default function SpellsPage() {
           </>
         )}
       </GrimoireModal>
-      <SpellViewModal spellId={viewSpellId} onClose={() => setViewSpellId(null)} />
+      <SpellViewModal
+        spellId={viewSpellId}
+        onClose={() => setViewSpellId(null)}
+        onPrev={prevSpellId ? () => setViewSpellId(prevSpellId) : undefined}
+        onNext={nextSpellId ? () => setViewSpellId(nextSpellId) : undefined}
+        position={viewIndex >= 0 ? { current: viewIndex + 1, total: visibleIds.length } : undefined}
+      />
     </GrimoirePage>
   );
 }

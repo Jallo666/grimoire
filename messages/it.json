@@ -240,6 +240,8 @@
     "view": "Vista",
     "viewTable": "Tabella",
     "viewCards": "Card",
+    "previous": "Precedente",
+    "next": "Successivo",
     "back": "Torna indietro",
     "owner": "Owner",
     "version": "Versione {version}"

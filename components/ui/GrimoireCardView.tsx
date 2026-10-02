@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GrimoireCard from "./GrimoireCard";
 import GrimoireActionSheet from "./GrimoireActionSheet";
 import { toSheetActions, type TableAction } from "./GrimoireTable";
@@ -20,6 +20,9 @@ type Props<T extends { id: string | number }> = {
   emptyMessage: string;
   // Solo sotto i 992px, dentro una GrimoirePage con fillHeight: le card scorrono nello spazio rimasto
   fillHeight?: boolean;
+  // Avvisa quando cambia l'ordine delle righe mostrate (filtri, riordino): serve per
+  // scorrere al precedente/successivo nel dettaglio. Passare una funzione stabile (useCallback)
+  onOrderChange?: (rows: T[]) => void;
 };
 
 // Vista a card, alternativa a GrimoireTable con gli stessi dati.
@@ -34,6 +37,7 @@ export default function GrimoireCardView<T extends { id: string | number }>({
   skeletonCards = 6,
   emptyMessage,
   fillHeight = false,
+  onOrderChange,
 }: Props<T>) {
   const [sheetRow, setSheetRow] = useState<T | null>(null);
 
@@ -44,6 +48,10 @@ export default function GrimoireCardView<T extends { id: string | number }>({
       (sort.thenBy ? compareValues(a[sort.thenBy], b[sort.thenBy], "asc") : 0)
     );
   }, [data, sort]);
+
+  useEffect(() => {
+    onOrderChange?.(sorted);
+  }, [sorted, onOrderChange]);
 
   function sheetActions(row: T) {
     return toSheetActions(actions?.(row) ?? []);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import GrimoireButton, { type Variant } from "./GrimoireButton";
@@ -49,6 +49,9 @@ type Props<T extends { id: string | number }> = {
   fillHeight?: boolean;
   // Ordinamento iniziale (es. { key: "livello", dir: "asc" }); l'utente può poi cambiarlo dai titoli
   defaultSort?: { key: keyof T; dir: SortDir };
+  // Avvisa quando cambia l'ordine delle righe mostrate (filtri, riordino): serve per
+  // scorrere al precedente/successivo nel dettaglio. Passare una funzione stabile (useCallback)
+  onOrderChange?: (rows: T[]) => void;
 };
 
 const cellStyle = {
@@ -105,6 +108,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
   emptyMessage,
   fillHeight = false,
   defaultSort,
+  onOrderChange,
 }: Props<T>) {
   const t = useTranslations("ui");
   const empty = emptyMessage ?? t("empty");
@@ -132,6 +136,10 @@ export default function GrimoireTable<T extends { id: string | number }>({
       (tieKey && tieKey !== sortKey ? compareValues(a[tieKey], b[tieKey], "asc") : 0)
     );
   }, [data, columns, sortKey, sortDir]);
+
+  useEffect(() => {
+    onOrderChange?.(sorted);
+  }, [sorted, onOrderChange]);
 
   const hasActions = !!(actions || renderActions);
 

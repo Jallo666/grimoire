@@ -41,6 +41,11 @@ type SpellFull = {
 type Props = {
   spellId: string | null;
   onClose: () => void;
+  // Facoltativi: vai all'incantesimo precedente/successivo della lista (assente = freccia disattivata)
+  onPrev?: () => void;
+  onNext?: () => void;
+  // Posizione nella lista, mostrata come "3 / 42"
+  position?: { current: number; total: number };
 };
 
 function Field({ label, value, multiline = false }: { label: string; value: string | null | undefined; multiline?: boolean }) {
@@ -57,9 +62,10 @@ function Field({ label, value, multiline = false }: { label: string; value: stri
   );
 }
 
-export default function SpellViewModal({ spellId, onClose }: Props) {
+export default function SpellViewModal({ spellId, onClose, onPrev, onNext, position }: Props) {
   const t = useTranslations("spells");
   const tDetail = useTranslations("spellDetail");
+  const tUi = useTranslations("ui");
   const locale = useLocale();
   const secondaryLocale = locale === "it" ? "en" : "it";
   const router = useRouter();
@@ -78,6 +84,17 @@ export default function SpellViewModal({ spellId, onClose }: Props) {
   });
 
   const spell = data?.spell;
+
+  // Frecce ← → della tastiera: incantesimo precedente / successivo
+  useEffect(() => {
+    if (!spellId) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "ArrowLeft") onPrev?.();
+      if (e.key === "ArrowRight") onNext?.();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [spellId, onPrev, onNext]);
 
   function getLangData(lang: string) {
     if (!spell) return null;
@@ -107,17 +124,25 @@ export default function SpellViewModal({ spellId, onClose }: Props) {
       size="lg"
       fullscreenOnMobile
       footer={
-        <div className="d-flex gap-2 justify-content-between w-100">
+        <div className="d-flex gap-2 justify-content-between align-items-center w-100">
           <div>
             {spell?.isOwner && (
               <GrimoireButton
                 variant="outline-secondary"
+                mobileIcon="pencil"
                 onClick={() => { onClose(); router.push(`/spells/${spell.id}`); }}
               >
                 {tDetail("editButton")}
               </GrimoireButton>
             )}
           </div>
+          {position && (
+            <div className="d-flex align-items-center gap-2">
+              <GrimoireButton variant="outline-secondary" icon="chevron-left" tooltip={tUi("previous")} disabled={!onPrev} onClick={onPrev} />
+              <small style={{ color: "var(--g-text-muted)", whiteSpace: "nowrap" }}>{position.current} / {position.total}</small>
+              <GrimoireButton variant="outline-secondary" icon="chevron-right" tooltip={tUi("next")} disabled={!onNext} onClick={onNext} />
+            </div>
+          )}
           <GrimoireButton variant="outline-secondary" onClick={onClose}>
             {t("cancelButton")}
           </GrimoireButton>
