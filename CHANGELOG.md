@@ -3,6 +3,13 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.5.1] - 2026-10-02
+
+### Corretto
+- Incantesimi: righe skeleton nella tabella mentre i dati si caricano, invece del messaggio "nessun incantesimo".
+- Ricerca incantesimi: parte 300ms dopo l'ultima lettera invece che a ogni lettera (nuovo componente `GrimoireSearchInput`).
+- Tab su tablet e telefono: etichette corte (Miei / SRD / Tutti) e tab a larghezza uguale, così non vanno più a capo.
+
 ## [0.5.0] - 2026-10-02
 
 ### Aggiunto
