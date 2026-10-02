@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { MY_SPELLS, CREATE_SPELL, DELETE_SPELL } from "@/lib/queries/spells";
+import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
@@ -94,11 +95,10 @@ export default function SpellsPage() {
   }
 
   return (
-    <main className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <GrimoirePageTitle>{t("pageTitle")}</GrimoirePageTitle>
-        <GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
-      </div>
+    <GrimoirePage>
+      <GrimoirePageTitle action={<GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>}>
+        {t("pageTitle")}
+      </GrimoirePageTitle>
 
       <GrimoireTable
         columns={columns}
@@ -120,6 +120,6 @@ export default function SpellsPage() {
           actions={[{ label: t("cancelButton"), onClick: () => setShowCreate(false) }]}
         />
       </GrimoireModal>
-    </main>
+    </GrimoirePage>
   );
 }

@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { CAMPAIGNS, CREATE_CAMPAIGN, DELETE_CAMPAIGN } from "@/lib/queries/campaigns";
 import { ME_ID } from "@/lib/queries/users";
+import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
@@ -83,11 +84,10 @@ export default function CampaignsPage() {
   }
 
   return (
-    <main className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <GrimoirePageTitle>{t("pageTitle")}</GrimoirePageTitle>
-        <GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
-      </div>
+    <GrimoirePage>
+      <GrimoirePageTitle action={<GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>}>
+        {t("pageTitle")}
+      </GrimoirePageTitle>
 
       <GrimoireTable
         columns={columns}
@@ -97,30 +97,13 @@ export default function CampaignsPage() {
           const isOwner = meId !== undefined && c.owner?.id === String(meId);
           const isMember = meId !== undefined && c.members.some((m) => m.userId === meId);
           return [
-            {
-              icon: "gear",
-              tooltip: t("tooltipManage"),
-              variant: "outline-secondary",
-              href: `/campaigns/${c.id}`,
-              hidden: !isOwner && !isMember,
-            },
-            {
-              icon: "trash",
-              tooltip: t("tooltipDelete"),
-              variant: "danger",
-              onClick: () => deleteCampaign({ variables: { id: c.id } }),
-              hidden: !isOwner,
-            },
+            { icon: "gear", tooltip: t("tooltipManage"), variant: "outline-secondary", href: `/campaigns/${c.id}`, hidden: !isOwner && !isMember },
+            { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteCampaign({ variables: { id: c.id } }), hidden: !isOwner },
           ];
         }}
       />
 
-      <GrimoireModal
-        show={showCreate}
-        onClose={() => setShowCreate(false)}
-        title={t("createModalTitle")}
-        size="lg"
-      >
+      <GrimoireModal show={showCreate} onClose={() => setShowCreate(false)} title={t("createModalTitle")} size="lg">
         <GrimoireForm
           fields={createFields}
           onSubmit={handleCreate}
@@ -130,6 +113,6 @@ export default function CampaignsPage() {
           actions={[{ label: t("cancelButton"), onClick: () => setShowCreate(false) }]}
         />
       </GrimoireModal>
-    </main>
+    </GrimoirePage>
   );
 }

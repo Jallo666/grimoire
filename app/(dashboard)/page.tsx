@@ -4,10 +4,14 @@ import Link from "next/link";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { CAMPAIGNS_HOME } from "@/lib/queries/campaigns";
+import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
-import GrimoireCard from "@/components/ui/GrimoireCard";
-import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireButton from "@/components/ui/GrimoireButton";
+import GrimoireCardGrid from "@/components/ui/GrimoireCardGrid";
+import GrimoireCardGridItem from "@/components/ui/GrimoireCardGridItem";
+import GrimoireCard from "@/components/ui/GrimoireCard";
+import GrimoireEmptyState from "@/components/ui/GrimoireEmptyState";
+import GrimoireCampaignCard from "@/components/features/GrimoireCampaignCard";
 
 type CampaignCard = {
   id: string;
@@ -24,66 +28,48 @@ export default function HomePage() {
   const campaigns = data?.campaigns ?? [];
 
   return (
-    <main className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <GrimoirePageTitle>{t("title")}</GrimoirePageTitle>
+    <GrimoirePage>
+      <GrimoirePageTitle action={
         <Link href="/campaigns">
           <GrimoireButton variant="primary">{t("newCampaign")}</GrimoireButton>
         </Link>
-      </div>
+      }>
+        {t("title")}
+      </GrimoirePageTitle>
 
       {loading && (
-        <div className="row g-4">
+        <GrimoireCardGrid>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="col-12 col-md-6 col-lg-4">
-              <GrimoireCard bare>
-                <div className="card-body p-4">
-                  <div className="placeholder-glow">
-                    <span className="placeholder col-7 rounded mb-3 d-block" style={{ height: "24px" }} />
-                    <span className="placeholder col-10 rounded mb-2 d-block" style={{ height: "14px" }} />
-                    <span className="placeholder col-5 rounded" style={{ height: "14px" }} />
-                  </div>
-                </div>
-              </GrimoireCard>
-            </div>
+            <GrimoireCardGridItem key={i}>
+              <GrimoireCard skeleton />
+            </GrimoireCardGridItem>
           ))}
-        </div>
+        </GrimoireCardGrid>
       )}
 
       {!loading && campaigns.length === 0 && (
-        <div className="text-center py-5">
-          <p className="text-muted mb-3">{t("empty")}</p>
+        <GrimoireEmptyState message={t("empty")}>
           <Link href="/campaigns">
             <GrimoireButton variant="primary">{t("goToCampaigns")}</GrimoireButton>
           </Link>
-        </div>
+        </GrimoireEmptyState>
       )}
 
       {!loading && campaigns.length > 0 && (
-        <div className="row g-4">
+        <GrimoireCardGrid>
           {campaigns.map((c) => (
-            <div key={c.id} className="col-12 col-md-6 col-lg-4">
-              <GrimoireCard>
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                  <h5 className="mb-0" style={{ color: "var(--g-text)" }}>{c.nome}</h5>
-                  <GrimoireBadge>{c.stato}</GrimoireBadge>
-                </div>
-                {c.descrizione && (
-                  <p className="small mb-2" style={{ color: "var(--g-text-muted)" }}>
-                    {c.descrizione}
-                  </p>
-                )}
-                <div className="d-flex justify-content-between align-items-center mt-3">
-                  <small style={{ color: "var(--g-text-muted)" }}>
-                    {c.owner ? (c.owner.nome ?? c.owner.email) : "—"}
-                  </small>
-                  <small style={{ color: "var(--g-text-muted)" }}>{c.unitaMisuraDefault}</small>
-                </div>
-              </GrimoireCard>
-            </div>
+            <GrimoireCardGridItem key={c.id}>
+              <GrimoireCampaignCard
+                nome={c.nome}
+                stato={c.stato}
+                descrizione={c.descrizione}
+                creatore={c.owner ? (c.owner.nome ?? c.owner.email) : "—"}
+                unita={c.unitaMisuraDefault}
+              />
+            </GrimoireCardGridItem>
           ))}
-        </div>
+        </GrimoireCardGrid>
       )}
-    </main>
+    </GrimoirePage>
   );
 }

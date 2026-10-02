@@ -4,9 +4,12 @@ import { use, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { SPELL, UPDATE_SPELL, SHARE_SPELL_USER } from "@/lib/queries/spells";
+import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
+import GrimoireFormSection from "@/components/ui/GrimoireFormSection";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireModal from "@/components/ui/GrimoireModal";
+import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
 import GrimoireInput from "@/components/ui/GrimoireInput";
@@ -70,12 +73,12 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
 
   if (loading || !data?.spell) {
     return (
-      <main className="container py-5">
-        <div className="placeholder-glow mb-4">
-          <span className="placeholder col-4 rounded" style={{ height: "32px" }} />
-        </div>
-        <GrimoireForm title={t("formTitle")} fields={fields} onSubmit={() => {}} fetching />
-      </main>
+      <GrimoirePage>
+        <GrimoirePageTitle showBack> </GrimoirePageTitle>
+        <GrimoireFormSection>
+          <GrimoireForm title={t("formTitle")} fields={fields} onSubmit={() => {}} fetching />
+        </GrimoireFormSection>
+      </GrimoirePage>
     );
   }
 
@@ -109,27 +112,27 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <main className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <GrimoirePageTitle showBack>{spell.nome}</GrimoirePageTitle>
-        <GrimoireButton icon="share" tooltip={t("tooltipShare")} variant="outline-secondary" onClick={() => { setShowShare(true); setShareSuccess(false); }} />
-      </div>
+    <GrimoirePage>
+      <GrimoirePageTitle
+        showBack
+        action={<GrimoireButton icon="share" tooltip={t("tooltipShare")} variant="outline-secondary" onClick={() => { setShowShare(true); setShareSuccess(false); }} />}
+      >
+        {spell.nome}
+      </GrimoirePageTitle>
 
-      <div className="row g-4">
-        <div className="col-12 col-lg-6">
-          <GrimoireForm
-            key={spell.id}
-            title={t("formTitle")}
-            fields={fields}
-            initialValues={initialValues}
-            onSubmit={handleUpdate}
-            submitLabel={t("saveButton")}
-            loading={updating}
-            error={updateError?.message}
-            view={!spell.isOwner}
-          />
-        </div>
-      </div>
+      <GrimoireFormSection>
+        <GrimoireForm
+          key={spell.id}
+          title={t("formTitle")}
+          fields={fields}
+          initialValues={initialValues}
+          onSubmit={handleUpdate}
+          submitLabel={t("saveButton")}
+          loading={updating}
+          error={updateError?.message}
+          view={!spell.isOwner}
+        />
+      </GrimoireFormSection>
 
       <GrimoireModal show={showShare} onClose={() => setShowShare(false)} title={t("shareModalTitle")}>
         {shareSuccess && <GrimoireAlert variant="success">{t("shareSuccess")}</GrimoireAlert>}
@@ -142,13 +145,13 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
           onChange={(e) => setShareEmail((e.target as HTMLInputElement).value)}
           placeholder={t("shareEmailPlaceholder")}
         />
-        <div className="d-flex justify-content-end gap-2 mt-3">
+        <GrimoireModalActions>
           <GrimoireButton variant="outline-secondary" onClick={() => setShowShare(false)}>{t("cancelButton")}</GrimoireButton>
           <GrimoireButton loading={sharing} onClick={() => shareSpell({ variables: { spellId: id, email: shareEmail } })}>
             {t("shareButton")}
           </GrimoireButton>
-        </div>
+        </GrimoireModalActions>
       </GrimoireModal>
-    </main>
+    </GrimoirePage>
   );
 }

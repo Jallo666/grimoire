@@ -5,12 +5,19 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { CAMPAIGN, UPDATE_CAMPAIGN } from "@/lib/queries/campaigns";
 import { ADD_MEMBER, REMOVE_MEMBER, UPDATE_ROLE } from "@/lib/queries/members";
+import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
+import GrimoireFormSection from "@/components/ui/GrimoireFormSection";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireModal from "@/components/ui/GrimoireModal";
+import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
+import GrimoireSectionHeader from "@/components/ui/GrimoireSectionHeader";
+import GrimoireInput from "@/components/ui/GrimoireInput";
+import GrimoireSelect from "@/components/ui/GrimoireSelect";
+import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 
 type UserRow = { id: string; email: string; nome: string | null };
 
@@ -80,7 +87,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
       render: (v, row, meta) => {
         const u = v as UserRow;
         return (
-          <span className="d-flex align-items-center gap-2">
+          <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             {u.nome ?? "—"}
             {row.userId === (meta.ownerId as number) && (
               <GrimoireBadge>{tUi("owner")}</GrimoireBadge>
@@ -140,17 +147,16 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
 
   if (loading || !campaign) {
     return (
-      <main className="container py-5">
-        <div className="placeholder-glow mb-4">
-          <span className="placeholder col-4 rounded" style={{ height: "32px" }} />
-        </div>
-        <GrimoireForm title={t("formTitle")} fields={editFields} onSubmit={() => {}} fetching />
-      </main>
+      <GrimoirePage>
+        <GrimoirePageTitle showBack> </GrimoirePageTitle>
+        <GrimoireFormSection>
+          <GrimoireForm title={t("formTitle")} fields={editFields} onSubmit={() => {}} fetching />
+        </GrimoireFormSection>
+      </GrimoirePage>
     );
   }
 
   const isOwner = String(campaign.ownerId) === meId;
-
   const pickerRoleOptions = isOwner ? ruoloOptions : ruoloOptions.filter((o) => o.value !== "master");
   const changeRoleOptions = isOwner ? ruoloOptions : ruoloOptions.filter((o) => o.value !== "master");
 
@@ -163,35 +169,34 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
   };
 
   return (
-    <main className="container py-5">
-      <GrimoirePageTitle showBack>{t("pageTitle", { name: campaign.nome })}</GrimoirePageTitle>
+    <GrimoirePage>
+      <GrimoirePageTitle showBack>
+        {t("pageTitle", { name: campaign.nome })}
+      </GrimoirePageTitle>
 
-      <div className="row g-4 mb-5">
-        <div className="col-12 col-lg-6">
-          <GrimoireForm
-            key={campaign.id}
-            title={t("formTitle")}
-            fields={editFields}
-            initialValues={initialValues}
-            onSubmit={handleUpdate}
-            submitLabel={t("saveButton")}
-            loading={updating}
-            error={updateError?.message}
-            view={!isOwner}
-          />
-        </div>
-      </div>
+      <GrimoireFormSection>
+        <GrimoireForm
+          key={campaign.id}
+          title={t("formTitle")}
+          fields={editFields}
+          initialValues={initialValues}
+          onSubmit={handleUpdate}
+          submitLabel={t("saveButton")}
+          loading={updating}
+          error={updateError?.message}
+          view={!isOwner}
+        />
+      </GrimoireFormSection>
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="mb-0" style={{ color: "var(--g-text)" }}>
-          {t("membersHeading", { count: campaign.members.length })}
-        </h5>
-        {isMasterOrOwner && (
+      <GrimoireSectionHeader action={
+        isMasterOrOwner && (
           <GrimoireButton size="sm" onClick={() => setShowPicker(true)}>
             {t("addMemberButton")}
           </GrimoireButton>
-        )}
-      </div>
+        )
+      }>
+        {t("membersHeading", { count: campaign.members.length })}
+      </GrimoireSectionHeader>
 
       <GrimoireTable
         columns={memberColumns}
@@ -203,19 +208,8 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           const isTargetOwner = m.userId === campaign.ownerId;
           const canAct = isOwner || !isTargetOwner;
           return [
-            {
-              label: t("changeRoleAction"),
-              variant: "outline-secondary",
-              onClick: () => { setEditingMember(m); setEditingRole(m.ruolo); },
-              hidden: !canAct,
-            },
-            {
-              icon: "trash",
-              tooltip: t("removeTooltip"),
-              variant: "danger",
-              onClick: () => removeMember({ variables: { memberId: m.id } }),
-              hidden: !canAct || isSelf,
-            },
+            { label: t("changeRoleAction"), variant: "outline-secondary", onClick: () => { setEditingMember(m); setEditingRole(m.ruolo); }, hidden: !canAct },
+            { icon: "trash", tooltip: t("removeTooltip"), variant: "danger", onClick: () => removeMember({ variables: { memberId: m.id } }), hidden: !canAct || isSelf },
           ];
         } : undefined}
       />
@@ -225,44 +219,25 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         onClose={() => setEditingMember(null)}
         title={t("changeRoleModalTitle", { name: editingMember?.user.nome ?? editingMember?.user.email ?? "" })}
       >
-        <div className="mb-4">
-          <label className="form-label" style={{ color: "var(--g-label)" }}>{t("roleLabel")}</label>
-          <select
-            className="form-select"
-            value={editingRole}
-            onChange={(e) => setEditingRole(e.target.value)}
-            style={{
-              backgroundColor: "var(--g-input-bg)",
-              borderColor: "var(--g-input-border)",
-              color: "var(--g-input-text)",
-            }}
-          >
-            {changeRoleOptions.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="d-flex justify-content-end gap-2">
+        <GrimoireInput
+          id="edit-role"
+          type="select"
+          label={t("roleLabel")}
+          value={editingRole}
+          onChange={(e) => setEditingRole(e.target.value)}
+          options={changeRoleOptions}
+        />
+        <GrimoireModalActions>
           <GrimoireButton variant="outline-secondary" onClick={() => setEditingMember(null)}>
             {t("cancelButton")}
           </GrimoireButton>
-          <GrimoireButton
-            loading={updatingRole}
-            onClick={() =>
-              updateRole({ variables: { memberId: editingMember!.id, ruolo: editingRole } })
-            }
-          >
+          <GrimoireButton loading={updatingRole} onClick={() => updateRole({ variables: { memberId: editingMember!.id, ruolo: editingRole } })}>
             {t("saveRoleButton")}
           </GrimoireButton>
-        </div>
+        </GrimoireModalActions>
       </GrimoireModal>
 
-      <GrimoireModal
-        show={showPicker}
-        onClose={() => setShowPicker(false)}
-        title={t("addMemberModalTitle")}
-        size="lg"
-      >
+      <GrimoireModal show={showPicker} onClose={() => setShowPicker(false)} title={t("addMemberModalTitle")} size="lg">
         {availableUsers.length === 0 ? (
           <p style={{ color: "var(--g-text-muted)" }}>{t("noAvailableUsers")}</p>
         ) : (
@@ -271,42 +246,27 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
             data={availableUsers}
             emptyMessage={t("usersEmpty")}
             renderActions={(u) => (
-              <div className="d-flex gap-2 align-items-center">
-                <select
-                  className="form-select form-select-sm"
+              <GrimoireInlineGroup>
+                <GrimoireSelect
+                  id={`picker-role-${u.id}`}
                   value={pickerRoles[u.id] ?? "giocatore"}
                   onChange={(e) => setPickerRoles((r) => ({ ...r, [u.id]: e.target.value }))}
-                  style={{
-                    minWidth: "130px",
-                    backgroundColor: "var(--g-input-bg)",
-                    color: "var(--g-input-text)",
-                    borderColor: "var(--g-input-border)",
-                  }}
-                >
-                  {pickerRoleOptions.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
+                  options={pickerRoleOptions}
+                  size="sm"
+                  style={{ minWidth: "130px" }}
+                />
                 <GrimoireButton
                   size="sm"
                   loading={adding}
-                  onClick={() =>
-                    addMember({
-                      variables: {
-                        campaignId: id,
-                        email: u.email,
-                        ruolo: pickerRoles[u.id] ?? "giocatore",
-                      },
-                    })
-                  }
+                  onClick={() => addMember({ variables: { campaignId: id, email: u.email, ruolo: pickerRoles[u.id] ?? "giocatore" } })}
                 >
                   {t("addButton")}
                 </GrimoireButton>
-              </div>
+              </GrimoireInlineGroup>
             )}
           />
         )}
       </GrimoireModal>
-    </main>
+    </GrimoirePage>
   );
 }

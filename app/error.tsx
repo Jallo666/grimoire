@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 
 export default function GlobalError({
@@ -13,10 +14,10 @@ export default function GlobalError({
   const t = useTranslations("errors");
 
   return (
-    <main className="container py-5 text-center">
+    <GrimoirePage centered>
       <h2 style={{ color: "var(--g-text)" }}>{t("somethingWentWrong")}</h2>
       <p style={{ color: "var(--g-text-muted)" }}>{error.message}</p>
       <GrimoireButton onClick={reset}>{t("retry")}</GrimoireButton>
-    </main>
+    </GrimoirePage>
   );
 }
