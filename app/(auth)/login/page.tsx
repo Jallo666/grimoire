@@ -2,17 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client/react";
+import { useTranslations } from "next-intl";
 import { LOGIN } from "@/lib/queries/users";
-import GrimoireForm from "@/components/ui/GrimoireForm";
+import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import AppLogo from "@/components/ui/AppLogo";
-
-const FIELDS = [
-  { name: "email", label: "Email", type: "email" as const, required: true },
-  { name: "password", label: "Password", type: "password" as const, required: true },
-];
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("auth");
+
+  const fields: FieldConfig[] = [
+    { name: "email", label: t("fieldEmail"), type: "email", required: true },
+    { name: "password", label: t("fieldPassword"), type: "password", required: true },
+  ];
 
   const [login, { loading, error }] = useMutation(LOGIN, {
     onCompleted: () => router.push("/"),
@@ -30,14 +32,14 @@ export default function LoginPage() {
             <AppLogo className="w-100" />
           </div>
           <GrimoireForm
-            title="Accedi"
-            subtitle="Inserisci le tue credenziali"
-            fields={FIELDS}
+            title={t("loginTitle")}
+            subtitle={t("loginSubtitle")}
+            fields={fields}
             onSubmit={handleSubmit}
-            submitLabel="Accedi"
+            submitLabel={t("loginSubmit")}
             loading={loading}
             error={error?.message}
-            actions={[{ label: "Registrati", onClick: () => router.push("/register") }]}
+            actions={[{ label: t("loginGoRegister"), onClick: () => router.push("/register") }]}
           />
         </div>
       </div>

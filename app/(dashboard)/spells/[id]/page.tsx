@@ -2,6 +2,7 @@
 
 import { use, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
+import { useTranslations } from "next-intl";
 import { SPELL, UPDATE_SPELL, SHARE_SPELL_USER } from "@/lib/queries/spells";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
@@ -23,39 +24,41 @@ type SpellDetail = {
   isOwner: boolean;
 };
 
-const SCUOLA_OPTIONS = [
-  { value: "", label: "—" },
-  { value: "Abiurazione", label: "Abiurazione" },
-  { value: "Ammaliamento", label: "Ammaliamento" },
-  { value: "Divinazione", label: "Divinazione" },
-  { value: "Evocazione", label: "Evocazione" },
-  { value: "Illusione", label: "Illusione" },
-  { value: "Invocazione", label: "Invocazione" },
-  { value: "Necromanzia", label: "Necromanzia" },
-  { value: "Trasmutazione", label: "Trasmutazione" },
-];
-
-const LIVELLO_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
-  value: String(i),
-  label: i === 0 ? "Trucchetto (0)" : `Livello ${i}`,
-}));
-
-const FIELDS: FieldConfig[] = [
-  { name: "nome", label: "Nome", type: "text", required: true },
-  { name: "scuola", label: "Scuola", type: "select", options: SCUOLA_OPTIONS },
-  { name: "livello", label: "Livello", type: "select", options: LIVELLO_OPTIONS },
-  { name: "descrizione", label: "Descrizione", type: "text" },
-  { name: "tempoLancio", label: "Tempo di lancio", type: "text" },
-  { name: "gittata", label: "Gittata", type: "text" },
-  { name: "durata", label: "Durata", type: "text" },
-  { name: "componenti", label: "Componenti", type: "text" },
-];
-
 export default function SpellDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [showShare, setShowShare] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const [shareSuccess, setShareSuccess] = useState(false);
+  const t = useTranslations("spellDetail");
+  const ts = useTranslations("spells");
+
+  const scuolaOptions = [
+    { value: "", label: ts("scuolaEmpty") },
+    { value: "Abiurazione", label: ts("scuolaAbiurazione") },
+    { value: "Ammaliamento", label: ts("scuolaAmmaliamento") },
+    { value: "Divinazione", label: ts("scuolaDivinazione") },
+    { value: "Evocazione", label: ts("scuolaEvocazione") },
+    { value: "Illusione", label: ts("scuolaIllusione") },
+    { value: "Invocazione", label: ts("scuolaInvocazione") },
+    { value: "Necromanzia", label: ts("scuolaNecromanzia") },
+    { value: "Trasmutazione", label: ts("scuolaTrasmutazione") },
+  ];
+
+  const livelloOptions = Array.from({ length: 10 }, (_, i) => ({
+    value: String(i),
+    label: i === 0 ? ts("livelloOption0") : ts("livelloOptionN", { n: i }),
+  }));
+
+  const fields: FieldConfig[] = [
+    { name: "nome", label: ts("fieldNome"), type: "text", required: true },
+    { name: "scuola", label: ts("fieldScuola"), type: "select", options: scuolaOptions },
+    { name: "livello", label: ts("fieldLivello"), type: "select", options: livelloOptions },
+    { name: "descrizione", label: ts("fieldDescrizione"), type: "text" },
+    { name: "tempoLancio", label: ts("fieldTempoLancio"), type: "text" },
+    { name: "gittata", label: ts("fieldGittata"), type: "text" },
+    { name: "durata", label: ts("fieldDurata"), type: "text" },
+    { name: "componenti", label: ts("fieldComponenti"), type: "text" },
+  ];
 
   const { data, loading, error, refetch } = useQuery<{ spell: SpellDetail }>(SPELL, { variables: { id } });
   const [updateSpell, { loading: updating, error: updateError }] = useMutation(UPDATE_SPELL, { onCompleted: () => refetch() });
@@ -71,7 +74,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
         <div className="placeholder-glow mb-4">
           <span className="placeholder col-4 rounded" style={{ height: "32px" }} />
         </div>
-        <GrimoireForm title="Dettagli incantesimo" fields={FIELDS} onSubmit={() => {}} fetching />
+        <GrimoireForm title={t("formTitle")} fields={fields} onSubmit={() => {}} fetching />
       </main>
     );
   }
@@ -109,18 +112,18 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     <main className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <GrimoirePageTitle showBack>{spell.nome}</GrimoirePageTitle>
-        <GrimoireButton icon="share" tooltip="Condividi" variant="outline-secondary" onClick={() => { setShowShare(true); setShareSuccess(false); }} />
+        <GrimoireButton icon="share" tooltip={t("tooltipShare")} variant="outline-secondary" onClick={() => { setShowShare(true); setShareSuccess(false); }} />
       </div>
 
       <div className="row g-4">
         <div className="col-12 col-lg-6">
           <GrimoireForm
             key={spell.id}
-            title="Dettagli incantesimo"
-            fields={FIELDS}
+            title={t("formTitle")}
+            fields={fields}
             initialValues={initialValues}
             onSubmit={handleUpdate}
-            submitLabel="Salva modifiche"
+            submitLabel={t("saveButton")}
             loading={updating}
             error={updateError?.message}
             view={!spell.isOwner}
@@ -128,21 +131,21 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      <GrimoireModal show={showShare} onClose={() => setShowShare(false)} title="Condividi incantesimo">
-        {shareSuccess && <GrimoireAlert variant="success">Incantesimo condiviso!</GrimoireAlert>}
+      <GrimoireModal show={showShare} onClose={() => setShowShare(false)} title={t("shareModalTitle")}>
+        {shareSuccess && <GrimoireAlert variant="success">{t("shareSuccess")}</GrimoireAlert>}
         {shareError && <GrimoireAlert>{shareError.message}</GrimoireAlert>}
         <GrimoireInput
           id="share-email"
-          label="Email utente"
+          label={t("shareEmailLabel")}
           type="email"
           value={shareEmail}
           onChange={(e) => setShareEmail((e.target as HTMLInputElement).value)}
-          placeholder="utente@esempio.it"
+          placeholder={t("shareEmailPlaceholder")}
         />
         <div className="d-flex justify-content-end gap-2 mt-3">
-          <GrimoireButton variant="outline-secondary" onClick={() => setShowShare(false)}>Annulla</GrimoireButton>
+          <GrimoireButton variant="outline-secondary" onClick={() => setShowShare(false)}>{t("cancelButton")}</GrimoireButton>
           <GrimoireButton loading={sharing} onClick={() => shareSpell({ variables: { spellId: id, email: shareEmail } })}>
-            Condividi
+            {t("shareButton")}
           </GrimoireButton>
         </div>
       </GrimoireModal>

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
+import { useTranslations } from "next-intl";
 import { MY_SPELLS, CREATE_SPELL, DELETE_SPELL } from "@/lib/queries/spells";
-import Link from "next/link";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
@@ -19,51 +19,56 @@ type SpellRow = {
   isOwner: boolean;
 };
 
-const SCUOLA_OPTIONS = [
-  { value: "", label: "—" },
-  { value: "Abiurazione", label: "Abiurazione" },
-  { value: "Ammaliamento", label: "Ammaliamento" },
-  { value: "Divinazione", label: "Divinazione" },
-  { value: "Evocazione", label: "Evocazione" },
-  { value: "Illusione", label: "Illusione" },
-  { value: "Invocazione", label: "Invocazione" },
-  { value: "Necromanzia", label: "Necromanzia" },
-  { value: "Trasmutazione", label: "Trasmutazione" },
-];
-
-const LIVELLO_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
-  value: String(i),
-  label: i === 0 ? "Trucchetto (0)" : `Livello ${i}`,
-}));
-
-const CREATE_FIELDS: FieldConfig[] = [
-  { name: "nome", label: "Nome", type: "text", required: true },
-  { name: "scuola", label: "Scuola", type: "select", options: SCUOLA_OPTIONS },
-  { name: "livello", label: "Livello", type: "select", defaultValue: "1", options: LIVELLO_OPTIONS },
-  { name: "descrizione", label: "Descrizione", type: "text" },
-  { name: "tempoLancio", label: "Tempo di lancio", type: "text" },
-  { name: "gittata", label: "Gittata", type: "text" },
-  { name: "durata", label: "Durata", type: "text" },
-  { name: "componenti", label: "Componenti", type: "text" },
-];
-
-const COLUMNS: Column<SpellRow>[] = [
-  { key: "nome", label: "Nome" },
-  {
-    key: "scuola",
-    label: "Scuola",
-    type: "badge",
-    badgeColors: {
-      Abiurazione: "primary", Ammaliamento: "warning", Divinazione: "success",
-      Evocazione: "danger", Illusione: "secondary", Invocazione: "primary",
-      Necromanzia: "danger", Trasmutazione: "success",
-    },
-  },
-  { key: "livello", label: "Livello", render: (v) => v === 0 ? "Trucchetto" : `Liv. ${v}` },
-];
-
 export default function SpellsPage() {
   const [showCreate, setShowCreate] = useState(false);
+  const t = useTranslations("spells");
+
+  const scuolaOptions = [
+    { value: "", label: t("scuolaEmpty") },
+    { value: "Abiurazione", label: t("scuolaAbiurazione") },
+    { value: "Ammaliamento", label: t("scuolaAmmaliamento") },
+    { value: "Divinazione", label: t("scuolaDivinazione") },
+    { value: "Evocazione", label: t("scuolaEvocazione") },
+    { value: "Illusione", label: t("scuolaIllusione") },
+    { value: "Invocazione", label: t("scuolaInvocazione") },
+    { value: "Necromanzia", label: t("scuolaNecromanzia") },
+    { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
+  ];
+
+  const livelloOptions = Array.from({ length: 10 }, (_, i) => ({
+    value: String(i),
+    label: i === 0 ? t("livelloOption0") : t("livelloOptionN", { n: i }),
+  }));
+
+  const createFields: FieldConfig[] = [
+    { name: "nome", label: t("fieldNome"), type: "text", required: true },
+    { name: "scuola", label: t("fieldScuola"), type: "select", options: scuolaOptions },
+    { name: "livello", label: t("fieldLivello"), type: "select", defaultValue: "1", options: livelloOptions },
+    { name: "descrizione", label: t("fieldDescrizione"), type: "text" },
+    { name: "tempoLancio", label: t("fieldTempoLancio"), type: "text" },
+    { name: "gittata", label: t("fieldGittata"), type: "text" },
+    { name: "durata", label: t("fieldDurata"), type: "text" },
+    { name: "componenti", label: t("fieldComponenti"), type: "text" },
+  ];
+
+  const columns: Column<SpellRow>[] = [
+    { key: "nome", label: t("colNome") },
+    {
+      key: "scuola",
+      label: t("colScuola"),
+      type: "badge",
+      badgeColors: {
+        Abiurazione: "primary", Ammaliamento: "warning", Divinazione: "success",
+        Evocazione: "danger", Illusione: "secondary", Invocazione: "primary",
+        Necromanzia: "danger", Trasmutazione: "success",
+      },
+    },
+    {
+      key: "livello",
+      label: t("colLivello"),
+      render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })),
+    },
+  ];
 
   const { data, refetch } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS);
   const spells = data?.mySpells ?? [];
@@ -91,28 +96,28 @@ export default function SpellsPage() {
   return (
     <main className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <GrimoirePageTitle>I miei incantesimi</GrimoirePageTitle>
-        <GrimoireButton onClick={() => setShowCreate(true)}>+ Nuovo incantesimo</GrimoireButton>
+        <GrimoirePageTitle>{t("pageTitle")}</GrimoirePageTitle>
+        <GrimoireButton onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
       </div>
 
       <GrimoireTable
-        columns={COLUMNS}
+        columns={columns}
         data={spells}
-        emptyMessage="Nessun incantesimo ancora. Creane uno!"
+        emptyMessage={t("tableEmpty")}
         actions={(s) => [
-          { icon: "eye", tooltip: "Dettaglio", variant: "outline-secondary", href: `/spells/${s.id}` },
-          { icon: "trash", tooltip: "Elimina", variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
+          { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", href: `/spells/${s.id}` },
+          { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
         ]}
       />
 
-      <GrimoireModal show={showCreate} onClose={() => setShowCreate(false)} title="Nuovo incantesimo" size="lg">
+      <GrimoireModal show={showCreate} onClose={() => setShowCreate(false)} title={t("createModalTitle")} size="lg">
         <GrimoireForm
-          fields={CREATE_FIELDS}
+          fields={createFields}
           onSubmit={handleCreate}
-          submitLabel="Crea incantesimo"
+          submitLabel={t("createSubmit")}
           loading={creating}
           error={createError?.message}
-          actions={[{ label: "Annulla", onClick: () => setShowCreate(false) }]}
+          actions={[{ label: t("cancelButton"), onClick: () => setShowCreate(false) }]}
         />
       </GrimoireModal>
     </main>

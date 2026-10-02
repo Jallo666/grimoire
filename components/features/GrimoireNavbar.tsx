@@ -3,19 +3,21 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client/react";
+import { useTranslations } from "next-intl";
 import { ME, LOGOUT } from "@/lib/queries/users";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import ThemeToggle from "./ThemeToggle";
 import type { User } from "@/db/types";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/campaigns", label: "Campagne" },
-  { href: "/spells", label: "Incantesimi" },
+const NAV_LINKS: { href: string; tKey: "home" | "campaigns" | "spells" }[] = [
+  { href: "/", tKey: "home" },
+  { href: "/campaigns", tKey: "campaigns" },
+  { href: "/spells", tKey: "spells" },
 ];
 
 export default function GrimoireNavbar() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
   const { data } = useQuery<{ me: Pick<User, "id" | "email" | "nome"> | null }>(ME);
   const [logout] = useMutation(LOGOUT, {
     onCompleted: () => { window.location.href = "/login"; },
@@ -35,7 +37,7 @@ export default function GrimoireNavbar() {
               href={link.href}
               className={`nav-link px-3 text-white${pathname === link.href ? " fw-bold" : " opacity-75"}`}
             >
-              {link.label}
+              {t(link.tKey)}
             </Link>
           ))}
         </div>
@@ -43,10 +45,10 @@ export default function GrimoireNavbar() {
         <div className="d-flex align-items-center gap-3">
           <ThemeToggle />
           {user && (
-            <span className="text-white small">Ciao, {user.nome ?? user.email}</span>
+            <span className="text-white small">{t("greeting", { name: user.nome ?? user.email })}</span>
           )}
           <GrimoireButton variant="outline-light" size="sm" onClick={() => logout()}>
-            Logout
+            {t("logout")}
           </GrimoireButton>
         </div>
       </div>

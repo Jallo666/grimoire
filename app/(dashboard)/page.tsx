@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@apollo/client/react";
+import { useTranslations } from "next-intl";
 import { CAMPAIGNS_HOME } from "@/lib/queries/campaigns";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireCard from "@/components/ui/GrimoireCard";
@@ -18,15 +19,16 @@ type CampaignCard = {
 };
 
 export default function HomePage() {
+  const t = useTranslations("home");
   const { data, loading } = useQuery<{ campaigns: CampaignCard[] }>(CAMPAIGNS_HOME);
   const campaigns = data?.campaigns ?? [];
 
   return (
     <main className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <GrimoirePageTitle>Le tue campagne</GrimoirePageTitle>
+        <GrimoirePageTitle>{t("title")}</GrimoirePageTitle>
         <Link href="/campaigns">
-          <GrimoireButton variant="primary">+ Nuova campagna</GrimoireButton>
+          <GrimoireButton variant="primary">{t("newCampaign")}</GrimoireButton>
         </Link>
       </div>
 
@@ -50,9 +52,9 @@ export default function HomePage() {
 
       {!loading && campaigns.length === 0 && (
         <div className="text-center py-5">
-          <p className="text-muted mb-3">Nessuna campagna ancora. Creane una!</p>
+          <p className="text-muted mb-3">{t("empty")}</p>
           <Link href="/campaigns">
-            <GrimoireButton variant="primary">Vai alle campagne</GrimoireButton>
+            <GrimoireButton variant="primary">{t("goToCampaigns")}</GrimoireButton>
           </Link>
         </div>
       )}
