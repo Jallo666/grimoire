@@ -10,9 +10,11 @@ type Props = {
   children: React.ReactNode;
   footer?: React.ReactNode;
   size?: "sm" | "lg" | "xl";
+  // Sotto i 992px la modale occupa tutto lo schermo (modal-fullscreen-lg-down di Bootstrap)
+  fullscreenOnMobile?: boolean;
 };
 
-export default function GrimoireModal({ show, onClose, title, children, footer, size }: Props) {
+export default function GrimoireModal({ show, onClose, title, children, footer, size, fullscreenOnMobile = false }: Props) {
   const t = useTranslations("ui");
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function GrimoireModal({ show, onClose, title, children, footer, 
       <div className="modal-backdrop fade show" onClick={onClose} />
       <div className="modal fade show d-block" tabIndex={-1} role="dialog" aria-modal="true" style={{ overflowY: "auto" }}>
         <div
-          className={`modal-dialog modal-dialog-centered modal-dialog-scrollable${size ? ` modal-${size}` : ""}`}
+          className={`modal-dialog modal-dialog-centered modal-dialog-scrollable${size ? ` modal-${size}` : ""}${fullscreenOnMobile ? " modal-fullscreen-lg-down" : ""}`}
           role="document"
         >
           <div

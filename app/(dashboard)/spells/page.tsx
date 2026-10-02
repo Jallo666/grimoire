@@ -290,7 +290,7 @@ export default function SpellsPage() {
       Abiurazione: "primary", Ammaliamento: "warning", Divinazione: "success",
       Evocazione: "danger", Illusione: "secondary", Invocazione: "primary",
       Necromanzia: "danger", Trasmutazione: "success",
-    }},
+    }, badgeLabels: Object.fromEntries(scuolaOptions.map((o) => [o.value, o.label])) },
     { key: "livello", label: t("colLivello"), sortable: true, render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
     { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
   ];

@@ -16,6 +16,8 @@ export type Column<T> = {
   sortable?: boolean;
   type?: "badge";
   badgeColors?: Partial<Record<string, BadgeVariant>>;
+  // Testo da mostrare nel badge per ogni valore (es. traduzioni); il riordino usa questo testo
+  badgeLabels?: Partial<Record<string, string>>;
   render?: (value: T[keyof T], row: T, meta: Record<string, unknown>) => React.ReactNode;
   // Solo sotto i 992px: la colonna resta ferma a sinistra e le altre scorrono di lato.
   // Da usare su una sola colonna, di solito la prima (es. il nome).
@@ -118,8 +120,11 @@ export default function GrimoireTable<T extends { id: string | number }>({
 
   const sorted = useMemo(() => {
     if (!sortKey) return data;
-    return [...data].sort((a, b) => compareValues(a[sortKey], b[sortKey], sortDir));
-  }, [data, sortKey, sortDir]);
+    // Con badgeLabels si riordina per il testo mostrato (es. il nome tradotto), non per il valore salvato
+    const labels = columns.find((c) => c.key === sortKey)?.badgeLabels;
+    const valueOf = (row: T) => (labels ? labels[String(row[sortKey])] ?? row[sortKey] : row[sortKey]);
+    return [...data].sort((a, b) => compareValues(valueOf(a), valueOf(b), sortDir));
+  }, [data, columns, sortKey, sortDir]);
 
   const hasActions = !!(actions || renderActions);
 
@@ -207,7 +212,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
                       {col.render
                         ? col.render(row[col.key], row, meta)
                         : col.type === "badge"
-                        ? <GrimoireBadge variant={col.badgeColors?.[String(row[col.key])] ?? "secondary"}>{String(row[col.key] ?? "")}</GrimoireBadge>
+                        ? <GrimoireBadge variant={col.badgeColors?.[String(row[col.key])] ?? "secondary"}>{col.badgeLabels?.[String(row[col.key])] ?? String(row[col.key] ?? "")}</GrimoireBadge>
                         : String(row[col.key] ?? "")}
                     </td>
                   ))}

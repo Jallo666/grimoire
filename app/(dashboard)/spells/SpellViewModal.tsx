@@ -9,6 +9,7 @@ import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { SPELL } from "@/lib/queries/spells";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireButton from "@/components/ui/GrimoireButton";
+import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 
 type Translation = {
   locale: string;
@@ -88,6 +89,13 @@ export default function SpellViewModal({ spellId, onClose }: Props) {
     return { nome: spell.nome, descrizione: spell.descrizione, highLevel: spell.higherLevel, material: null };
   }
 
+  // La scuola è salvata in italiano (es. "Evocazione"): si mostra tradotta (chiave scuolaEvocazione)
+  function scuolaLabel(scuola: string | null) {
+    if (!scuola) return null;
+    const key = `scuola${scuola}` as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : scuola;
+  }
+
   const langData = getLangData(viewLang);
   const title = langData?.nome ?? spell?.nome ?? "—";
 
@@ -97,6 +105,7 @@ export default function SpellViewModal({ spellId, onClose }: Props) {
       onClose={onClose}
       title={title}
       size="lg"
+      fullscreenOnMobile
       footer={
         <div className="d-flex gap-2 justify-content-between w-100">
           <div>
@@ -116,9 +125,15 @@ export default function SpellViewModal({ spellId, onClose }: Props) {
       }
     >
       {loading ? (
-        <div className="d-flex justify-content-center py-5">
-          <span className="spinner-border" style={{ color: "var(--g-text-muted)" }} aria-hidden="true" />
-        </div>
+        // Skeleton con la stessa forma del contenuto: descrizione, poi scuola, livello, tempo, gittata, durata
+        <>
+          <GrimoireSkeletonText lines={6} />
+          <GrimoireSkeletonText />
+          <GrimoireSkeletonText />
+          <GrimoireSkeletonText />
+          <GrimoireSkeletonText />
+          <GrimoireSkeletonText />
+        </>
       ) : spell ? (
         <>
           {/* Language tabs */}
@@ -153,7 +168,7 @@ export default function SpellViewModal({ spellId, onClose }: Props) {
           {/* Common metadata */}
           <div className="row g-0 mb-1">
             <div className="col-6">
-              <Field label={t("fieldScuola")} value={spell.scuola} />
+              <Field label={t("fieldScuola")} value={scuolaLabel(spell.scuola)} />
             </div>
             <div className="col-6">
               <Field
