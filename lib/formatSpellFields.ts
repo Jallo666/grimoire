@@ -12,9 +12,9 @@ export const CASTING_TIME_MAP: Record<string, string> = {
 };
 
 export const DURATION_MAP: Record<string, string> = {
-  "instantaneous": "durInstantaneous",
-  "special": "durSpecial",
-  "until dispelled": "durUntilDispelled",
+  "Instantaneous": "durInstantaneous",
+  "Special": "durSpecial",
+  "Until dispelled": "durUntilDispelled",
   "1 round": "dur1Round",
   "1 minute": "dur1Minute",
   "10 minutes": "dur10Minutes",
@@ -25,13 +25,13 @@ export const DURATION_MAP: Record<string, string> = {
   "7 days": "dur7Days",
   "10 days": "dur10Days",
   "30 days": "dur30Days",
-  "up to 1 round": "durUpTo1Round",
-  "up to 1 minute": "durUpTo1Minute",
-  "up to 10 minutes": "durUpTo10Minutes",
-  "up to 1 hour": "durUpTo1Hour",
-  "up to 2 hours": "durUpTo2Hours",
-  "up to 8 hours": "durUpTo8Hours",
-  "up to 24 hours": "durUpTo24Hours",
+  "Up to 1 round": "durUpTo1Round",
+  "Up to 1 minute": "durUpTo1Minute",
+  "Up to 10 minutes": "durUpTo10Minutes",
+  "Up to 1 hour": "durUpTo1Hour",
+  "Up to 2 hours": "durUpTo2Hours",
+  "Up to 8 hours": "durUpTo8Hours",
+  "Up to 24 hours": "durUpTo24Hours",
 };
 
 export function translateField(
@@ -40,6 +40,6 @@ export function translateField(
   t: (key: string) => string
 ): string {
   if (!value) return "—";
-  const key = map[value.toLowerCase().trim()];
+  const key = map[value.trim()];
   return key ? t(key) : value;
 }
