@@ -37,7 +37,13 @@ export default function ThemeToggle() {
         id={id}
         checked={theme === "dark"}
         onChange={toggle}
-        style={{ cursor: "pointer" }}
+        style={{
+          cursor: "pointer",
+          // Il toggle sta sempre sul blu (navbar e menu laterale): acceso, Bootstrap lo farebbe
+          // dello stesso blu e la pista sparirebbe. Pista bianca semitrasparente e bordo chiaro.
+          backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.35)" : undefined,
+          borderColor: "rgba(255, 255, 255, 0.6)",
+        }}
       />
       <label
         className="form-check-label text-white small"
