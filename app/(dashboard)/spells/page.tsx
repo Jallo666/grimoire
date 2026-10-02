@@ -50,7 +50,15 @@ export default function SpellsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [tab, setTab] = useState<TabKey>(TAB_FROM_PARAM[searchParams.get("tab") ?? ""] ?? "miei");
+
+  const tab: TabKey = TAB_FROM_PARAM[searchParams.get("tab") ?? ""] ?? "miei";
+  const search = searchParams.get("search") ?? "";
+  const scuola = searchParams.get("scuola") ?? "";
+  const livello = searchParams.get("livello") ?? "";
+  const concentration = searchParams.get("concentration") ?? "";
+  const ritual = searchParams.get("ritual") ?? "";
+  const groupFilter = searchParams.get("group") ?? "";
+
   const [showCreate, setShowCreate] = useState(false);
   const [showGroups, setShowGroups] = useState(false);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
@@ -58,15 +66,22 @@ export default function SpellsPage() {
   const [newGroupName, setNewGroupName] = useState("");
   const [renameId, setRenameId] = useState("");
   const [renameName, setRenameName] = useState("");
-  const [search, setSearch] = useState("");
-  const [scuola, setScuola] = useState("");
-  const [livello, setLivello] = useState("");
-  const [concentration, setConcentration] = useState("");
-  const [ritual, setRitual] = useState("");
-  const [groupFilter, setGroupFilter] = useState("");
+
   const t = useTranslations("spells");
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
+
+  function setParam(key: string, value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set(key, value);
+    else params.delete(key);
+    router.replace(`${pathname}?${params.toString()}`);
+  }
+
+  function handleTabChange(k: string) {
+    const next = k as TabKey;
+    router.replace(`${pathname}?tab=${TAB_TO_PARAM[next]}`);
+  }
 
   const tabs = [
     { key: "miei", label: t("tabMiei") },
@@ -207,19 +222,6 @@ export default function SpellsPage() {
     });
   }
 
-  function resetFilters() {
-    setSearch(""); setScuola(""); setLivello(""); setConcentration(""); setRitual(""); setGroupFilter("");
-  }
-
-  function handleTabChange(k: string) {
-    const next = k as TabKey;
-    setTab(next);
-    resetFilters();
-    const params = new URLSearchParams();
-    params.set("tab", TAB_TO_PARAM[next]);
-    router.replace(`${pathname}?${params.toString()}`);
-  }
-
   const baseColumns: Column<SpellRow>[] = [
     { key: "nome", label: t("colNome"), sortable: true },
     { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: {
@@ -244,14 +246,14 @@ export default function SpellsPage() {
 
   const filters = (
     <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
-      <GrimoireInput id="spell-search" type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("searchPlaceholder")} />
+      <GrimoireInput id="spell-search" type="text" value={search} onChange={(e) => setParam("search", e.target.value)} placeholder={t("searchPlaceholder")} />
       {tab === "miei" && (
-        <GrimoireSelect id="spell-group" value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)} options={groupOptions} style={{ minWidth: "150px" }} />
+        <GrimoireSelect id="spell-group" value={groupFilter} onChange={(e) => setParam("group", e.target.value)} options={groupOptions} style={{ minWidth: "150px" }} />
       )}
-      <GrimoireSelect id="spell-scuola" value={scuola} onChange={(e) => setScuola(e.target.value)} options={scuolaOptions} style={{ minWidth: "160px" }} />
-      <GrimoireSelect id="spell-livello" value={livello} onChange={(e) => setLivello(e.target.value)} options={livelloOptions} style={{ minWidth: "130px" }} />
-      <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setConcentration(e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
-      <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setRitual(e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
+      <GrimoireSelect id="spell-scuola" value={scuola} onChange={(e) => setParam("scuola", e.target.value)} options={scuolaOptions} style={{ minWidth: "160px" }} />
+      <GrimoireSelect id="spell-livello" value={livello} onChange={(e) => setParam("livello", e.target.value)} options={livelloOptions} style={{ minWidth: "130px" }} />
+      <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
+      <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
     </GrimoireInlineGroup>
   );
 
