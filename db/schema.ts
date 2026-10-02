@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -47,6 +47,7 @@ export const spells = pgTable("spells", {
   higherLevel: text("higher_level"),
   classi: text("classi"),
   sottoclassi: text("sottoclassi"),
+  translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string }>>().default({}),
 });
 
 export const spellGroups = pgTable("spell_groups", {

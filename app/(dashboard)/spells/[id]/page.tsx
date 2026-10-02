@@ -2,8 +2,8 @@
 
 import { use, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
-import { useTranslations } from "next-intl";
-import { SPELL, UPDATE_SPELL, SHARE_SPELL_USER } from "@/lib/queries/spells";
+import { useTranslations, useLocale } from "next-intl";
+import { SPELL, UPDATE_SPELL, SHARE_SPELL_USER, UPSERT_SPELL_TRANSLATION } from "@/lib/queries/spells";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
@@ -14,6 +14,9 @@ import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
 import GrimoireInput from "@/components/ui/GrimoireInput";
+import GrimoireCard from "@/components/ui/GrimoireCard";
+
+type SpellTranslation = { locale: string; nome: string; descrizione: string | null };
 
 type SpellDetail = {
   id: string;
@@ -26,6 +29,7 @@ type SpellDetail = {
   durata: string | null;
   componenti: string | null;
   isOwner: boolean;
+  translations: SpellTranslation[];
 };
 
 export default function SpellDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,8 +37,11 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   const [showShare, setShowShare] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [transNome, setTransNome] = useState("");
+  const [transDescrizione, setTransDescrizione] = useState("");
   const t = useTranslations("spellDetail");
   const ts = useTranslations("spells");
+  const locale = useLocale();
 
   const scuolaOptions = [
     { value: "", label: ts("scuolaEmpty") },
@@ -74,8 +81,18 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     { name: "componenti", label: ts("fieldComponenti"), type: "components" },
   ];
 
-  const { data, loading, error, refetch } = useQuery<{ spell: SpellDetail }>(SPELL, { variables: { id } });
+  const { data, loading, error, refetch } = useQuery<{ spell: SpellDetail }>(SPELL, {
+    variables: { id, locale },
+  });
   const [updateSpell, { loading: updating, error: updateError }] = useMutation(UPDATE_SPELL, { onCompleted: () => refetch() });
+  type UpsertResult = { upsertSpellTranslation: { id: string; translations: SpellTranslation[] } };
+  const [upsertTranslation, { loading: savingTrans, error: transError }] = useMutation<UpsertResult>(UPSERT_SPELL_TRANSLATION, {
+    onCompleted: (data) => {
+      const saved = data?.upsertSpellTranslation?.translations?.find((tr) => tr.locale === locale);
+      if (saved) { setTransNome(saved.nome); setTransDescrizione(saved.descrizione ?? ""); }
+      refetch();
+    },
+  });
   const [shareSpell, { loading: sharing, error: shareError }] = useMutation(SHARE_SPELL_USER, {
     onCompleted: () => { setShareSuccess(true); setShareEmail(""); },
   });
@@ -94,6 +111,11 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   const spell = data.spell;
+
+  // Pre-populate translation fields from loaded data
+  const existingTrans = spell.translations.find((tr) => tr.locale === locale);
+  const initTransNome = transNome || existingTrans?.nome || "";
+  const initTransDescrizione = transDescrizione || existingTrans?.descrizione || "";
 
   const initialValues: Record<string, string> = {
     nome: spell.nome,
@@ -122,6 +144,18 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     });
   }
 
+  async function handleSaveTranslation() {
+    if (!initTransNome) return;
+    await upsertTranslation({
+      variables: {
+        spellId: id,
+        locale,
+        nome: initTransNome,
+        descrizione: initTransDescrizione || null,
+      },
+    });
+  }
+
   return (
     <GrimoirePage>
       <GrimoirePageTitle
@@ -143,6 +177,44 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
           error={updateError?.message}
           view={!spell.isOwner}
         />
+      </GrimoireFormSection>
+
+      {/* Translation card */}
+      <GrimoireFormSection full>
+        <GrimoireCard bare>
+          <div
+            className="card-header border-bottom px-4 pt-4 pb-3"
+            style={{ backgroundColor: "var(--g-card-bg)", borderColor: "var(--g-card-border)" }}
+          >
+            <h5 className="mb-0" style={{ color: "var(--g-text)" }}>{t("translationTitle", { locale: locale.toUpperCase() })}</h5>
+          </div>
+          <div className="card-body px-4 py-3">
+            {transError && <GrimoireAlert>{transError.message}</GrimoireAlert>}
+            <GrimoireInput
+              id="trans-nome"
+              label={t("translationNome")}
+              type="text"
+              value={initTransNome}
+              onChange={(e) => setTransNome((e.target as HTMLInputElement).value)}
+            />
+            <GrimoireInput
+              id="trans-descrizione"
+              label={t("translationDescrizione")}
+              type="textarea"
+              rows={5}
+              value={initTransDescrizione}
+              onChange={(e) => setTransDescrizione((e.target as HTMLTextAreaElement).value)}
+            />
+          </div>
+          <div
+            className="card-footer px-4 py-3 d-flex justify-content-end border-top"
+            style={{ backgroundColor: "var(--g-card-bg)", borderColor: "var(--g-card-border)" }}
+          >
+            <GrimoireButton loading={savingTrans} onClick={handleSaveTranslation}>
+              {t("translationSave")}
+            </GrimoireButton>
+          </div>
+        </GrimoireCard>
       </GrimoireFormSection>
 
       <GrimoireModal show={showShare} onClose={() => setShowShare(false)} title={t("shareModalTitle")}>

@@ -206,7 +206,11 @@
     "shareEmailPlaceholder": "utente@esempio.it",
     "shareSuccess": "Incantesimo condiviso!",
     "shareButton": "Condividi",
-    "cancelButton": "Annulla"
+    "cancelButton": "Annulla",
+    "translationTitle": "Traduzione ({locale})",
+    "translationNome": "Nome tradotto",
+    "translationDescrizione": "Descrizione tradotta",
+    "translationSave": "Salva traduzione"
   },
   "ui": {
     "save": "Salva",

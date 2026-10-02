@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client/react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
@@ -68,6 +68,7 @@ export default function SpellsPage() {
   const [renameName, setRenameName] = useState("");
 
   const t = useTranslations("spells");
+  const locale = useLocale();
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
 
@@ -164,16 +165,18 @@ export default function SpellsPage() {
     ritual: ritual === "true" ? true : undefined,
   };
 
+  const localeVar = { locale };
+
   const { data: myData, refetch: refetchMy } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS, {
-    variables: { ...vars, groupId: groupFilter || undefined },
+    variables: { ...vars, ...localeVar, groupId: groupFilter || undefined },
     skip: tab !== "miei",
   });
   const { data: srdData, refetch: refetchSrd } = useQuery<{ srdSpells: SpellRow[] }>(SRD_SPELLS, {
-    variables: vars,
+    variables: { ...vars, ...localeVar },
     skip: tab !== "srd",
   });
   const { data: allData, refetch: refetchAll } = useQuery<{ allSpells: SpellRow[] }>(ALL_SPELLS, {
-    variables: vars,
+    variables: { ...vars, ...localeVar },
     skip: tab !== "tutti",
   });
 

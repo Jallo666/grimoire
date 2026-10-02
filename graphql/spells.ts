@@ -8,6 +8,12 @@ import { getOrCreateGroup } from "./spellGroups";
 import type { Context } from "./context";
 
 export const spellTypeDefs = gql`
+  type SpellTranslation {
+    locale: String!
+    nome: String!
+    descrizione: String
+  }
+
   type Spell {
     id: ID!
     nome: String!
@@ -30,17 +36,20 @@ export const spellTypeDefs = gql`
     inLibrary: Boolean!
     groupId: ID
     groupNome: String
+    translations: [SpellTranslation!]!
   }
 
   type Query {
-    mySpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, groupId: ID): [Spell!]!
-    spell(id: ID!): Spell
-    srdSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
-    allSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean): [Spell!]!
+    mySpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, groupId: ID, locale: String): [Spell!]!
+    spell(id: ID!, locale: String): Spell
+    srdSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    allSpells(search: String, scuola: String, livello: Int, concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
     campaignSpells(campaignId: ID!): [Spell!]!
   }
 
   type Mutation {
+    upsertSpellTranslation(spellId: ID!, locale: String!, nome: String!, descrizione: String): Spell!
+
     createSpell(
       nome: String!
       descrizione: String
@@ -81,27 +90,36 @@ async function getSpellOrThrow(spellId: number) {
   return spell;
 }
 
+type TranslationsMap = Record<string, { nome: string; descrizione?: string }>;
+
 function toGql(
   spell: typeof spells.$inferSelect,
   userId: number | null,
   inLibrary: boolean,
   groupId?: number | null,
-  groupNome?: string | null
+  groupNome?: string | null,
+  locale?: string | null
 ) {
+  const map = (spell.translations ?? {}) as TranslationsMap;
+  const t = locale ? map[locale] : undefined;
+  const translations = Object.entries(map).map(([l, v]) => ({ locale: l, nome: v.nome, descrizione: v.descrizione ?? null }));
   return {
     ...spell,
+    nome: t?.nome ?? spell.nome,
+    descrizione: t?.descrizione ?? spell.descrizione,
     createdAt: spell.createdAt.toISOString(),
     isOwner: spell.creatorId != null && spell.creatorId === userId,
     isSystem: spell.isSystem,
     inLibrary,
     groupId: groupId ?? null,
     groupNome: groupNome ?? null,
+    translations,
   };
 }
 
 export const spellResolvers = {
   Query: {
-    mySpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; groupId?: string }, context: Context) => {
+    mySpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; groupId?: string; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const conditions = [eq(userSpellLibrary.userId, user.id)];
       if (args.scuola) conditions.push(eq(spells.scuola, args.scuola));
@@ -116,20 +134,20 @@ export const spellResolvers = {
         .innerJoin(spells, eq(userSpellLibrary.spellId, spells.id))
         .leftJoin(spellGroups, eq(userSpellLibrary.groupId, spellGroups.id))
         .where(and(...conditions));
-      return rows.map((r) => toGql(r.spell, user.id, true, r.lib.groupId, r.group?.nome));
+      return rows.map((r) => toGql(r.spell, user.id, true, r.lib.groupId, r.group?.nome, args.locale));
     },
 
-    spell: async (_: unknown, args: { id: string }, context: Context) => {
+    spell: async (_: unknown, args: { id: string; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.id));
-      if (spell.isSystem) return toGql(spell, user.id, false);
+      if (spell.isSystem) return toGql(spell, user.id, false, null, null, args.locale);
       const [entry] = await db.select().from(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
       if (!entry) throw new GraphQLError("Non autorizzato", { extensions: { code: "FORBIDDEN" } });
-      return toGql(spell, user.id, true);
+      return toGql(spell, user.id, true, null, null, args.locale);
     },
 
-    srdSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean }, context: Context) => {
+    srdSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       assertAuthenticated(context);
       const user = context.user!;
 
@@ -146,10 +164,10 @@ export const spellResolvers = {
         .from(userSpellLibrary).where(eq(userSpellLibrary.userId, user.id));
       const inLibrarySet = new Set(libraryRows.map((r) => r.spellId));
 
-      return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id)));
+      return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale));
     },
 
-    allSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean }, context: Context) => {
+    allSpells: async (_: unknown, args: { search?: string; scuola?: string; livello?: number; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
 
       const conditions = [];
@@ -167,7 +185,7 @@ export const spellResolvers = {
         .from(userSpellLibrary).where(eq(userSpellLibrary.userId, user.id));
       const inLibrarySet = new Set(libraryRows.map((r) => r.spellId));
 
-      return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id)));
+      return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale));
     },
 
     campaignSpells: async (_: unknown, args: { campaignId: string }, context: Context) => {
@@ -304,6 +322,15 @@ export const spellResolvers = {
       await db.delete(campaignSpellLibrary)
         .where(and(eq(campaignSpellLibrary.spellId, Number(args.spellId)), eq(campaignSpellLibrary.campaignId, Number(args.campaignId))));
       return true;
+    },
+
+    upsertSpellTranslation: async (_: unknown, args: { spellId: string; locale: string; nome: string; descrizione?: string }, context: Context) => {
+      assertAuthenticated(context);
+      const spell = await getSpellOrThrow(Number(args.spellId));
+      const existing = ((spell.translations ?? {}) as TranslationsMap);
+      const updated: TranslationsMap = { ...existing, [args.locale]: { nome: args.nome, descrizione: args.descrizione ?? undefined } };
+      const [result] = await db.update(spells).set({ translations: updated }).where(eq(spells.id, spell.id)).returning();
+      return toGql(result, null, false);
     },
   },
 };
