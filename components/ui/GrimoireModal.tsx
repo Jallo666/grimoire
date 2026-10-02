@@ -46,9 +46,9 @@ export default function GrimoireModal({ show, onClose, title, children, size }: 
   return (
     <>
       <div className="modal-backdrop fade show" onClick={onClose} />
-      <div className="modal fade show d-block" tabIndex={-1} role="dialog" aria-modal="true" style={{ overflow: "hidden" }}>
+      <div className="modal fade show d-block" tabIndex={-1} role="dialog" aria-modal="true" style={{ overflowY: "auto" }}>
         <div
-          className={`modal-dialog modal-dialog-centered${size ? ` modal-${size}` : ""}`}
+          className={`modal-dialog modal-dialog-centered modal-dialog-scrollable${size ? ` modal-${size}` : ""}`}
           role="document"
         >
           <div
