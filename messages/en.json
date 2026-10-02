@@ -218,6 +218,7 @@
   },
   "ui": {
     "save": "Save",
+    "requiredFields": "Required fields missing: {fields}",
     "empty": "No items.",
     "actions": "Actions",
     "close": "Close",

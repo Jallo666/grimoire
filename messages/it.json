@@ -218,6 +218,7 @@
   },
   "ui": {
     "save": "Salva",
+    "requiredFields": "Campi obbligatori mancanti: {fields}",
     "empty": "Nessun elemento.",
     "actions": "Azioni",
     "close": "Chiudi",

@@ -64,6 +64,7 @@ export default function GrimoireForm({
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(fields.map((f) => [f.name, initialValues?.[f.name] ?? f.defaultValue ?? ""]))
   );
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   function handleChange(name: string) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
@@ -72,6 +73,12 @@ export default function GrimoireForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const missing = fields.filter((f) => f.required && !values[f.name]?.trim());
+    if (missing.length > 0) {
+      setValidationError(t("requiredFields", { fields: missing.map((f) => f.label ?? f.name).join(", ") }));
+      return;
+    }
+    setValidationError(null);
     await onSubmit(values);
   }
 
@@ -106,7 +113,7 @@ export default function GrimoireForm({
 
       <form id={id} onSubmit={handleSubmit}>
         <div className="card-body px-4 py-3">
-          {error && <GrimoireAlert>{error}</GrimoireAlert>}
+          {(error || validationError) && <GrimoireAlert>{error ?? validationError}</GrimoireAlert>}
           {fields.map((f) =>
             f.type === "range" ? (
               <GrimoireRangeInput

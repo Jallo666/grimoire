@@ -139,7 +139,7 @@ export default function SpellsPage() {
   const createFields: FieldConfig[] = [
     { name: "nome", label: t("fieldNome"), type: "text", required: true },
     { name: "groupId", label: t("groupLabel"), type: "select", options: groupSelectOptions },
-    { name: "scuola", label: t("fieldScuola"), type: "select", options: [
+    { name: "scuola", label: t("fieldScuola"), type: "select", required: true, options: [
       { value: "", label: t("scuolaEmpty") },
       { value: "Abiurazione", label: t("scuolaAbiurazione") },
       { value: "Ammaliamento", label: t("scuolaAmmaliamento") },
@@ -150,13 +150,13 @@ export default function SpellsPage() {
       { value: "Necromanzia", label: t("scuolaNecromanzia") },
       { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
     ]},
-    { name: "livello", label: t("fieldLivello"), type: "select", defaultValue: "1", options: Array.from({ length: 10 }, (_, i) => ({
+    { name: "livello", label: t("fieldLivello"), type: "select", required: true, defaultValue: "1", options: Array.from({ length: 10 }, (_, i) => ({
       value: String(i), label: i === 0 ? t("livelloOption0") : t("livelloOptionN", { n: i }),
     }))},
-    { name: "descrizione", label: t("fieldDescrizione"), type: "textarea", rows: 5 },
-    { name: "tempoLancio", label: t("fieldTempoLancio"), type: "selectOrText", options: castingTimeOptions, customLabel: t("ctCustom") },
-    { name: "gittata", label: t("fieldGittata"), type: "range" },
-    { name: "durata", label: t("fieldDurata"), type: "selectOrText", options: durationOptions, customLabel: t("durCustom") },
+    { name: "descrizione", label: t("fieldDescrizione"), type: "textarea", required: true, rows: 5 },
+    { name: "tempoLancio", label: t("fieldTempoLancio"), type: "selectOrText", required: true, options: castingTimeOptions, customLabel: t("ctCustom") },
+    { name: "gittata", label: t("fieldGittata"), type: "range", required: true },
+    { name: "durata", label: t("fieldDurata"), type: "selectOrText", required: true, options: durationOptions, customLabel: t("durCustom") },
     { name: "componenti", label: t("fieldComponenti"), type: "components" },
   ];
 
