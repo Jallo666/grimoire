@@ -39,8 +39,14 @@ export function formatRange(
 
   const lower = gittata.trim().toLowerCase();
 
+  // exact match
   const key = SPECIAL_KEYWORDS[lower];
   if (key) return tSpecial(key);
+
+  // prefix match: "Self (30-foot cone)" → "Self"
+  for (const k of Object.keys(SPECIAL_KEYWORDS)) {
+    if (lower.startsWith(k)) return tSpecial(k);
+  }
 
   const feet = parseFeet(gittata);
   if (feet !== null) return feetToDisplay(feet, unitSystem);
@@ -67,8 +73,17 @@ export function parseFeetString(
   targetUnit: UnitSystem
 ): { valore: string; unita: UnitSystem; special: string } {
   const lower = gittata.trim().toLowerCase();
+
+  // exact match
   if (SPECIAL_KEYWORDS[lower]) {
     return { valore: "", unita: targetUnit || "piedi", special: lower };
+  }
+
+  // prefix match: "Self (30-foot cone)" → "self"
+  for (const key of Object.keys(SPECIAL_KEYWORDS)) {
+    if (lower.startsWith(key)) {
+      return { valore: "", unita: targetUnit || "piedi", special: key };
+    }
   }
 
   const feet = parseFeet(gittata);

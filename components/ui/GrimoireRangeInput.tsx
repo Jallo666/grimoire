@@ -84,14 +84,14 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
           {label}
         </label>
       )}
-      <div className="d-flex gap-2">
+      <div className="d-flex gap-2 flex-wrap">
         <select
           id={`${id}-special`}
           className={`form-select${dark ? " g-dark" : ""}`}
           value={special}
           onChange={(e) => emitSpecial(e.target.value)}
           disabled={disabled}
-          style={{ ...inputStyle, minWidth: "140px", flex: "0 0 auto" }}
+          style={{ ...inputStyle, flex: "1 1 150px", minWidth: "130px", maxWidth: special ? "100%" : "200px" }}
         >
           {specialOptions.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -108,7 +108,7 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
               value={valore}
               onChange={(e) => emitNumeric(e.target.value, unita)}
               disabled={disabled}
-              style={inputStyle}
+              style={{ ...inputStyle, flex: "1 1 80px", minWidth: "70px" }}
             />
             <select
               id={`${id}-unita`}
@@ -116,7 +116,7 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
               value={unita}
               onChange={(e) => emitNumeric(valore, e.target.value as UnitSystem)}
               disabled={disabled}
-              style={{ ...inputStyle, minWidth: "120px", flex: "0 0 auto" }}
+              style={{ ...inputStyle, flex: "1 1 110px", minWidth: "100px" }}
             >
               {unitOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
