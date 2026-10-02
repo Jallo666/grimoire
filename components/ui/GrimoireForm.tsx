@@ -42,6 +42,7 @@ type Props = {
   actions?: FormAction[];
   id?: string;
   hideFooter?: boolean;
+  onValidationError?: (msg: string | null) => void;
 };
 
 export default function GrimoireForm({
@@ -58,6 +59,7 @@ export default function GrimoireForm({
   actions = [],
   id,
   hideFooter = false,
+  onValidationError,
 }: Props) {
   const t = useTranslations("ui");
   const label = submitLabel ?? t("save");
@@ -75,10 +77,16 @@ export default function GrimoireForm({
     e.preventDefault();
     const missing = fields.filter((f) => f.required && !values[f.name]?.trim());
     if (missing.length > 0) {
-      setValidationError(t("requiredFields", { fields: missing.map((f) => f.label ?? f.name).join(", ") }));
+      const msg = t("requiredFields", { fields: missing.map((f) => f.label ?? f.name).join(", ") });
+      if (hideFooter && onValidationError) {
+        onValidationError(msg);
+      } else {
+        setValidationError(msg);
+      }
       return;
     }
     setValidationError(null);
+    onValidationError?.(null);
     await onSubmit(values);
   }
 
@@ -111,7 +119,7 @@ export default function GrimoireForm({
         </div>
       )}
 
-      <form id={id} onSubmit={handleSubmit}>
+      <form id={id} onSubmit={handleSubmit} noValidate>
         <div className="card-body px-4 py-3">
           {(error || validationError) && <GrimoireAlert>{error ?? validationError}</GrimoireAlert>}
           {fields.map((f) =>

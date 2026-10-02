@@ -11,6 +11,7 @@ import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
 import GrimoireModal from "@/components/ui/GrimoireModal";
+import GrimoireAlert from "@/components/ui/GrimoireAlert";
 
 type CampaignRow = {
   id: string;
@@ -25,6 +26,7 @@ type CampaignRow = {
 
 export default function CampaignsPage() {
   const [showCreate, setShowCreate] = useState(false);
+  const [createFormError, setCreateFormError] = useState<string | null>(null);
   const t = useTranslations("campaigns");
 
   const statoOptions = [
@@ -105,13 +107,18 @@ export default function CampaignsPage() {
 
       <GrimoireModal
         show={showCreate}
-        onClose={() => setShowCreate(false)}
+        onClose={() => { setShowCreate(false); setCreateFormError(null); }}
         title={t("createModalTitle")}
         size="lg"
         footer={
-          <div className="d-flex gap-2 justify-content-end w-100">
-            <GrimoireButton variant="outline-secondary" onClick={() => setShowCreate(false)}>{t("cancelButton")}</GrimoireButton>
-            <GrimoireButton type="submit" form="create-campaign-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
+          <div className="d-flex flex-column gap-2 w-100">
+            {(createFormError || createError?.message) && (
+              <GrimoireAlert>{createFormError ?? createError?.message}</GrimoireAlert>
+            )}
+            <div className="d-flex gap-2 justify-content-end">
+              <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); setCreateFormError(null); }}>{t("cancelButton")}</GrimoireButton>
+              <GrimoireButton type="submit" form="create-campaign-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
+            </div>
           </div>
         }
       >
@@ -120,7 +127,7 @@ export default function CampaignsPage() {
           hideFooter
           fields={createFields}
           onSubmit={handleCreate}
-          error={createError?.message}
+          onValidationError={setCreateFormError}
         />
       </GrimoireModal>
     </GrimoirePage>

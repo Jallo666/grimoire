@@ -60,6 +60,7 @@ export default function SpellsPage() {
   const groupFilter = searchParams.get("group") ?? "";
 
   const [showCreate, setShowCreate] = useState(false);
+  const [createFormError, setCreateFormError] = useState<string | null>(null);
   const [showGroups, setShowGroups] = useState(false);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
   const [moveGroupId, setMoveGroupId] = useState("");
@@ -326,13 +327,18 @@ export default function SpellsPage() {
       {/* Create spell modal */}
       <GrimoireModal
         show={showCreate}
-        onClose={() => setShowCreate(false)}
+        onClose={() => { setShowCreate(false); setCreateFormError(null); }}
         title={t("createModalTitle")}
         size="lg"
         footer={
-          <div className="d-flex gap-2 justify-content-end w-100">
-            <GrimoireButton variant="outline-secondary" onClick={() => setShowCreate(false)}>{t("cancelButton")}</GrimoireButton>
-            <GrimoireButton type="submit" form="create-spell-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
+          <div className="d-flex flex-column gap-2 w-100">
+            {(createFormError || createError?.message) && (
+              <GrimoireAlert>{createFormError ?? createError?.message}</GrimoireAlert>
+            )}
+            <div className="d-flex gap-2 justify-content-end">
+              <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); setCreateFormError(null); }}>{t("cancelButton")}</GrimoireButton>
+              <GrimoireButton type="submit" form="create-spell-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
+            </div>
           </div>
         }
       >
@@ -341,7 +347,7 @@ export default function SpellsPage() {
           hideFooter
           fields={createFields}
           onSubmit={handleCreate}
-          error={createError?.message}
+          onValidationError={setCreateFormError}
         />
       </GrimoireModal>
 
