@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useAppSelector } from "@/store/hooks";
 
 type Props = {
   children: React.ReactNode;
@@ -12,7 +11,6 @@ type Props = {
 
 export default function GrimoirePageTitle({ children, showBack = false, action }: Props) {
   const t = useTranslations("ui");
-  const dark = useAppSelector((s) => s.theme.value === "dark");
   const router = useRouter();
 
   const titleBlock = (
@@ -20,7 +18,7 @@ export default function GrimoirePageTitle({ children, showBack = false, action }
       {showBack && (
         <button
           onClick={() => router.back()}
-          className={`btn btn-outline-secondary btn-sm${dark ? " g-dark" : ""}`}
+          className="btn btn-outline-secondary btn-sm"
           aria-label={t("back")}
         >
           ←

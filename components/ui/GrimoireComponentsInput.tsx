@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useAppSelector } from "@/store/hooks";
 
 type State = { v: boolean; s: boolean; m: boolean; material: string };
 
@@ -35,9 +34,6 @@ type Props = {
 
 export default function GrimoireComponentsInput({ id, label, value, onChange, disabled = false, skeleton = false }: Props) {
   const t = useTranslations("spells");
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
-  // per placeholder, freccette delle select, checkbox e menu a tendina.
   const [state, setState] = useState<State>(() => parse(value));
 
   useEffect(() => {
@@ -73,7 +69,7 @@ export default function GrimoireComponentsInput({ id, label, value, onChange, di
   ];
 
   return (
-    <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
+    <div className="mb-3">
       {label && (
         <label className="form-label d-block" style={{ color: "var(--g-label)" }}>
           {label}
@@ -100,7 +96,7 @@ export default function GrimoireComponentsInput({ id, label, value, onChange, di
         <input
           id={`${id}-material`}
           type="text"
-          className={`form-control mt-2${dark ? " g-dark" : ""}`}
+          className="form-control mt-2"
           value={state.material}
           onChange={(e) => update({ material: e.target.value })}
           placeholder={t("compMaterialPlaceholder")}

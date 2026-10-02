@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppSelector } from "@/store/hooks";
-
 export type Tab = { key: string; label: string };
 
 type Props = {
@@ -11,10 +9,8 @@ type Props = {
 };
 
 export default function GrimoireTabs({ tabs, active, onChange }: Props) {
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-
   return (
-    <ul className={`nav nav-tabs mb-4${dark ? " g-dark" : ""}`} style={{ borderColor: "var(--g-card-border)" }}>
+    <ul className="nav nav-tabs mb-4" style={{ borderColor: "var(--g-card-border)" }}>
       {tabs.map((tab) => {
         const isActive = tab.key === active;
         return (

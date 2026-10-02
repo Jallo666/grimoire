@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppSelector } from "@/store/hooks";
-
 type Option = { value: string; label: string };
 
 type Props = {
@@ -15,12 +13,8 @@ type Props = {
 };
 
 export default function GrimoireSelect({ id, label, value, onChange, options, size, style }: Props) {
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
-  // per placeholder, freccette delle select, checkbox e menu a tendina.
-
   return (
-    <div className={label ? "mb-3" : undefined} data-bs-theme={dark ? "dark" : undefined}>
+    <div className={label ? "mb-3" : undefined}>
       {label && (
         <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
           {label}
@@ -28,7 +22,7 @@ export default function GrimoireSelect({ id, label, value, onChange, options, si
       )}
       <select
         id={id}
-        className={`form-select${size ? ` form-select-${size}` : ""}${dark ? " g-dark" : ""}`}
+        className={`form-select${size ? ` form-select-${size}` : ""}`}
         value={value}
         onChange={onChange}
         style={{

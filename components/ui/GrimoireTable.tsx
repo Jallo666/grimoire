@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useAppSelector } from "@/store/hooks";
 import GrimoireButton, { type Variant } from "./GrimoireButton";
 import GrimoireBadge from "./GrimoireBadge";
 
@@ -95,7 +94,6 @@ export default function GrimoireTable<T extends { id: string | number }>({
   emptyMessage,
 }: Props<T>) {
   const t = useTranslations("ui");
-  const dark = useAppSelector((s) => s.theme.value === "dark");
   const empty = emptyMessage ?? t("empty");
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -119,7 +117,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
 
   return (
     <div className="table-responsive">
-      <table className={`table table-hover mb-0${dark ? " g-dark" : ""}`}>
+      <table className="table table-hover mb-0">
         <thead>
           <tr>
             {columns.map((col) => (

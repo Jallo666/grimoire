@@ -6,10 +6,17 @@ import { setTheme } from "@/store/themeSlice";
 
 export const THEME_STORAGE_KEY = "grimoire-theme";
 
+// L'unico interruttore del tema: data-bs-theme sul <body>.
+// Cambia sia i nostri colori (--g-… in styles/palette.css) sia quelli di Bootstrap.
+// I componenti non devono sapere quale tema è attivo: usano solo le variabili --g-….
+export function setPageTheme(dark: boolean) {
+  document.body.setAttribute("data-bs-theme", dark ? "dark" : "light");
+  document.body.style.backgroundColor = "var(--g-body-bg)";
+}
+
 export function applyTheme(dark: boolean, dispatch: ReturnType<typeof useAppDispatch>) {
   dispatch(setTheme(dark ? "dark" : "light"));
-  document.body.classList.toggle("g-dark", dark);
-  document.body.style.backgroundColor = "var(--g-body-bg)";
+  setPageTheme(dark);
 }
 
 export default function ThemeSync() {

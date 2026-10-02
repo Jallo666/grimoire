@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useAppSelector } from "@/store/hooks";
 
 type Props = {
   show: boolean;
@@ -15,7 +14,6 @@ type Props = {
 
 export default function GrimoireModal({ show, onClose, title, children, footer, size }: Props) {
   const t = useTranslations("ui");
-  const dark = useAppSelector((s) => s.theme.value === "dark");
 
   useEffect(() => {
     if (show) {
@@ -53,7 +51,7 @@ export default function GrimoireModal({ show, onClose, title, children, footer, 
           role="document"
         >
           <div
-            className={`modal-content${dark ? " g-dark" : ""}`}
+            className="modal-content"
             style={{
               backgroundColor: "var(--g-card-bg)",
               borderColor: "var(--g-card-border)",

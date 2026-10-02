@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useAppSelector } from "@/store/hooks";
 
 type Option = { value: string; label: string };
 
@@ -20,7 +19,6 @@ type Props = {
 // Una voce = mostra quella voce. Più voci = mostra la prima e quante altre (es. "Evocazione +2").
 export default function GrimoireMultiSelect({ id, placeholder, options, value, onChange, style }: Props) {
   const t = useTranslations("ui");
-  const dark = useAppSelector((s) => s.theme.value === "dark");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -53,8 +51,7 @@ export default function GrimoireMultiSelect({ id, placeholder, options, value, o
     : `${selected[0].label} +${selected.length - 1}`;
 
   return (
-    // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri per freccetta e caselle
-    <div ref={ref} data-bs-theme={dark ? "dark" : undefined} style={{ position: "relative", ...style }}>
+    <div ref={ref} style={{ position: "relative", ...style }}>
       <button
         id={id}
         type="button"

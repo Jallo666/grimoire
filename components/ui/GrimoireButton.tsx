@@ -1,6 +1,5 @@
 "use client";
 
-import { useAppSelector } from "@/store/hooks";
 import GrimoireIcon from "./GrimoireIcon";
 
 export type Variant = "primary" | "outline-light" | "outline-secondary" | "danger";
@@ -33,8 +32,6 @@ export default function GrimoireButton({
   form,
   onClick,
 }: Props) {
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-
   const iconOnly = !!icon && !children;
 
   const classes = [
@@ -42,7 +39,6 @@ export default function GrimoireButton({
     `btn-${variant}`,
     size ? `btn-${size}` : "",
     fullWidth ? "w-100" : "",
-    dark ? "g-dark" : "",
     iconOnly ? "d-inline-flex align-items-center justify-content-center" : "",
   ]
     .filter(Boolean)

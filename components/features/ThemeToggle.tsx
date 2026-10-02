@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setTheme } from "@/store/themeSlice";
 import { ME, UPDATE_PREFERENCES } from "@/lib/queries/users";
-import { THEME_STORAGE_KEY } from "./ThemeSync";
+import { THEME_STORAGE_KEY, setPageTheme } from "./ThemeSync";
 
 export default function ThemeToggle() {
   const theme = useAppSelector((s) => s.theme.value);
@@ -16,8 +16,7 @@ export default function ThemeToggle() {
   const [updatePreferences] = useMutation(UPDATE_PREFERENCES);
 
   useEffect(() => {
-    document.body.classList.toggle("g-dark", theme === "dark");
-    document.body.style.backgroundColor = "var(--g-body-bg)";
+    setPageTheme(theme === "dark");
   }, [theme]);
 
   function toggle() {

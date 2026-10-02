@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppSelector } from "@/store/hooks";
-
 type Variant = "secondary" | "primary" | "success" | "danger" | "warning";
 
 type Props = {
@@ -10,16 +8,15 @@ type Props = {
 };
 
 export default function GrimoireBadge({ children, variant = "secondary" }: Props) {
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-
+  // "secondary" usa i colori del tema (--g-badge-…): grigio nel tema chiaro, ardesia nel tema scuro
   const style =
-    variant === "secondary" && dark
+    variant === "secondary"
       ? { backgroundColor: "var(--g-badge-bg)", color: "var(--g-badge-text)" }
       : undefined;
 
   return (
     <span
-      className={`badge text-bg-${variant}${dark ? " g-dark" : ""}`}
+      className={`badge text-bg-${variant}`}
       style={style}
     >
       {children}

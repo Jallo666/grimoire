@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppSelector } from "@/store/hooks";
 
 type Option = { value: string; label: string };
 
@@ -20,10 +19,6 @@ type Props = {
 export default function GrimoireSelectOrText({
   id, label, value, onChange, options, customLabel, placeholder, disabled = false, skeleton = false,
 }: Props) {
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
-  // per placeholder, freccette delle select, checkbox e menu a tendina.
-
   const isKnown = options.some((o) => o.value === value);
   const [isCustom, setIsCustom] = useState(!isKnown && value !== "");
 
@@ -66,7 +61,7 @@ export default function GrimoireSelectOrText({
   const selectValue = isCustom ? "__custom__" : (value || "");
 
   return (
-    <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
+    <div className="mb-3">
       {label && (
         <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
           {label}
@@ -74,7 +69,7 @@ export default function GrimoireSelectOrText({
       )}
       <select
         id={id}
-        className={`form-select mb-1${dark ? " g-dark" : ""}`}
+        className="form-select mb-1"
         value={selectValue}
         onChange={handleSelectChange}
         disabled={disabled}
@@ -89,7 +84,7 @@ export default function GrimoireSelectOrText({
         <input
           id={`${id}-custom`}
           type="text"
-          className={`form-control${dark ? " g-dark" : ""}`}
+          className="form-control"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}

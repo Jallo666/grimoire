@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppSelector } from "@/store/hooks";
-
 export type InputOption = { value: string; label: string };
 
 type Props = {
@@ -31,13 +29,9 @@ export default function GrimoireInput({
   options = [],
   rows = 4,
 }: Props) {
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
-  // per placeholder, freccette delle select, checkbox e menu a tendina.
-
   if (skeleton) {
     return (
-      <div className={`mb-3${dark ? " g-dark" : ""}`}>
+      <div className="mb-3">
         {label && (
           <div className="placeholder-glow mb-1">
             <span className="placeholder col-3 rounded" style={{ height: "14px" }} />
@@ -52,7 +46,7 @@ export default function GrimoireInput({
 
   if (type === "checkbox") {
     return (
-      <div className={`form-check mb-3${dark ? " g-dark" : ""}`} data-bs-theme={dark ? "dark" : undefined}>
+      <div className="form-check mb-3">
         <input
           id={id}
           type="checkbox"
@@ -79,7 +73,7 @@ export default function GrimoireInput({
 
   if (type === "select") {
     return (
-      <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
+      <div className="mb-3">
         {label && (
           <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
             {label}
@@ -87,7 +81,7 @@ export default function GrimoireInput({
         )}
         <select
           id={id}
-          className={`form-select${dark ? " g-dark" : ""}`}
+          className="form-select"
           value={value}
           onChange={onChange}
           required={required}
@@ -110,7 +104,7 @@ export default function GrimoireInput({
 
   if (type === "textarea") {
     return (
-      <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
+      <div className="mb-3">
         {label && (
           <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
             {label}
@@ -118,7 +112,7 @@ export default function GrimoireInput({
         )}
         <textarea
           id={id}
-          className={`form-control${dark ? " g-dark" : ""}`}
+          className="form-control"
           value={value}
           onChange={onChange as React.ChangeEventHandler<HTMLTextAreaElement>}
           placeholder={placeholder}
@@ -137,7 +131,7 @@ export default function GrimoireInput({
   }
 
   return (
-    <div className={label ? "mb-3" : undefined} data-bs-theme={dark ? "dark" : undefined}>
+    <div className={label ? "mb-3" : undefined}>
       {label && (
         <label htmlFor={id} className="form-label" style={{ color: "var(--g-label)" }}>
           {label}
@@ -146,7 +140,7 @@ export default function GrimoireInput({
       <input
         id={id}
         type={type}
-        className={`form-control${dark ? " g-dark" : ""}`}
+        className="form-control"
         value={value}
         onChange={onChange as React.ChangeEventHandler<HTMLInputElement>}
         placeholder={placeholder}

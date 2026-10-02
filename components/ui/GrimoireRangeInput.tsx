@@ -18,9 +18,6 @@ const SPECIAL_OPTIONS = ["touch", "self", "sight", "special", "unlimited"] as co
 
 export default function GrimoireRangeInput({ id, label, value, onChange, disabled = false, skeleton = false }: Props) {
   const t = useTranslations("spells");
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-  // Con il tema scuro, data-bs-theme="dark" fa usare a Bootstrap i suoi colori scuri
-  // per placeholder, freccette delle select, checkbox e menu a tendina.
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const defaultUnit: UnitSystem = unitSystem || "piedi";
 
@@ -80,7 +77,7 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
   ];
 
   return (
-    <div className="mb-3" data-bs-theme={dark ? "dark" : undefined}>
+    <div className="mb-3">
       {label && (
         <label htmlFor={`${id}-special`} className="form-label" style={{ color: "var(--g-label)" }}>
           {label}
@@ -89,7 +86,7 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
       <div className="d-flex gap-2 flex-wrap">
         <select
           id={`${id}-special`}
-          className={`form-select${dark ? " g-dark" : ""}`}
+          className="form-select"
           value={special}
           onChange={(e) => emitSpecial(e.target.value)}
           disabled={disabled}
@@ -106,7 +103,7 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
               id={`${id}-valore`}
               type="number"
               min={0}
-              className={`form-control${dark ? " g-dark" : ""}`}
+              className="form-control"
               value={valore}
               onChange={(e) => emitNumeric(e.target.value, unita)}
               disabled={disabled}
@@ -114,7 +111,7 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
             />
             <select
               id={`${id}-unita`}
-              className={`form-select${dark ? " g-dark" : ""}`}
+              className="form-select"
               value={unita}
               onChange={(e) => emitNumeric(valore, e.target.value as UnitSystem)}
               disabled={disabled}

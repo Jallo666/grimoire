@@ -24,8 +24,12 @@
   --g-table-header-text: #495057;
 }
 
-/* ── Dark ── */
-.g-dark {
+/* ── Dark ──
+   Attivo quando ThemeSync mette data-bs-theme="dark" sul <body>: lo stesso attributo
+   fa passare anche Bootstrap al suo tema scuro (placeholder, freccette, checkbox, ✕…).
+   Solo sul body: navbar e menu laterale hanno data-bs-theme="dark" fisso per il testo
+   chiaro sul blu, ma non devono cambiare questi colori. */
+body[data-bs-theme="dark"] {
   --g-body-bg: #1a1a2e;
   --g-card-bg: #16213e;
   --g-card-border: #1e3a5f;

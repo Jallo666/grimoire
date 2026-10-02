@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppSelector } from "@/store/hooks";
-
 type Variant = "danger" | "success" | "warning" | "info";
 
 type Props = {
@@ -10,8 +8,6 @@ type Props = {
 };
 
 export default function GrimoireAlert({ children, variant = "danger" }: Props) {
-  const dark = useAppSelector((s) => s.theme.value === "dark");
-
   const style =
     variant === "danger"
       ? {
@@ -23,7 +19,7 @@ export default function GrimoireAlert({ children, variant = "danger" }: Props) {
 
   return (
     <div
-      className={`alert alert-${variant} py-2${dark ? " g-dark" : ""}`}
+      className={`alert alert-${variant} py-2`}
       role="alert"
       style={style}
     >
