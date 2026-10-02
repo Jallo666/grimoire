@@ -1,8 +1,19 @@
 /* ── Misure ──
    Altezza della navbar su tablet e telefono (sotto i 992px). La usano la navbar stessa
-   e le pagine a tutta altezza (GrimoirePage fillHeight) per calcolare lo spazio rimasto. */
+   e le pagine a tutta altezza (GrimoirePage fillHeight) per calcolare lo spazio rimasto.
+   In rem, così cresce insieme al testo: 56px con testo a 16px, 59.5px con testo a 17px. */
 :root {
-  --g-navbar-height: 56px;
+  --g-navbar-height: 3.5rem;
+}
+
+/* Testo più grande su tablet e telefono (sotto i 992px): 106.25% = 17px con le impostazioni
+   normali del telefono (rispetta comunque chi ha ingrandito il testo nelle impostazioni).
+   Tutto ciò che è in rem (testo, bottoni, input, spazi) cresce nella stessa proporzione.
+   Desktop: nessuna regola, resta 16px. */
+@media (max-width: 991.98px) {
+  html {
+    font-size: 106.25%;
+  }
 }
 
 /* ── Light (default) ── */
