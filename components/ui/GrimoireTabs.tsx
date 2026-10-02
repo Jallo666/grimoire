@@ -1,6 +1,9 @@
 "use client";
 
-export type Tab = { key: string; label: string };
+import styles from "./GrimoireTabs.module.css";
+
+// shortLabel (facoltativa): etichetta corta usata sotto i 992px al posto di label
+export type Tab = { key: string; label: string; shortLabel?: string };
 
 type Props = {
   tabs: Tab[];
@@ -10,11 +13,11 @@ type Props = {
 
 export default function GrimoireTabs({ tabs, active, onChange }: Props) {
   return (
-    <ul className="nav nav-tabs mb-4" style={{ borderColor: "var(--g-card-border)" }}>
+    <ul className={`nav nav-tabs mb-4 ${styles.tabs}`} style={{ borderColor: "var(--g-card-border)" }}>
       {tabs.map((tab) => {
         const isActive = tab.key === active;
         return (
-          <li key={tab.key} className="nav-item">
+          <li key={tab.key} className={`nav-item ${styles.tab}`}>
             <button
               className={`nav-link${isActive ? " active" : ""}`}
               onClick={() => onChange(tab.key)}
@@ -25,7 +28,8 @@ export default function GrimoireTabs({ tabs, active, onChange }: Props) {
                 borderBottom: isActive ? `2px solid var(--bs-primary)` : undefined,
               }}
             >
-              {tab.label}
+              <span className="d-lg-none">{tab.shortLabel ?? tab.label}</span>
+              <span className="d-none d-lg-inline">{tab.label}</span>
             </button>
           </li>
         );

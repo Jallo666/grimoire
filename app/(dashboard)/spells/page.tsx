@@ -108,9 +108,9 @@ export default function SpellsPage() {
   }
 
   const tabs = [
-    { key: "miei", label: t("tabMiei") },
-    { key: "srd", label: t("tabSrd") },
-    { key: "tutti", label: t("tabTutti") },
+    { key: "miei", label: t("tabMiei"), shortLabel: t("tabMieiShort") },
+    { key: "srd", label: t("tabSrd"), shortLabel: t("tabSrdShort") },
+    { key: "tutti", label: t("tabTutti"), shortLabel: t("tabTuttiShort") },
   ];
 
   const { data: groupsData, refetch: refetchGroups } = useQuery<{ mySpellGroups: SpellGroup[] }>(MY_SPELL_GROUPS);

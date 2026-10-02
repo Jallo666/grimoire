@@ -1,0 +1,18 @@
+/* Tablet e telefono (sotto i 992px): le tab stanno sempre su una riga e la dividono
+   in parti uguali. Se un'etichetta è lunga va a capo dentro la sua tab, senza spingere
+   le altre sotto. Desktop (da 992px): nessuna regola, resta tutto come prima. */
+@media (max-width: 991.98px) {
+  .tabs {
+    flex-wrap: nowrap;
+  }
+
+  .tab {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .tab button {
+    width: 100%;
+    height: 100%;
+  }
+}
