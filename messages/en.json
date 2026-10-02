@@ -107,6 +107,7 @@
     "fieldGittata": "Range",
     "fieldDurata": "Duration",
     "fieldComponenti": "Components",
+    "fieldHigherLevel": "At higher levels",
     "livelloOption0": "Cantrip (0)",
     "livelloOptionN": "Level {n}",
     "scuolaEmpty": "—",
@@ -210,6 +211,8 @@
     "translationTitle": "Translation ({locale})",
     "translationNome": "Translated name",
     "translationDescrizione": "Translated description",
+    "translationHigherLevel": "At higher levels (translation)",
+    "translationMaterial": "Material component (translation)",
     "translationSave": "Save translation"
   },
   "ui": {

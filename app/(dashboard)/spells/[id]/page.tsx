@@ -16,12 +16,13 @@ import GrimoireAlert from "@/components/ui/GrimoireAlert";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireCard from "@/components/ui/GrimoireCard";
 
-type SpellTranslation = { locale: string; nome: string; descrizione: string | null };
+type SpellTranslation = { locale: string; nome: string; descrizione: string | null; highLevel: string | null; material: string | null };
 
 type SpellDetail = {
   id: string;
   nome: string;
   descrizione: string | null;
+  higherLevel: string | null;
   scuola: string | null;
   livello: number;
   tempoLancio: string | null;
@@ -39,6 +40,8 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   const [shareSuccess, setShareSuccess] = useState(false);
   const [transNome, setTransNome] = useState("");
   const [transDescrizione, setTransDescrizione] = useState("");
+  const [transHighLevel, setTransHighLevel] = useState("");
+  const [transMaterial, setTransMaterial] = useState("");
   const t = useTranslations("spellDetail");
   const ts = useTranslations("spells");
   const locale = useLocale();
@@ -75,6 +78,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     { name: "scuola", label: ts("fieldScuola"), type: "select", options: scuolaOptions },
     { name: "livello", label: ts("fieldLivello"), type: "select", options: livelloOptions },
     { name: "descrizione", label: ts("fieldDescrizione"), type: "textarea", rows: 5 },
+    { name: "higherLevel", label: ts("fieldHigherLevel"), type: "textarea", rows: 2 },
     { name: "tempoLancio", label: ts("fieldTempoLancio"), type: "selectOrText", options: castingTimeOptions, customLabel: ts("ctCustom") },
     { name: "gittata", label: ts("fieldGittata"), type: "range" },
     { name: "durata", label: ts("fieldDurata"), type: "selectOrText", options: durationOptions, customLabel: ts("durCustom") },
@@ -89,7 +93,12 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   const [upsertTranslation, { loading: savingTrans, error: transError }] = useMutation<UpsertResult>(UPSERT_SPELL_TRANSLATION, {
     onCompleted: (data) => {
       const saved = data?.upsertSpellTranslation?.translations?.find((tr) => tr.locale === locale);
-      if (saved) { setTransNome(saved.nome); setTransDescrizione(saved.descrizione ?? ""); }
+      if (saved) {
+        setTransNome(saved.nome);
+        setTransDescrizione(saved.descrizione ?? "");
+        setTransHighLevel(saved.highLevel ?? "");
+        setTransMaterial(saved.material ?? "");
+      }
       refetch();
     },
   });
@@ -116,10 +125,13 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   const existingTrans = spell.translations.find((tr) => tr.locale === locale);
   const initTransNome = transNome || existingTrans?.nome || "";
   const initTransDescrizione = transDescrizione || existingTrans?.descrizione || "";
+  const initTransHighLevel = transHighLevel || existingTrans?.highLevel || "";
+  const initTransMaterial = transMaterial || existingTrans?.material || "";
 
   const initialValues: Record<string, string> = {
     nome: spell.nome,
     descrizione: spell.descrizione ?? "",
+    higherLevel: spell.higherLevel ?? "",
     scuola: spell.scuola ?? "",
     livello: String(spell.livello),
     tempoLancio: spell.tempoLancio ?? "",
@@ -134,6 +146,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
         id,
         nome: values.nome,
         descrizione: values.descrizione || null,
+        higherLevel: values.higherLevel || null,
         scuola: values.scuola || null,
         livello: Number(values.livello),
         tempoLancio: values.tempoLancio || null,
@@ -152,6 +165,8 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
         locale,
         nome: initTransNome,
         descrizione: initTransDescrizione || null,
+        highLevel: initTransHighLevel || null,
+        material: initTransMaterial || null,
       },
     });
   }
@@ -204,6 +219,21 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
               rows={5}
               value={initTransDescrizione}
               onChange={(e) => setTransDescrizione((e.target as HTMLTextAreaElement).value)}
+            />
+            <GrimoireInput
+              id="trans-higher-level"
+              label={t("translationHigherLevel")}
+              type="textarea"
+              rows={2}
+              value={initTransHighLevel}
+              onChange={(e) => setTransHighLevel((e.target as HTMLTextAreaElement).value)}
+            />
+            <GrimoireInput
+              id="trans-material"
+              label={t("translationMaterial")}
+              type="text"
+              value={initTransMaterial}
+              onChange={(e) => setTransMaterial((e.target as HTMLInputElement).value)}
             />
           </div>
           <div

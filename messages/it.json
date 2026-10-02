@@ -107,6 +107,7 @@
     "fieldGittata": "Gittata",
     "fieldDurata": "Durata",
     "fieldComponenti": "Componenti",
+    "fieldHigherLevel": "Ai livelli superiori",
     "livelloOption0": "Trucchetto (0)",
     "livelloOptionN": "Livello {n}",
     "scuolaEmpty": "—",
@@ -210,6 +211,8 @@
     "translationTitle": "Traduzione ({locale})",
     "translationNome": "Nome tradotto",
     "translationDescrizione": "Descrizione tradotta",
+    "translationHigherLevel": "Ai livelli superiori (traduzione)",
+    "translationMaterial": "Componente materiale (traduzione)",
     "translationSave": "Salva traduzione"
   },
   "ui": {

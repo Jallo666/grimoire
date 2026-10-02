@@ -12,6 +12,8 @@ export const spellTypeDefs = gql`
     locale: String!
     nome: String!
     descrizione: String
+    highLevel: String
+    material: String
   }
 
   type Spell {
@@ -48,7 +50,7 @@ export const spellTypeDefs = gql`
   }
 
   type Mutation {
-    upsertSpellTranslation(spellId: ID!, locale: String!, nome: String!, descrizione: String): Spell!
+    upsertSpellTranslation(spellId: ID!, locale: String!, nome: String!, descrizione: String, highLevel: String, material: String): Spell!
 
     createSpell(
       nome: String!
@@ -66,6 +68,7 @@ export const spellTypeDefs = gql`
       id: ID!
       nome: String
       descrizione: String
+      higherLevel: String
       scuola: String
       livello: Int
       tempoLancio: String
@@ -90,7 +93,7 @@ async function getSpellOrThrow(spellId: number) {
   return spell;
 }
 
-type TranslationsMap = Record<string, { nome: string; descrizione?: string }>;
+type TranslationsMap = Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>;
 
 function toGql(
   spell: typeof spells.$inferSelect,
@@ -102,11 +105,18 @@ function toGql(
 ) {
   const map = (spell.translations ?? {}) as TranslationsMap;
   const t = locale ? map[locale] : undefined;
-  const translations = Object.entries(map).map(([l, v]) => ({ locale: l, nome: v.nome, descrizione: v.descrizione ?? null }));
+  const translations = Object.entries(map).map(([l, v]) => ({
+    locale: l,
+    nome: v.nome,
+    descrizione: v.descrizione ?? null,
+    highLevel: v.highLevel ?? null,
+    material: v.material ?? null,
+  }));
   return {
     ...spell,
     nome: t?.nome ?? spell.nome,
     descrizione: t?.descrizione ?? spell.descrizione,
+    higherLevel: (t?.highLevel ?? spell.higherLevel) || null,
     createdAt: spell.createdAt.toISOString(),
     isOwner: spell.creatorId != null && spell.creatorId === userId,
     isSystem: spell.isSystem,
@@ -229,7 +239,7 @@ export const spellResolvers = {
 
     updateSpell: async (
       _: unknown,
-      args: { id: string; nome?: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string },
+      args: { id: string; nome?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -238,6 +248,7 @@ export const spellResolvers = {
       const updates: Record<string, unknown> = {};
       if (args.nome !== undefined) updates.nome = args.nome;
       if (args.descrizione !== undefined) updates.descrizione = args.descrizione;
+      if (args.higherLevel !== undefined) updates.higherLevel = args.higherLevel || null;
       if (args.scuola !== undefined) updates.scuola = args.scuola;
       if (args.livello !== undefined) updates.livello = args.livello;
       if (args.tempoLancio !== undefined) updates.tempoLancio = args.tempoLancio;
@@ -324,11 +335,19 @@ export const spellResolvers = {
       return true;
     },
 
-    upsertSpellTranslation: async (_: unknown, args: { spellId: string; locale: string; nome: string; descrizione?: string }, context: Context) => {
+    upsertSpellTranslation: async (_: unknown, args: { spellId: string; locale: string; nome: string; descrizione?: string; highLevel?: string; material?: string }, context: Context) => {
       assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.spellId));
       const existing = ((spell.translations ?? {}) as TranslationsMap);
-      const updated: TranslationsMap = { ...existing, [args.locale]: { nome: args.nome, descrizione: args.descrizione ?? undefined } };
+      const updated: TranslationsMap = {
+        ...existing,
+        [args.locale]: {
+          nome: args.nome,
+          descrizione: args.descrizione ?? undefined,
+          highLevel: args.highLevel ?? undefined,
+          material: args.material ?? undefined,
+        },
+      };
       const [result] = await db.update(spells).set({ translations: updated }).where(eq(spells.id, spell.id)).returning();
       return toGql(result, null, false);
     },

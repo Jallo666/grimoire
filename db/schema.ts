@@ -47,7 +47,7 @@ export const spells = pgTable("spells", {
   higherLevel: text("higher_level"),
   classi: text("classi"),
   sottoclassi: text("sottoclassi"),
-  translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string }>>().default({}),
+  translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>>().default({}),
 });
 
 export const spellGroups = pgTable("spell_groups", {

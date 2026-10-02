@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 
 const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi groupId groupNome createdAt`;
-const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi creatorId isOwner isSystem inLibrary groupId groupNome createdAt translations { locale nome descrizione }`;
+const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi creatorId isOwner isSystem inLibrary groupId groupNome createdAt translations { locale nome descrizione highLevel material }`;
 
 export const MY_SPELLS = gql`
   query MySpells($search: String, $scuola: String, $livello: Int, $concentration: Boolean, $ritual: Boolean, $groupId: ID, $locale: String) {
@@ -60,6 +60,7 @@ export const UPDATE_SPELL = gql`
     $id: ID!
     $nome: String
     $descrizione: String
+    $higherLevel: String
     $scuola: String
     $livello: Int
     $tempoLancio: String
@@ -68,16 +69,16 @@ export const UPDATE_SPELL = gql`
     $componenti: String
   ) {
     updateSpell(
-      id: $id nome: $nome descrizione: $descrizione scuola: $scuola livello: $livello
+      id: $id nome: $nome descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
-    ) { id nome descrizione scuola livello tempoLancio gittata durata componenti isOwner }
+    ) { id nome descrizione higherLevel scuola livello tempoLancio gittata durata componenti isOwner }
   }
 `;
 
 export const UPSERT_SPELL_TRANSLATION = gql`
-  mutation UpsertSpellTranslation($spellId: ID!, $locale: String!, $nome: String!, $descrizione: String) {
-    upsertSpellTranslation(spellId: $spellId, locale: $locale, nome: $nome, descrizione: $descrizione) {
-      id translations { locale nome descrizione }
+  mutation UpsertSpellTranslation($spellId: ID!, $locale: String!, $nome: String!, $descrizione: String, $highLevel: String, $material: String) {
+    upsertSpellTranslation(spellId: $spellId, locale: $locale, nome: $nome, descrizione: $descrizione, highLevel: $highLevel, material: $material) {
+      id translations { locale nome descrizione highLevel material }
     }
   }
 `;
