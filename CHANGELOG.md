@@ -3,6 +3,14 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.10.0] - 2026-10-02
+
+### Aggiunto
+- Incantesimi: vista a card oltre alla tabella, scelta con le icone ☰ / ▦ accanto alle tab e salvata nell'URL (`?view=cards`). Le card mostrano nome, livello, scuola tradotta, gittata, concentrazione/rituale e gruppo; toccando una card sale il menu delle azioni. 1 colonna su telefono, 2 su tablet, 3 su desktop. Nuovi componenti `GrimoireCardView`, `GrimoireViewToggle`, `GrimoireSpellCard`.
+
+### Corretto
+- Attribuzione SRD: "CC BY 4.0" non è più ripetuto due volte.
+
 ## [0.9.0] - 2026-10-02
 
 ### Aggiunto
