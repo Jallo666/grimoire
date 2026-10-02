@@ -9,7 +9,8 @@ Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR
 - Versione dell'app visibile in fondo alla pagina di login e alla home (componente `GrimoireVersion`).
 
 ### Corretto
-- Login e registrazione su tablet e telefono (sotto i 992px): il logo non supera più i 160px.
+- Logo ritagliato attorno al libro (tolti lo spazio vuoto e la scritta "Made with AI").
+- Login e registrazione: logo al massimo 160px su desktop e 120px su tablet e telefono (sotto i 992px).
 - La card di login/registrazione non si allunga più oltre il form lasciando uno spazio vuoto.
 - Login e registrazione rispettano il tema scuro (prima lo sfondo restava sempre chiaro).
 
