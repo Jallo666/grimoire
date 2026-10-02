@@ -227,6 +227,7 @@
     "close": "Close",
     "openMenu": "Open menu",
     "clearSelection": "Clear",
+    "filters": "Filters",
     "back": "Go back",
     "owner": "Owner",
     "version": "Version {version}"

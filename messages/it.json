@@ -227,6 +227,7 @@
     "close": "Chiudi",
     "openMenu": "Apri menu",
     "clearSelection": "Azzera",
+    "filters": "Filtri",
     "back": "Torna indietro",
     "owner": "Owner",
     "version": "Versione {version}"

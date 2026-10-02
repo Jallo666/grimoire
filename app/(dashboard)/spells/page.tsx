@@ -21,6 +21,7 @@ import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 import GrimoireSelect from "@/components/ui/GrimoireSelect";
 import GrimoireMultiSelect from "@/components/ui/GrimoireMultiSelect";
+import GrimoireFilterPanel from "@/components/ui/GrimoireFilterPanel";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
 import GrimoireSelectOrText from "@/components/ui/GrimoireSelectOrText";
@@ -283,17 +284,22 @@ export default function SpellsPage() {
     { key: "classi", label: t("colClassi"), render: (v) => <span style={{ fontSize: "0.8rem", color: "var(--g-text-muted)" }}>{String(v ?? "")}</span> },
   ];
 
+  // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
+  const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, concentration, ritual].filter(Boolean).length;
+
   const filters = (
-    <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
-      <GrimoireInput id="spell-search" type="text" value={search} onChange={(e) => setParam("search", e.target.value)} placeholder={t("searchPlaceholder")} />
-      {tab === "miei" && (
-        <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} style={{ minWidth: "150px" }} />
-      )}
-      <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} style={{ minWidth: "160px" }} />
-      <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} style={{ minWidth: "130px" }} />
-      <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
-      <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
-    </GrimoireInlineGroup>
+    <GrimoireFilterPanel activeCount={activeFilterCount}>
+      <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
+        <GrimoireInput id="spell-search" type="text" value={search} onChange={(e) => setParam("search", e.target.value)} placeholder={t("searchPlaceholder")} />
+        {tab === "miei" && (
+          <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} style={{ minWidth: "150px" }} />
+        )}
+        <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} style={{ minWidth: "160px" }} />
+        <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} style={{ minWidth: "130px" }} />
+        <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
+        <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
+      </GrimoireInlineGroup>
+    </GrimoireFilterPanel>
   );
 
   return (
