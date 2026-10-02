@@ -1,0 +1,9 @@
+/* Tablet e telefono (sotto i 992px): il logo non supera i 160px ed è centrato.
+   Desktop (da 992px in su): nessuna regola, resta tutto com'era. */
+@media (max-width: 991.98px) {
+  .logo {
+    max-width: 160px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

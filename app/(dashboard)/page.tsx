@@ -12,6 +12,7 @@ import GrimoireCardGridItem from "@/components/ui/GrimoireCardGridItem";
 import GrimoireCard from "@/components/ui/GrimoireCard";
 import GrimoireEmptyState from "@/components/ui/GrimoireEmptyState";
 import GrimoireCampaignCard from "@/components/features/GrimoireCampaignCard";
+import GrimoireVersion from "@/components/ui/GrimoireVersion";
 
 type CampaignCard = {
   id: string;
@@ -70,6 +71,8 @@ export default function HomePage() {
           ))}
         </GrimoireCardGrid>
       )}
+
+      <GrimoireVersion />
     </GrimoirePage>
   );
 }

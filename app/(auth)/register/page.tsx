@@ -27,7 +27,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <GrimoireAuthLayout logo={<AppLogo className="w-100" />}>
+    <GrimoireAuthLayout logo={<AppLogo fullWidth />}>
       <GrimoireForm
         title={t("registerTitle")}
         subtitle={t("registerSubtitle")}

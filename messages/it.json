@@ -226,7 +226,8 @@
     "actions": "Azioni",
     "close": "Chiudi",
     "back": "Torna indietro",
-    "owner": "Owner"
+    "owner": "Owner",
+    "version": "Versione {version}"
   },
   "profile": {
     "pageTitle": "Il mio profilo",

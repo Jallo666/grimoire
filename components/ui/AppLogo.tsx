@@ -1,17 +1,16 @@
 type Props = {
   width?: number;
-  className?: string;
+  fullWidth?: boolean;
 };
 
-export default function AppLogo({ width = 80, className }: Props) {
+export default function AppLogo({ width = 80, fullWidth = false }: Props) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/brand/logo.png"
       alt="Logo"
-      width={width}
-      className={className}
-      style={{ display: "block", maxWidth: "100%", height: "auto" }}
+      width={fullWidth ? undefined : width}
+      style={{ display: "block", width: fullWidth ? "100%" : undefined, maxWidth: "100%", height: "auto" }}
     />
   );
 }
