@@ -3,6 +3,14 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.10.1] - 2026-10-02
+
+### Modificato
+- Testo a 17px su tablet e telefono (sotto i 992px): testo, bottoni, input e spazi crescono nella stessa proporzione; rispetta l'ingrandimento del testo impostato sul telefono. Desktop invariato. Altezza della navbar in rem (`--g-navbar-height: 3.5rem`).
+
+### Corretto
+- Interruttore del tema visibile sul blu di navbar e menu laterale anche quando è acceso (prima restava visibile solo il pallino).
+
 ## [0.10.0] - 2026-10-02
 
 ### Aggiunto
