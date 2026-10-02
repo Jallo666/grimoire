@@ -3,6 +3,15 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.3.0] - 2026-10-02
+
+### Aggiunto
+- Menu mobile (sotto i 992px): nella barra in alto solo ☰ e "Grimoire"; il ☰ apre un menu laterale da sinistra sopra la pagina, con link, profilo, tema, lingua e logout.
+- Nuovi componenti `GrimoireHamburger`, `GrimoireSidenav` e `GrimoireSidenavLink`.
+
+### Corretto
+- `ThemeToggle`: id generato con `useId`, così può comparire più volte nella stessa pagina.
+
 ## [0.2.0] - 2026-10-02
 
 ### Aggiunto

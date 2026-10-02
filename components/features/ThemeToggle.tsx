@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setTheme } from "@/store/themeSlice";
@@ -10,6 +10,8 @@ import { THEME_STORAGE_KEY } from "./ThemeSync";
 export default function ThemeToggle() {
   const theme = useAppSelector((s) => s.theme.value);
   const dispatch = useAppDispatch();
+  // id unico: il toggle compare sia nella barra (desktop) sia nel menu laterale (mobile)
+  const id = useId();
   const { data } = useQuery<{ me: { id: string } | null }>(ME);
   const [updatePreferences] = useMutation(UPDATE_PREFERENCES);
 
@@ -33,14 +35,14 @@ export default function ThemeToggle() {
         className="form-check-input"
         type="checkbox"
         role="switch"
-        id="themeToggle"
+        id={id}
         checked={theme === "dark"}
         onChange={toggle}
         style={{ cursor: "pointer" }}
       />
       <label
         className="form-check-label text-white small"
-        htmlFor="themeToggle"
+        htmlFor={id}
         style={{ cursor: "pointer" }}
       >
         {theme === "dark" ? "🌙" : "☀️"}

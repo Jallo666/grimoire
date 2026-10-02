@@ -225,6 +225,7 @@
     "empty": "No items.",
     "actions": "Actions",
     "close": "Close",
+    "openMenu": "Open menu",
     "back": "Go back",
     "owner": "Owner",
     "version": "Version {version}"

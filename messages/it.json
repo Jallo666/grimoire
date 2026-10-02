@@ -225,6 +225,7 @@
     "empty": "Nessun elemento.",
     "actions": "Azioni",
     "close": "Chiudi",
+    "openMenu": "Apri menu",
     "back": "Torna indietro",
     "owner": "Owner",
     "version": "Versione {version}"
