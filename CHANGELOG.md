@@ -3,6 +3,20 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.21.0] - 2026-10-03
+
+### Aggiunto
+- Ogni incantesimo sa in che lingua è scritto (`spells.lingua`): SRD in inglese, quelli degli utenti dedotti dalle traduzioni o dalla lingua di chi li ha creati.
+- Dettaglio: se l'incantesimo non è tradotto nella lingua della tab compare un avviso; chi l'ha creato ha il bottone "Traduci", che apre la modifica su quella lingua.
+
+### Modificato
+- Dopo aver salvato (o annullato) la modifica di un incantesimo si torna al suo dettaglio.
+- La modifica apre sempre la lingua principale giusta.
+- Migrazione temporanea `scripts/migrate-0.21.ts` al posto della 0.20.1.
+
+### Corretto
+- Un incantesimo non tradotto mostrava nella tab dell'altra lingua il testo originale come se fosse tradotto.
+
 ## [0.20.1] - 2026-10-03
 
 ### Modificato
