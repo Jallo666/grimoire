@@ -3,24 +3,22 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-type State = { v: boolean; s: boolean; m: boolean; material: string };
+type State = { v: boolean; s: boolean; m: boolean };
 
+// "V, S, M" → caselle. Un eventuale "(testo)" vecchio stile viene ignorato:
+// il testo del materiale ha il suo campo, nelle tab della lingua del form.
 function parse(value: string): State {
-  const materialMatch = value.match(/\(([^)]*)\)/);
-  const material = materialMatch ? materialMatch[1] : "";
-  const base = value.replace(/\([^)]*\)/, "").trim();
+  const base = value.replace(/\([\s\S]*\)/, "").trim();
   const parts = base.split(",").map((p) => p.trim());
-  return { v: parts.includes("V"), s: parts.includes("S"), m: parts.includes("M"), material };
+  return { v: parts.includes("V"), s: parts.includes("S"), m: parts.includes("M") };
 }
 
-function format({ v, s, m, material }: State): string {
+function format({ v, s, m }: State): string {
   const parts: string[] = [];
   if (v) parts.push("V");
   if (s) parts.push("S");
   if (m) parts.push("M");
-  let result = parts.join(", ");
-  if (m && material.trim()) result += ` (${material.trim()})`;
-  return result;
+  return parts.join(", ");
 }
 
 type Props = {
@@ -45,16 +43,9 @@ export default function GrimoireComponentsInput({ id, label, value, onChange, di
 
   function update(patch: Partial<State>) {
     const next = { ...state, ...patch };
-    if (!next.m) next.material = "";
     setState(next);
     onChange(format(next));
   }
-
-  const inputStyle = {
-    backgroundColor: "var(--g-input-bg)",
-    borderColor: "var(--g-input-border)",
-    color: "var(--g-input-text)",
-  };
 
   if (skeleton) {
     return (
@@ -95,18 +86,6 @@ export default function GrimoireComponentsInput({ id, label, value, onChange, di
           </div>
         ))}
       </div>
-      {state.m && (
-        <input
-          id={`${id}-material`}
-          type="text"
-          className="form-control mt-2"
-          value={state.material}
-          onChange={(e) => update({ material: e.target.value })}
-          placeholder={t("compMaterialPlaceholder")}
-          disabled={disabled}
-          style={inputStyle}
-        />
-      )}
     </div>
   );
 }

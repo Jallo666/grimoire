@@ -24,7 +24,6 @@ type Translation = {
   nome: string;
   descrizione: string | null;
   highLevel: string | null;
-  material: string | null;
 };
 
 type SpellFull = {
@@ -45,6 +44,7 @@ type SpellFull = {
   isOwner: boolean;
   isSystem: boolean;
   translations: Translation[];
+  materiale: { testo: string; perBersaglio: boolean; translations: { locale: string; testo: string }[] } | null;
 };
 
 type Props = {
@@ -126,11 +126,14 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
   function getLangData(lang: string) {
     if (!spell) return null;
     const trans = spell.translations.find((tr) => tr.locale === lang);
+    // Materiale: la sua traduzione in quella lingua; senza traduzione dell'incantesimo vale il testo originale
+    const materialTrans = spell.materiale?.translations.find((tr) => tr.locale === lang);
+    const material = materialTrans?.testo ?? (trans ? null : spell.materiale?.testo ?? null);
     if (trans) {
-      return { nome: trans.nome, descrizione: trans.descrizione, highLevel: trans.highLevel, material: trans.material };
+      return { nome: trans.nome, descrizione: trans.descrizione, highLevel: trans.highLevel, material };
     }
-    // Fallback to base fields
-    return { nome: spell.nome, descrizione: spell.descrizione, highLevel: spell.higherLevel, material: null };
+    // Nessuna traduzione: i campi originali
+    return { nome: spell.nome, descrizione: spell.descrizione, highLevel: spell.higherLevel, material };
   }
 
   // La scuola è salvata in italiano (es. "Evocazione"): si mostra tradotta (chiave scuolaEvocazione)
@@ -204,7 +207,11 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             {/* Language-specific fields */}
             <GrimoireField label={t("fieldDescrizione")} value={langData?.descrizione} multiline />
             <GrimoireField label={t("fieldHigherLevel")} value={langData?.highLevel} multiline />
-            <GrimoireField label={t("fieldMaterial")} value={langData?.material} multiline />
+            <GrimoireField
+              label={spell.materiale?.perBersaglio ? `${t("fieldMaterial")} (${t("materialPerTargetShort")})` : t("fieldMaterial")}
+              value={langData?.material}
+              multiline
+            />
 
             <GrimoireDivider />
 

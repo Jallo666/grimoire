@@ -49,6 +49,19 @@ export const spells = pgTable("spells", {
   translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>>().default({}),
 });
 
+// Componente materiale di un incantesimo (la "M"): uno per incantesimo.
+// "testo" è la regola ufficiale nella lingua di creazione (SRD: inglese), le altre lingue in
+// "translations" (es. { it: { testo: "…" } }). I dati SRD vengono da scripts/srd-materials.json.
+// "perBersaglio": la quantità si moltiplica (per creatura, cadavere, Dado Vita…), i dettagli nel testo.
+export const spellMaterials = pgTable("spell_materials", {
+  id: serial("id").primaryKey(),
+  spellId: integer("spell_id").references(() => spells.id).notNull().unique(),
+  testo: text("testo").notNull(),
+  translations: jsonb("translations").$type<Record<string, { testo: string }>>().default({}),
+  perBersaglio: boolean("per_bersaglio").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // Classi dei personaggi (es. Mago). Le 8 SRD (scripts/srd-classes.json) sono di sistema
 // (isSystem, creatorId null); in futuro l'utente potrà crearne di sue. "nome" è in inglese come
 // nei dati SRD ("Wizard"), le traduzioni in "translations" (es. { it: { nome: "Mago" } }).

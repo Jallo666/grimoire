@@ -210,7 +210,6 @@
     "compV": "Verbal (V)",
     "compS": "Somatic (S)",
     "compM": "Material (M)",
-    "compMaterialPlaceholder": "Material component...",
     "confirmDeleteTitle": "Delete spell?",
     "confirmDeleteMessage": "“{name}” will be permanently deleted. This can't be undone.",
     "confirmDeleteManyTitle": "Delete {count, plural, one {# spell} other {# spells}}?",
@@ -231,7 +230,9 @@
     "filterAllClasses": "All classes",
     "colDanno": "Damage",
     "fieldDanno": "Damage type",
-    "filterAllDamage": "All damage types"
+    "filterAllDamage": "All damage types",
+    "materialPerTarget": "Per target (the quantity is multiplied)",
+    "materialPerTargetShort": "per target"
   },
   "spellDetail": {
     "formTitle": "Spell details",

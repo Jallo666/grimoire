@@ -210,7 +210,6 @@
     "compV": "Verbale (V)",
     "compS": "Somatico (S)",
     "compM": "Materiale (M)",
-    "compMaterialPlaceholder": "Componente materiale...",
     "confirmDeleteTitle": "Eliminare l'incantesimo?",
     "confirmDeleteMessage": "«{name}» verrà eliminato definitivamente. Non si può annullare.",
     "confirmDeleteManyTitle": "Eliminare {count, plural, one {# incantesimo} other {# incantesimi}}?",
@@ -231,7 +230,9 @@
     "filterAllClasses": "Tutte le classi",
     "colDanno": "Danno",
     "fieldDanno": "Tipo di danno",
-    "filterAllDamage": "Tutti i danni"
+    "filterAllDamage": "Tutti i danni",
+    "materialPerTarget": "Per bersaglio (la quantità si moltiplica)",
+    "materialPerTargetShort": "per bersaglio"
   },
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",

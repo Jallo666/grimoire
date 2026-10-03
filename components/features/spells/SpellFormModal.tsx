@@ -30,8 +30,9 @@ type Props = {
   options: SpellOptions;
 };
 
-type Texts = { nome: string; descrizione: string; higherLevel: string };
-type Translation = { locale: string; nome: string; descrizione: string | null; highLevel: string | null; material: string | null };
+type Texts = { nome: string; descrizione: string; higherLevel: string; materiale: string };
+type Translation = { locale: string; nome: string; descrizione: string | null; highLevel: string | null };
+type Material = { testo: string; perBersaglio: boolean; translations: { locale: string; testo: string }[] };
 type SpellToEdit = {
   id: string;
   nome: string;
@@ -46,13 +47,17 @@ type SpellToEdit = {
   classi: { id: string }[];
   tipiDanno: { id: string }[];
   translations: Translation[];
+  materiale: Material | null;
 };
 
-const EMPTY_TEXTS: Texts = { nome: "", descrizione: "", higherLevel: "" };
+const EMPTY_TEXTS: Texts = { nome: "", descrizione: "", higherLevel: "", materiale: "" };
 const EMPTY_COMMON = { scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "" };
 const EMPTY_TAGS = { classIds: [] as string[], damageTypeIds: [] as string[] };
 
 const otherLocale = (l: string) => (l === "it" ? "en" : "it");
+
+// "V, S, M" contiene la M?
+const hasM = (componenti: string) => componenti.split(",").map((p) => p.trim()).includes("M");
 
 // Lingua del testo principale (campi base dell'incantesimo): è quella in cui è stato creato,
 // l'altra lingua sta nelle traduzioni. Se c'è solo la traduzione nella lingua dell'interfaccia,
@@ -63,8 +68,8 @@ function mainLocaleOf(spell: SpellToEdit, locale: string) {
 }
 
 // Creazione e modifica di un incantesimo: stessa modale, stessi campi.
-// Nome, descrizione e "ai livelli superiori" in due lingue (la principale obbligatoria),
-// poi i dati comuni, le classi e i tipi di danno. Il gruppo si sceglie solo creando
+// Nome, descrizione, "ai livelli superiori" e componente materiale in due lingue (la principale
+// obbligatoria), poi i dati comuni, le classi e i tipi di danno. Il gruppo si sceglie solo creando
 // (dopo si sposta con "Sposta nel gruppo").
 export default function SpellFormModal({ show, spellId, onClose, onSaved, groups, options }: Props) {
   const t = useTranslations("spells");
@@ -77,10 +82,12 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
   const [activeLang, setActiveLang] = useState<string>(locale);
   const [main, setMain] = useState(EMPTY_TEXTS);
   const [secondary, setSecondary] = useState(EMPTY_TEXTS);
-  // Materiale tradotto: non si modifica qui, ma va conservato quando si salva la traduzione
-  const [secondaryMaterial, setSecondaryMaterial] = useState<string | null>(null);
+  // Componente materiale "per bersaglio" (la quantità si moltiplica)
+  const [perBersaglio, setPerBersaglio] = useState(false);
   const [common, setCommon] = useState(EMPTY_COMMON);
   const [tags, setTags] = useState(EMPTY_TAGS);
+  // Con la M tra i componenti compaiono il testo del materiale (per lingua) e "per bersaglio"
+  const withMaterial = hasM(common.componenti);
   const [formError, setFormError] = useState<string | null>(null);
 
   // Modifica: l'incantesimo con i testi originali (senza locale) e tutte le traduzioni.
@@ -100,9 +107,10 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
     setLoadedId(spell.id);
     setMainLocale(mainLang);
     setActiveLang(mainLang);
-    setMain({ nome: spell.nome, descrizione: spell.descrizione ?? "", higherLevel: spell.higherLevel ?? "" });
-    setSecondary({ nome: tr?.nome ?? "", descrizione: tr?.descrizione ?? "", higherLevel: tr?.highLevel ?? "" });
-    setSecondaryMaterial(tr?.material ?? null);
+    const secondaryMaterial = spell.materiale?.translations.find((x) => x.locale === otherLocale(mainLang));
+    setMain({ nome: spell.nome, descrizione: spell.descrizione ?? "", higherLevel: spell.higherLevel ?? "", materiale: spell.materiale?.testo ?? "" });
+    setSecondary({ nome: tr?.nome ?? "", descrizione: tr?.descrizione ?? "", higherLevel: tr?.highLevel ?? "", materiale: secondaryMaterial?.testo ?? "" });
+    setPerBersaglio(spell.materiale?.perBersaglio ?? false);
     setCommon({
       scuola: spell.scuola ?? "",
       livello: String(spell.livello),
@@ -120,7 +128,7 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
     setActiveLang(locale);
     setMain(EMPTY_TEXTS);
     setSecondary(EMPTY_TEXTS);
-    setSecondaryMaterial(null);
+    setPerBersaglio(false);
     setCommon(EMPTY_COMMON);
     setTags(EMPTY_TAGS);
     setFormError(null);
@@ -163,10 +171,14 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
       gittata: common.gittata || null,
       durata: common.durata || null,
       componenti: common.componenti || null,
+      // senza la M il materiale si toglie
+      materiale: withMaterial ? main.materiale.trim() || null : null,
+      materialePerBersaglio: withMaterial && perBersaglio,
       classIds: tags.classIds,
       damageTypeIds: tags.damageTypeIds,
     };
     const hasTranslation = !!secondary.nome.trim();
+    const secondaryMaterial = withMaterial ? secondary.materiale.trim() || null : null;
 
     try {
       if (editing) {
@@ -193,6 +205,7 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
             translationNome: hasTranslation ? secondary.nome : undefined,
             translationDescrizione: secondary.descrizione.trim() || undefined,
             translationHigherLevel: secondary.higherLevel.trim() || undefined,
+            translationMateriale: secondaryMaterial ?? undefined,
           },
         });
       }
@@ -213,6 +226,10 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
         <GrimoireInput id={`spell-nome-${lang}`} label={`${t("fieldNome")}${suffix}`} type="text" required={isMain} value={texts.nome} onChange={(e) => setTexts((v) => ({ ...v, nome: e.target.value }))} />
         <GrimoireInput id={`spell-desc-${lang}`} label={`${t("fieldDescrizione")}${suffix}`} type="textarea" required={isMain} rows={5} value={texts.descrizione} onChange={(e) => setTexts((v) => ({ ...v, descrizione: e.target.value }))} />
         <GrimoireInput id={`spell-higher-${lang}`} label={`${t("fieldHigherLevel")}${suffix}`} type="textarea" rows={2} value={texts.higherLevel} onChange={(e) => setTexts((v) => ({ ...v, higherLevel: e.target.value }))} />
+        {/* Testo del componente materiale: solo se tra i componenti c'è la M */}
+        {withMaterial && (
+          <GrimoireInput id={`spell-material-${lang}`} label={`${t("fieldMaterial")}${suffix}`} type="textarea" rows={2} value={texts.materiale} onChange={(e) => setTexts((v) => ({ ...v, materiale: e.target.value }))} />
+        )}
       </>
     );
   }
@@ -266,6 +283,9 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
             )}
           </GrimoireFieldGrid>
           <GrimoireComponentsInput id="spell-componenti" label={t("fieldComponenti")} value={common.componenti} onChange={(val) => setCommon((v) => ({ ...v, componenti: val }))} />
+          {withMaterial && (
+            <GrimoireInput id="spell-per-bersaglio" label={t("materialPerTarget")} type="checkbox" value={String(perBersaglio)} onChange={(e) => setPerBersaglio(e.target.value === "true")} />
+          )}
           <GrimoireStack>
             <GrimoireChips label={t("colClassi")} options={options.classOptions} value={tags.classIds} onChange={(ids) => setTags((v) => ({ ...v, classIds: ids }))} />
             <GrimoireChips label={t("fieldDanno")} options={options.damageOptions} value={tags.damageTypeIds} onChange={(ids) => setTags((v) => ({ ...v, damageTypeIds: ids }))} />
