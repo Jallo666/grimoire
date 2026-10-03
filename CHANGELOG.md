@@ -3,6 +3,12 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.20.1] - 2026-10-03
+
+### Modificato
+- Italiano degli incantesimi SRD allineato al PDF ufficiale SRD 5.1 in italiano: nomi, descrizioni e "ai livelli superiori" (prima mancava). Cambiano alcuni nomi (es. "Pelle di Corteccia" → "Pelle coriacea", "Lingue" → "Linguaggi", "Tocco Vampirico" → "Tocco del vampiro") e le maiuscole seguono il PDF ("Palla di fuoco").
+- Migrazione temporanea `scripts/migrate-0.20.1.ts` al posto della 0.20: aggiorna l'italiano degli incantesimi SRD nel database.
+
 ## [0.20.0] - 2026-10-03
 
 ### Aggiunto
