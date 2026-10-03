@@ -82,6 +82,9 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
     // (nome e descrizione invece li sceglie la modale, con le tab della lingua)
     variables: { id: spellId!, tagsLocale: locale },
     skip: !spellId,
+    // Il risultato non va nella cache condivisa: qui "nome" è quello originale (non tradotto)
+    // e sovrascriverebbe il nome tradotto della lista, che si riordinerebbe mentre la modale è aperta
+    fetchPolicy: "no-cache",
   });
 
   const spell = data?.spell;
