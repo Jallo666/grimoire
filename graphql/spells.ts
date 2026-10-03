@@ -29,9 +29,10 @@ export const spellTypeDefs = gql`
     higherLevel: String
     concentration: Boolean
     ritual: Boolean
-    classi: [SpellClass!]!
+    # locale facoltativo: lingua dei nomi di classi e tipi di danno, se diversa da quella della query
+    classi(locale: String): [SpellClass!]!
     sottoclassi: String
-    tipiDanno: [DamageType!]!
+    tipiDanno(locale: String): [DamageType!]!
     creatorId: Int
     createdAt: String!
     isOwner: Boolean!
@@ -223,11 +224,14 @@ async function withTags<S extends { id: number }>(list: S[], locale?: string | n
 
 export const spellResolvers = {
   Spell: {
-    // Già caricati dalle liste (withTags); per un singolo incantesimo si leggono qui
-    classi: async (parent: { id: number; classi?: TagGql[]; _locale?: string | null }) =>
-      parent.classi ?? (await loadClasses([parent.id], parent._locale)).get(parent.id) ?? [],
-    tipiDanno: async (parent: { id: number; tipiDanno?: TagGql[]; _locale?: string | null }) =>
-      parent.tipiDanno ?? (await loadDamageTypes([parent.id], parent._locale)).get(parent.id) ?? [],
+    // Già caricati dalle liste (withTags); per un singolo incantesimo, o se si chiede
+    // un'altra lingua col parametro locale, si leggono qui
+    classi: async (parent: { id: number; classi?: TagGql[]; _locale?: string | null }, args: { locale?: string }) =>
+      (!args.locale && parent.classi) ||
+      (await loadClasses([parent.id], args.locale ?? parent._locale)).get(parent.id) || [],
+    tipiDanno: async (parent: { id: number; tipiDanno?: TagGql[]; _locale?: string | null }, args: { locale?: string }) =>
+      (!args.locale && parent.tipiDanno) ||
+      (await loadDamageTypes([parent.id], args.locale ?? parent._locale)).get(parent.id) || [],
   },
 
   Query: {

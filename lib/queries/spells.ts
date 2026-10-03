@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 
 const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi { id nome } tipiDanno { id nome } groupId groupNome createdAt`;
-const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi { id nome } sottoclassi tipiDanno { id nome } creatorId isOwner isSystem inLibrary groupId groupNome createdAt translations { locale nome descrizione highLevel material }`;
+const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi(locale: $tagsLocale) { id nome } sottoclassi tipiDanno(locale: $tagsLocale) { id nome } creatorId isOwner isSystem inLibrary groupId groupNome createdAt translations { locale nome descrizione highLevel material }`;
 
 export const MY_SPELLS = gql`
   query MySpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $concentration: Boolean, $ritual: Boolean, $groupIds: [ID!], $locale: String) {
@@ -22,7 +22,8 @@ export const ALL_SPELLS = gql`
 `;
 
 export const SPELL = gql`
-  query Spell($id: ID!, $locale: String) {
+  # $tagsLocale: lingua dei nomi di classi e tipi di danno (nome e descrizione restano in $locale)
+  query Spell($id: ID!, $locale: String, $tagsLocale: String) {
     spell(id: $id, locale: $locale) { ${SPELL_FULL_FIELDS} }
   }
 `;

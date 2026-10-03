@@ -83,7 +83,9 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
   }, [spellId, locale]);
 
   const { data, loading } = useQuery<{ spell: SpellFull | null }>(SPELL, {
-    variables: { id: spellId! },
+    // tagsLocale: classi e tipi di danno tradotti nella lingua dell'interfaccia
+    // (nome e descrizione invece li sceglie la modale, con le tab della lingua)
+    variables: { id: spellId!, tagsLocale: locale },
     skip: !spellId,
   });
 
