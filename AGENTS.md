@@ -60,7 +60,8 @@ Si scrive in italiano: commenti nel codice, messaggi di commit, CHANGELOG e risp
 ## Dati SRD e database
 
 - Dati SRD in file JSON in `scripts/` (`srd-spells.json`, `srd-translations-it.json`,
-  `srd-classes.json`, `srd-damage-types.json`): niente elenchi di dati scritti nel codice.
+  `srd-classes.json`, `srd-damage-types.json`, `srd-materials.json`, `srd-items.json`):
+  niente elenchi di dati scritti nel codice.
 - Da zero: `npm run db:setup` (crea tabelle e carica tutti i dati). Vedi README.
 - Classi e tipi di danno: tabelle `classes` / `damage_types` collegate agli incantesimi con
   `spell_classes` / `spell_damage_types`. Le voci SRD hanno `isSystem = true`;
@@ -75,6 +76,9 @@ Si scrive in italiano: commenti nel codice, messaggi di commit, CHANGELOG e risp
   - lo script e la sua riga nel `build` si tolgono al push successivo.
   - nei controlli su GitHub il database è finto: lo script deve saltarsi con
     `SKIP_DB_MIGRATIONS=1` (già impostata in `.github/workflows/controlli.yml`).
+  - su Vercel parte solo nel build di produzione: se `VERCEL_ENV` c'è ed è diverso da
+    `production` (anteprime dei branch) lo script si salta, così il database vero cambia
+    solo quando si pubblica `main`.
 
 ## Git, versioni e pubblicazione
 

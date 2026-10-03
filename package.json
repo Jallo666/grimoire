@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "tsx scripts/migrate-0.21.1.ts && next build",
+    "build": "tsx scripts/migrate-0.22.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx scripts/seed-spells.ts && tsx scripts/seed-translations.ts && tsx scripts/seed-classes.ts && tsx scripts/seed-damage-types.ts && tsx scripts/seed-materials.ts",
+    "db:seed": "tsx scripts/seed-spells.ts && tsx scripts/seed-translations.ts && tsx scripts/seed-classes.ts && tsx scripts/seed-damage-types.ts && tsx scripts/seed-items.ts && tsx scripts/seed-materials.ts",
     "db:setup": "drizzle-kit push && npm run db:seed"
   },
   "dependencies": {
