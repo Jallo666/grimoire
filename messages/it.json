@@ -237,7 +237,27 @@
     "translateButton": "Traduci",
     "langName_it": "italiano",
     "langName_en": "inglese",
-    "materialOriginal": "non tradotto, in {lingua}"
+    "materialOriginal": "non tradotto, in {lingua}",
+    "ingredients": "Ingredienti",
+    "atLeast": "almeno {valore}",
+    "consumed": "consumato",
+    "totalAtLeast": "valore totale almeno {valore}",
+    "orSeparator": "oppure",
+    "optionTitle": "Alternativa {n}",
+    "addIngredient": "Aggiungi ingrediente",
+    "addOption": "Aggiungi alternativa",
+    "removeOption": "Togli alternativa",
+    "removeIngredient": "Togli ingrediente",
+    "ingredientItem": "Oggetto",
+    "ingredientQuantity": "Quantità",
+    "ingredientMinValue": "Valore min. (mo)",
+    "ingredientConsumed": "Consumato",
+    "optionTotalMin": "Valore totale minimo (mo)",
+    "chooseItem": "Scegli un oggetto…",
+    "newItemLabel": "Nuovo oggetto",
+    "newItemPlaceholder": "Es. Polvere di smeraldo",
+    "createItem": "Crea",
+    "ingredientsHint": "Solo gli ingredienti con un costo o che vengono consumati."
   },
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",
@@ -345,6 +365,8 @@
     "ONLY_CREATOR_EDITS": "Solo chi ha creato l'incantesimo può modificarlo.",
     "ONLY_CREATOR_DELETES": "Solo chi ha creato l'incantesimo può eliminarlo.",
     "GROUP_NOT_FOUND": "Gruppo non trovato.",
-    "GROUP_EXISTS": "Esiste già un gruppo con questo nome."
+    "GROUP_EXISTS": "Esiste già un gruppo con questo nome.",
+    "ITEM_NAME_REQUIRED": "Scrivi il nome dell'oggetto.",
+    "ITEM_NOT_ALLOWED": "Uno degli oggetti scelti non si può usare."
   }
 }

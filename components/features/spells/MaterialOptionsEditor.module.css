@@ -1,0 +1,77 @@
+/* Contenitore dell'editor: un po' di spazio sotto, prima dei campi successivi del form */
+.editor {
+  margin-bottom: 1rem;
+}
+
+/* Ogni alternativa è un riquadro con il bordo dei campi del tema */
+.option {
+  border: 1px solid var(--g-input-border);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Titolo dell'alternativa a sinistra, bottone "togli" a destra */
+.optionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.optionTitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--g-text-muted);
+}
+
+/* Riga di un ingrediente: oggetto (largo), quantità, valore minimo, consumato, togli */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.5rem 8rem auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Casella "consumato" con la sua scritta accanto */
+.consumed {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--g-text);
+  white-space: nowrap;
+}
+
+.consumed input {
+  margin: 0;
+}
+
+/* Tablet e telefono: l'oggetto prende tutta la riga, il resto va sotto */
+@media (max-width: 991.98px) {
+  .row {
+    grid-template-columns: 4.5rem minmax(0, 1fr) auto auto;
+  }
+
+  .row > select {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Campi della riga con i colori dei campi del tema (come GrimoireInput / GrimoireSelect) */
+.row select,
+.row input[type="number"] {
+  background-color: var(--g-input-bg);
+  border-color: var(--g-input-border);
+  color: var(--g-input-text);
+}
+
+/* Titolo "Ingredienti", come le etichette dei campi */
+.title {
+  margin-bottom: 0.25rem;
+  color: var(--g-label);
+}

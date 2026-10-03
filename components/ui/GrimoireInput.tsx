@@ -5,7 +5,8 @@ export type InputOption = { value: string; label: string };
 type Props = {
   id: string;
   label?: string;
-  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea";
+  // "number": numeri anche con decimali (es. valori in mo); il valore resta una stringa
+  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea" | "number";
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   placeholder?: string;
@@ -140,6 +141,10 @@ export default function GrimoireInput({
       <input
         id={id}
         type={type}
+        // numeri: tastiera numerica sul telefono e decimali ammessi
+        inputMode={type === "number" ? "decimal" : undefined}
+        step={type === "number" ? "any" : undefined}
+        min={type === "number" ? 0 : undefined}
         className="form-control"
         value={value}
         onChange={onChange as React.ChangeEventHandler<HTMLInputElement>}

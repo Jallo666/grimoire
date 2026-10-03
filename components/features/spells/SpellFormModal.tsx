@@ -18,6 +18,8 @@ import GrimoireStack from "@/components/ui/GrimoireStack";
 import GrimoireChips from "@/components/ui/GrimoireChips";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import { otherLocale, spellMainLocale } from "@/lib/spellLocale";
+import MaterialOptionsEditor, { type OptionDraft } from "./MaterialOptionsEditor";
+import type { MaterialOption } from "./materialTypes";
 import type { SpellOptions } from "./useSpellOptions";
 import type { SpellGroup } from "./spellTypes";
 
@@ -35,7 +37,7 @@ type Props = {
 
 type Texts = { nome: string; descrizione: string; higherLevel: string; materiale: string };
 type Translation = { locale: string; nome: string; descrizione: string | null; highLevel: string | null };
-type Material = { testo: string; perBersaglio: boolean; translations: { locale: string; testo: string }[] };
+type Material = { testo: string; perBersaglio: boolean; translations: { locale: string; testo: string }[]; opzioni: MaterialOption[] };
 type SpellToEdit = {
   id: string;
   nome: string;
@@ -58,6 +60,12 @@ const EMPTY_TEXTS: Texts = { nome: "", descrizione: "", higherLevel: "", materia
 const EMPTY_COMMON = { scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "" };
 const EMPTY_TAGS = { classIds: [] as string[], damageTypeIds: [] as string[] };
 
+// Numero scritto nel form (anche con la virgola) → numero, oppure null se vuoto o non valido
+function toNumber(text: string) {
+  const n = Number(text.replace(",", ".").trim());
+  return text.trim() && Number.isFinite(n) && n >= 0 ? n : null;
+}
+
 // "V, S, M" contiene la M?
 const hasM = (componenti: string) => componenti.split(",").map((p) => p.trim()).includes("M");
 
@@ -78,6 +86,8 @@ export default function SpellFormModal({ show, spellId, initialLang, onClose, on
   const [secondary, setSecondary] = useState(EMPTY_TEXTS);
   // Componente materiale "per bersaglio" (la quantità si moltiplica)
   const [perBersaglio, setPerBersaglio] = useState(false);
+  // Alternative e ingredienti del materiale (bozze del form)
+  const [opzioni, setOpzioni] = useState<OptionDraft[]>([]);
   const [common, setCommon] = useState(EMPTY_COMMON);
   const [tags, setTags] = useState(EMPTY_TAGS);
   // Con la M tra i componenti compaiono il testo del materiale (per lingua) e "per bersaglio"
@@ -105,6 +115,15 @@ export default function SpellFormModal({ show, spellId, initialLang, onClose, on
     setMain({ nome: spell.nome, descrizione: spell.descrizione ?? "", higherLevel: spell.higherLevel ?? "", materiale: spell.materiale?.testo ?? "" });
     setSecondary({ nome: tr?.nome ?? "", descrizione: tr?.descrizione ?? "", higherLevel: tr?.highLevel ?? "", materiale: secondaryMaterial?.testo ?? "" });
     setPerBersaglio(spell.materiale?.perBersaglio ?? false);
+    setOpzioni((spell.materiale?.opzioni ?? []).map((o) => ({
+      valoreTotaleMinimo: o.valoreTotaleMinimo != null ? String(o.valoreTotaleMinimo) : "",
+      ingredienti: o.ingredienti.map((i) => ({
+        itemId: i.item.id,
+        quantita: String(i.quantita),
+        valoreMinimo: i.valoreMinimo != null ? String(i.valoreMinimo) : "",
+        consumato: i.consumato,
+      })),
+    })));
     setCommon({
       scuola: spell.scuola ?? "",
       livello: String(spell.livello),
@@ -123,6 +142,7 @@ export default function SpellFormModal({ show, spellId, initialLang, onClose, on
     setMain(EMPTY_TEXTS);
     setSecondary(EMPTY_TEXTS);
     setPerBersaglio(false);
+    setOpzioni([]);
     setCommon(EMPTY_COMMON);
     setTags(EMPTY_TAGS);
     setFormError(null);
@@ -168,6 +188,20 @@ export default function SpellFormModal({ show, spellId, initialLang, onClose, on
       // senza la M il materiale si toglie
       materiale: withMaterial ? main.materiale.trim() || null : null,
       materialePerBersaglio: withMaterial && perBersaglio,
+      // righe senza oggetto e alternative vuote non si salvano; numeri vuoti = nessun minimo
+      materialeOpzioni: withMaterial
+        ? opzioni
+            .map((o) => ({
+              valoreTotaleMinimo: toNumber(o.valoreTotaleMinimo),
+              ingredienti: o.ingredienti.filter((i) => i.itemId).map((i) => ({
+                itemId: i.itemId,
+                quantita: Math.max(1, parseInt(i.quantita, 10) || 1),
+                valoreMinimo: toNumber(i.valoreMinimo),
+                consumato: i.consumato,
+              })),
+            }))
+            .filter((o) => o.ingredienti.length > 0)
+        : [],
       classIds: tags.classIds,
       damageTypeIds: tags.damageTypeIds,
     };
@@ -281,6 +315,11 @@ export default function SpellFormModal({ show, spellId, initialLang, onClose, on
               <GrimoireInput id="spell-material-main" label={`${t("fieldMaterial")} (${mainLocale.toUpperCase()})`} type="textarea" rows={2} value={main.materiale} onChange={(e) => setMain((v) => ({ ...v, materiale: e.target.value }))} />
               <GrimoireInput id="spell-material-secondary" label={`${t("fieldMaterial")} (${secondaryLocale.toUpperCase()}) ${t("langTabOptional")}`} type="textarea" rows={2} value={secondary.materiale} onChange={(e) => setSecondary((v) => ({ ...v, materiale: e.target.value }))} />
               <GrimoireInput id="spell-per-bersaglio" label={t("materialPerTarget")} type="checkbox" value={String(perBersaglio)} onChange={(e) => setPerBersaglio(e.target.value === "true")} />
+              <MaterialOptionsEditor
+                value={opzioni}
+                onChange={setOpzioni}
+                extraItems={(spell?.materiale?.opzioni ?? []).flatMap((o) => o.ingredienti.map((i) => i.item))}
+              />
             </>
           )}
           <GrimoireStack>

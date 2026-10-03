@@ -11,6 +11,8 @@ import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
 import { spellMainLocale } from "@/lib/spellLocale";
+import { formatIngredients } from "@/components/features/spells/formatIngredients";
+import type { MaterialOption } from "@/components/features/spells/materialTypes";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import GrimoireField from "@/components/ui/GrimoireField";
@@ -47,7 +49,7 @@ type SpellFull = {
   isSystem: boolean;
   lingua: string | null;
   translations: Translation[];
-  materiale: { testo: string; perBersaglio: boolean; translations: { locale: string; testo: string }[] } | null;
+  materiale: { testo: string; perBersaglio: boolean; translations: { locale: string; testo: string }[]; opzioni: MaterialOption[] } | null;
 };
 
 type Props = {
@@ -251,6 +253,14 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
               value={langData?.material ?? spell.materiale?.testo}
               multiline
             />
+            {/* Ingredienti con costo o consumati (oggetti, valori, alternative) */}
+            {!!spell.materiale?.opzioni.length && (
+              <GrimoireField
+                label={t("ingredients")}
+                value={formatIngredients(spell.materiale.opzioni, (k, v) => t(k as Parameters<typeof t>[0], v), locale)}
+                multiline
+              />
+            )}
             <GrimoireFieldGrid alwaysTwoColumns>
               {spell.concentration !== null && (
                 <GrimoireField label={t("colConcentrazione")} value={spell.concentration ? t("si") : t("no")} />

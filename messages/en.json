@@ -237,7 +237,27 @@
     "translateButton": "Translate",
     "langName_it": "Italian",
     "langName_en": "English",
-    "materialOriginal": "not translated, in {lingua}"
+    "materialOriginal": "not translated, in {lingua}",
+    "ingredients": "Ingredients",
+    "atLeast": "at least {valore}",
+    "consumed": "consumed",
+    "totalAtLeast": "total value at least {valore}",
+    "orSeparator": "or",
+    "optionTitle": "Option {n}",
+    "addIngredient": "Add ingredient",
+    "addOption": "Add option",
+    "removeOption": "Remove option",
+    "removeIngredient": "Remove ingredient",
+    "ingredientItem": "Item",
+    "ingredientQuantity": "Quantity",
+    "ingredientMinValue": "Min. value (gp)",
+    "ingredientConsumed": "Consumed",
+    "optionTotalMin": "Minimum total value (gp)",
+    "chooseItem": "Choose an item…",
+    "newItemLabel": "New item",
+    "newItemPlaceholder": "E.g. Emerald dust",
+    "createItem": "Create",
+    "ingredientsHint": "Only ingredients with a cost or that are consumed."
   },
   "spellDetail": {
     "formTitle": "Spell details",
@@ -345,6 +365,8 @@
     "ONLY_CREATOR_EDITS": "Only the spell's creator can edit it.",
     "ONLY_CREATOR_DELETES": "Only the spell's creator can delete it.",
     "GROUP_NOT_FOUND": "Group not found.",
-    "GROUP_EXISTS": "A group with this name already exists."
+    "GROUP_EXISTS": "A group with this name already exists.",
+    "ITEM_NAME_REQUIRED": "Enter the item name.",
+    "ITEM_NOT_ALLOWED": "One of the chosen items cannot be used."
   }
 }
