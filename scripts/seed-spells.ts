@@ -69,6 +69,7 @@ async function main() {
       sottoclassi: s.subclasses?.map((c) => c.name).join(", ") || null,
       isSystem: true,
       creatorId: null,
+      lingua: "en",
     });
     inserted++;
     process.stdout.write(`\r${inserted + skipped}/${srdSpells.length}`);

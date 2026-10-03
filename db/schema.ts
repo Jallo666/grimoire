@@ -46,6 +46,8 @@ export const spells = pgTable("spells", {
   ritual: boolean("ritual"),
   higherLevel: text("higher_level"),
   sottoclassi: text("sottoclassi"),
+  // lingua del testo principale ("it" / "en"): le altre lingue sono in "translations"
+  lingua: text("lingua"),
   translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>>().default({}),
 });
 

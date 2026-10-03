@@ -9,6 +9,8 @@ import { SPELL } from "@/lib/queries/spells";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
+import GrimoireAlert from "@/components/ui/GrimoireAlert";
+import { spellMainLocale } from "@/lib/spellLocale";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import GrimoireField from "@/components/ui/GrimoireField";
@@ -43,6 +45,7 @@ type SpellFull = {
   tipiDanno: { id: string; nome: string }[];
   isOwner: boolean;
   isSystem: boolean;
+  lingua: string | null;
   translations: Translation[];
   materiale: { testo: string; perBersaglio: boolean; translations: { locale: string; testo: string }[] } | null;
 };
@@ -55,8 +58,9 @@ type Props = {
   onNext?: () => void;
   // Posizione nella lista, mostrata come "3 / 42"
   position?: { current: number; total: number };
-  // Solo per chi l'ha creato: apri la modifica / la condivisione (la modale di dettaglio si chiude)
-  onEdit: (id: string) => void;
+  // Solo per chi l'ha creato: apri la modifica / la condivisione (la modale di dettaglio si chiude).
+  // lang: tab della lingua da aprire nella modifica (es. "Traduci")
+  onEdit: (id: string, lang?: string) => void;
   onShare: (id: string) => void;
 };
 
@@ -123,17 +127,18 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
     return () => window.removeEventListener("keydown", onKey);
   });
 
+  // Testi nella lingua della tab: quelli originali se è la lingua principale, altrimenti la
+  // traduzione; null se in quella lingua l'incantesimo non è ancora tradotto
+  const mainLang = spell ? spellMainLocale(spell, locale) : locale;
   function getLangData(lang: string) {
     if (!spell) return null;
-    const trans = spell.translations.find((tr) => tr.locale === lang);
-    // Materiale: la sua traduzione in quella lingua; senza traduzione dell'incantesimo vale il testo originale
-    const materialTrans = spell.materiale?.translations.find((tr) => tr.locale === lang);
-    const material = materialTrans?.testo ?? (trans ? null : spell.materiale?.testo ?? null);
-    if (trans) {
-      return { nome: trans.nome, descrizione: trans.descrizione, highLevel: trans.highLevel, material };
+    if (lang === mainLang) {
+      return { nome: spell.nome, descrizione: spell.descrizione, highLevel: spell.higherLevel, material: spell.materiale?.testo ?? null };
     }
-    // Nessuna traduzione: i campi originali
-    return { nome: spell.nome, descrizione: spell.descrizione, highLevel: spell.higherLevel, material };
+    const trans = spell.translations.find((tr) => tr.locale === lang);
+    if (!trans) return null;
+    const material = spell.materiale?.translations.find((tr) => tr.locale === lang)?.testo ?? null;
+    return { nome: trans.nome, descrizione: trans.descrizione, highLevel: trans.highLevel, material };
   }
 
   // La scuola è salvata in italiano (es. "Evocazione"): si mostra tradotta (chiave scuolaEvocazione)
@@ -204,9 +209,22 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
               onChange={setViewLang}
             />
 
-            {/* Language-specific fields */}
-            <GrimoireField label={t("fieldDescrizione")} value={langData?.descrizione} multiline />
-            <GrimoireField label={t("fieldHigherLevel")} value={langData?.highLevel} multiline />
+            {/* Testi nella lingua scelta, o l'avviso che non è ancora tradotto */}
+            {langData ? (
+              <>
+                <GrimoireField label={t("fieldDescrizione")} value={langData.descrizione} multiline />
+                <GrimoireField label={t("fieldHigherLevel")} value={langData.highLevel} multiline />
+              </>
+            ) : (
+              <>
+                <GrimoireAlert variant="info">{t("notTranslated", { lingua: t(`langName_${viewLang}` as Parameters<typeof t>[0]) })}</GrimoireAlert>
+                {spell.isOwner && (
+                  <GrimoireButton variant="outline-secondary" onClick={() => { close(); onEdit(spell.id, viewLang); }}>
+                    {t("translateButton")}
+                  </GrimoireButton>
+                )}
+              </>
+            )}
 
             <GrimoireDivider />
 
@@ -225,7 +243,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             {/* Materiale subito sotto V, S, M, nella lingua della tab scelta */}
             <GrimoireField
               label={spell.materiale?.perBersaglio ? `${t("fieldMaterial")} (${t("materialPerTargetShort")})` : t("fieldMaterial")}
-              value={langData?.material}
+              value={langData?.material ?? (spell.materiale ? t("materialNotTranslated") : null)}
               multiline
             />
             <GrimoireFieldGrid alwaysTwoColumns>

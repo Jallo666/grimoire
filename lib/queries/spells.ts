@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 
 const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi { id nome } tipiDanno { id nome } groupId groupNome createdAt`;
-const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi(locale: $tagsLocale) { id nome } sottoclassi tipiDanno(locale: $tagsLocale) { id nome } creatorId isOwner isSystem inLibrary groupId groupNome createdAt translations { locale nome descrizione highLevel } materiale { testo perBersaglio translations { locale testo } }`;
+const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi(locale: $tagsLocale) { id nome } sottoclassi tipiDanno(locale: $tagsLocale) { id nome } creatorId isOwner isSystem inLibrary groupId groupNome createdAt lingua translations { locale nome descrizione highLevel } materiale { testo perBersaglio translations { locale testo } }`;
 
 export const MY_SPELLS = gql`
   query MySpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $concentration: Boolean, $ritual: Boolean, $groupIds: [ID!], $locale: String) {
@@ -41,6 +41,7 @@ export const CAMPAIGN_SPELLS = gql`
 export const CREATE_SPELL = gql`
   mutation CreateSpell(
     $nome: String!
+    $lingua: String
     $descrizione: String
     $higherLevel: String
     $scuola: String
@@ -61,7 +62,7 @@ export const CREATE_SPELL = gql`
     $damageTypeIds: [ID!]
   ) {
     createSpell(
-      nome: $nome descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
+      nome: $nome lingua: $lingua descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
       materiale: $materiale materialePerBersaglio: $materialePerBersaglio
       groupId: $groupId

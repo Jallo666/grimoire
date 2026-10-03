@@ -74,7 +74,7 @@ export default function SpellsPage() {
   const [viewSpellId, setViewSpellId] = useState<string | null>(null);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
   // Modale di creazione/modifica: null = chiusa, spellId null = nuovo incantesimo
-  const [form, setForm] = useState<{ spellId: string | null } | null>(null);
+  const [form, setForm] = useState<{ spellId: string | null; lang?: string } | null>(null);
   const [shareSpellId, setShareSpellId] = useState<string | null>(null);
   const [showGroups, setShowGroups] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -220,6 +220,7 @@ export default function SpellsPage() {
       <SpellFormModal
         show={!!form}
         spellId={form?.spellId}
+        initialLang={form?.lang}
         onClose={() => { if (form?.spellId) setViewSpellId(form.spellId); setForm(null); }}
         onSaved={refetchEverything}
         groups={groups}
@@ -235,7 +236,7 @@ export default function SpellsPage() {
         onPrev={prevSpellId ? () => setViewSpellId(prevSpellId) : undefined}
         onNext={nextSpellId ? () => setViewSpellId(nextSpellId) : undefined}
         position={viewIndex >= 0 ? { current: viewIndex + 1, total: visibleIds.length } : undefined}
-        onEdit={(id) => setForm({ spellId: id })}
+        onEdit={(id, lang) => setForm({ spellId: id, lang })}
         onShare={setShareSpellId}
       />
 

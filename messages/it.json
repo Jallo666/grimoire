@@ -232,7 +232,12 @@
     "fieldDanno": "Tipo di danno",
     "filterAllDamage": "Tutti i danni",
     "materialPerTarget": "Per bersaglio (la quantità si moltiplica)",
-    "materialPerTargetShort": "per bersaglio"
+    "materialPerTargetShort": "per bersaglio",
+    "notTranslated": "Questo incantesimo non è ancora tradotto in {lingua}.",
+    "translateButton": "Traduci",
+    "materialNotTranslated": "Non ancora tradotto",
+    "langName_it": "italiano",
+    "langName_en": "inglese"
   },
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",

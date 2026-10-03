@@ -17,6 +17,7 @@ import GrimoireComponentsInput from "@/components/ui/GrimoireComponentsInput";
 import GrimoireStack from "@/components/ui/GrimoireStack";
 import GrimoireChips from "@/components/ui/GrimoireChips";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
+import { otherLocale, spellMainLocale } from "@/lib/spellLocale";
 import type { SpellOptions } from "./useSpellOptions";
 import type { SpellGroup } from "./spellTypes";
 
@@ -24,6 +25,8 @@ type Props = {
   show: boolean;
   // id dell'incantesimo da modificare; assente = nuovo incantesimo
   spellId?: string | null;
+  // tab della lingua da aprire (es. "Traduci" dal dettaglio); assente = lingua principale
+  initialLang?: string | null;
   onClose: () => void;
   onSaved: () => void;
   groups: SpellGroup[];
@@ -36,6 +39,7 @@ type Material = { testo: string; perBersaglio: boolean; translations: { locale: 
 type SpellToEdit = {
   id: string;
   nome: string;
+  lingua: string | null;
   descrizione: string | null;
   higherLevel: string | null;
   scuola: string | null;
@@ -54,24 +58,14 @@ const EMPTY_TEXTS: Texts = { nome: "", descrizione: "", higherLevel: "", materia
 const EMPTY_COMMON = { scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "" };
 const EMPTY_TAGS = { classIds: [] as string[], damageTypeIds: [] as string[] };
 
-const otherLocale = (l: string) => (l === "it" ? "en" : "it");
-
 // "V, S, M" contiene la M?
 const hasM = (componenti: string) => componenti.split(",").map((p) => p.trim()).includes("M");
-
-// Lingua del testo principale (campi base dell'incantesimo): è quella in cui è stato creato,
-// l'altra lingua sta nelle traduzioni. Se c'è solo la traduzione nella lingua dell'interfaccia,
-// il testo principale è nell'altra; altrimenti si considera quella dell'interfaccia.
-function mainLocaleOf(spell: SpellToEdit, locale: string) {
-  const has = (l: string) => spell.translations.some((tr) => tr.locale === l);
-  return has(locale) && !has(otherLocale(locale)) ? otherLocale(locale) : locale;
-}
 
 // Creazione e modifica di un incantesimo: stessa modale, stessi campi.
 // Nome, descrizione e "ai livelli superiori" in due lingue (la principale obbligatoria), poi i dati
 // comuni; con la M tra i componenti, il testo del materiale nelle due lingue. Infine classi e tipi di danno. Il gruppo si sceglie solo creando
 // (dopo si sposta con "Sposta nel gruppo").
-export default function SpellFormModal({ show, spellId, onClose, onSaved, groups, options }: Props) {
+export default function SpellFormModal({ show, spellId, initialLang, onClose, onSaved, groups, options }: Props) {
   const t = useTranslations("spells");
   const tUi = useTranslations("ui");
   const locale = useLocale();
@@ -102,11 +96,11 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
   const [loadedId, setLoadedId] = useState<string | null>(null);
   const spell = data?.spell;
   if (show && !loadingSpell && spell && spell.id !== loadedId) {
-    const mainLang = mainLocaleOf(spell, locale);
+    const mainLang = spellMainLocale(spell, locale);
     const tr = spell.translations.find((x) => x.locale === otherLocale(mainLang));
     setLoadedId(spell.id);
     setMainLocale(mainLang);
-    setActiveLang(mainLang);
+    setActiveLang(initialLang === otherLocale(mainLang) ? initialLang : mainLang);
     const secondaryMaterial = spell.materiale?.translations.find((x) => x.locale === otherLocale(mainLang));
     setMain({ nome: spell.nome, descrizione: spell.descrizione ?? "", higherLevel: spell.higherLevel ?? "", materiale: spell.materiale?.testo ?? "" });
     setSecondary({ nome: tr?.nome ?? "", descrizione: tr?.descrizione ?? "", higherLevel: tr?.highLevel ?? "", materiale: secondaryMaterial?.testo ?? "" });
@@ -201,6 +195,7 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
         await createSpell({
           variables: {
             ...shared,
+            lingua: mainLocale,
             groupId: common.groupId || null,
             // la lingua serve anche al materiale tradotto, che si salva pure senza nome tradotto
             translationLocale: secondaryLocale,

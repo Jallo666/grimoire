@@ -232,7 +232,12 @@
     "fieldDanno": "Damage type",
     "filterAllDamage": "All damage types",
     "materialPerTarget": "Per target (the quantity is multiplied)",
-    "materialPerTargetShort": "per target"
+    "materialPerTargetShort": "per target",
+    "notTranslated": "This spell is not translated into {lingua} yet.",
+    "translateButton": "Translate",
+    "materialNotTranslated": "Not translated yet",
+    "langName_it": "Italian",
+    "langName_en": "English"
   },
   "spellDetail": {
     "formTitle": "Spell details",

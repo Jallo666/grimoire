@@ -41,6 +41,8 @@ export const spellTypeDefs = gql`
     groupId: ID
     groupNome: String
     translations: [SpellTranslation!]!
+    # lingua del testo principale ("it" / "en"); le altre lingue sono in translations
+    lingua: String
     # componente materiale (solo se ha la "M" e un testo)
     materiale: SpellMaterial
   }
@@ -92,6 +94,8 @@ export const spellTypeDefs = gql`
       durata: String
       componenti: String
       higherLevel: String
+      # lingua in cui sono scritti nome, descrizione… (le altre vanno nelle traduzioni)
+      lingua: String
       # testo del componente materiale (vale solo se componenti ha la "M")
       materiale: String
       materialePerBersaglio: Boolean
@@ -463,7 +467,7 @@ export const spellResolvers = {
   Mutation: {
     createSpell: async (
       _: unknown,
-      args: { nome: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string; materialePerBersaglio?: boolean; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string; translationHigherLevel?: string; translationMateriale?: string; classIds?: string[]; damageTypeIds?: string[] },
+      args: { nome: string; lingua?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string; materialePerBersaglio?: boolean; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string; translationHigherLevel?: string; translationMateriale?: string; classIds?: string[]; damageTypeIds?: string[] },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -486,6 +490,7 @@ export const spellResolvers = {
         const [spell] = await tx.insert(spells).values({
           creatorId: user.id,
           nome: args.nome,
+          lingua: args.lingua ?? null,
           descrizione: args.descrizione ?? null,
           higherLevel: args.higherLevel || null,
           scuola: args.scuola ?? null,
