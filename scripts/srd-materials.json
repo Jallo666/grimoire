@@ -1,0 +1,2215 @@
+{
+  "_attribution": "D&D 5e SRD (c) Wizards of the Coast LLC, licensed under CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+  "_source": "Inglese: srd-spells.json (campo material). Italiano: SRD 5.1 in italiano, https://media.wizards.com/2023/downloads/dnd/SRD_CC_v5.1_IT.pdf",
+  "_note": "Componenti materiali degli incantesimi SRD, uno per incantesimo. \"index\" è lo stesso di srd-spells.json. \"perBersaglio\": la quantità si moltiplica (per creatura, cadavere, Dado Vita…), i dettagli sono nel testo. Gli ingredienti arriveranno in un passo successivo.",
+  "materials": [
+    {
+      "index": "acid-arrow",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Powdered rhubarb leaf and an adder's stomach."
+        },
+        "it": {
+          "testo": "Foglia di rabarbaro in polvere e stomaco di vipera."
+        }
+      }
+    },
+    {
+      "index": "aid",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny strip of white cloth."
+        },
+        "it": {
+          "testo": "Una minuscola striscia di tessuto bianco."
+        }
+      }
+    },
+    {
+      "index": "alarm",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny bell and a piece of fine silver wire."
+        },
+        "it": {
+          "testo": "Un campanellino e un pezzo di prezioso filo d'argento."
+        }
+      }
+    },
+    {
+      "index": "animal-friendship",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A morsel of food."
+        },
+        "it": {
+          "testo": "Un boccone di cibo."
+        }
+      }
+    },
+    {
+      "index": "animal-messenger",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A morsel of food."
+        },
+        "it": {
+          "testo": "Un boccone di cibo."
+        }
+      }
+    },
+    {
+      "index": "animate-dead",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of blood, a piece of flesh, and a pinch of bone dust."
+        },
+        "it": {
+          "testo": "Una goccia di sangue, un pezzo di carne e un pizzico di polvere d'osso."
+        }
+      }
+    },
+    {
+      "index": "antimagic-field",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of powdered iron or iron filings."
+        },
+        "it": {
+          "testo": "Un pizzico di polvere o di limatura di ferro."
+        }
+      }
+    },
+    {
+      "index": "antipathy-sympathy",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Either a lump of alum soaked in vinegar for the antipathy effect or a drop of honey for the sympathy effect."
+        },
+        "it": {
+          "testo": "Un frammento di allume immerso nell'aceto per l'effetto di antipatia o una goccia di miele per l'effetto di simpatia."
+        }
+      }
+    },
+    {
+      "index": "arcane-eye",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of bat fur."
+        },
+        "it": {
+          "testo": "Un ciuffo di peli di pipistrello."
+        }
+      }
+    },
+    {
+      "index": "arcane-hand",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "An eggshell and a snakeskin glove."
+        },
+        "it": {
+          "testo": "Un guscio d'uovo e un guanto di pelle di serpente."
+        }
+      }
+    },
+    {
+      "index": "arcane-lock",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Gold dust worth at least 25gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Polvere d'oro del valore di almeno 25 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "arcane-sword",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A miniature platinum sword with a grip and pommel of copper and zinc, worth 250 gp."
+        },
+        "it": {
+          "testo": "Una spada di platino in miniatura dall'impugnatura e dal pomolo di rame e zinco, del valore di 250 mo."
+        }
+      }
+    },
+    {
+      "index": "arcanists-magic-aura",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small square of silk."
+        },
+        "it": {
+          "testo": "Un piccolo quadrato di seta."
+        }
+      }
+    },
+    {
+      "index": "astral-projection",
+      "perBersaglio": true,
+      "translations": {
+        "en": {
+          "testo": "For each creature you affect with this spell, you must provide one jacinth worth at least 1,000gp and one ornately carved bar of silver worth at least 100gp, all of which the spell consumes."
+        },
+        "it": {
+          "testo": "Per ogni creatura influenzata da questo incantesimo, l'incantatore deve fornire un giacinto del valore di almeno 1.000 mo e un lingotto d'argento finemente decorato del valore di almeno 100 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "augury",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Specially marked sticks, bones, or similar tokens worth at least 25gp."
+        },
+        "it": {
+          "testo": "Bastoncini, ossa o oggetti simili dotati di contrassegni speciali, del valore di almeno 25 mo."
+        }
+      }
+    },
+    {
+      "index": "awaken",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "An agate worth at least 1,000 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Un'agata del valore di almeno 1.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "bane",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of blood."
+        },
+        "it": {
+          "testo": "Una goccia di sangue."
+        }
+      }
+    },
+    {
+      "index": "banishment",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "An item distasteful to the target."
+        },
+        "it": {
+          "testo": "Un oggetto sgradito al bersaglio."
+        }
+      }
+    },
+    {
+      "index": "barkskin",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A handful of oak bark."
+        },
+        "it": {
+          "testo": "Una manciata di corteccia di quercia."
+        }
+      }
+    },
+    {
+      "index": "black-tentacles",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A piece of tentacle from a giant octopus or a giant squid"
+        },
+        "it": {
+          "testo": "Un pezzo di tentacolo appartenente a una piovra o una seppia gigante."
+        }
+      }
+    },
+    {
+      "index": "bless",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A sprinkling of holy water."
+        },
+        "it": {
+          "testo": "Uno spruzzo di acqua santa."
+        }
+      }
+    },
+    {
+      "index": "chain-lightning",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fur; a piece of amber, glass, or a crystal rod; and three silver pins."
+        },
+        "it": {
+          "testo": "Un ciuffo di pelliccia; un frammento d'ambra, di vetro o di una verga di cristallo e tre spilli d'argento."
+        }
+      }
+    },
+    {
+      "index": "circle-of-death",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "The powder of a crushed black pearl worth at least 500 gp."
+        },
+        "it": {
+          "testo": "Polvere ricavata da una perla nera, del valore di almeno 500 mo."
+        }
+      }
+    },
+    {
+      "index": "clairvoyance",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A focus worth at least 100gp, either a jeweled horn for hearing or a glass eye for seeing."
+        },
+        "it": {
+          "testo": "Un focus del valore di almeno 100 mo, a scelta tra un cornetto acustico incastonato di gemme o un occhio di vetro per la vista."
+        }
+      }
+    },
+    {
+      "index": "clone",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A diamond worth at least 1,000 gp and at least 1 cubic inch of flesh of the creature that is to be cloned, which the spell consumes, and a vessel worth at least 2,000 gp that has a sealable lid and is large enough to hold a Medium creature, such as a huge urn, coffin, mud-filled cyst in the ground, or crystal container filled with salt water."
+        },
+        "it": {
+          "testo": "Un diamante del valore di almeno 1.000 mo, un cubo di carne della creatura da clonare di almeno 2,5 cm per lato, che l'incantesimo consuma, e un contenitore del valore di almeno 2.000 mo che abbia un coperchio sigillabile e sia abbastanza grande da contenere una creatura di taglia Media, come un'urna enorme, una bara, una ciste piena di fango nel terreno o un contenitore di cristallo riempito con acqua salata."
+        }
+      }
+    },
+    {
+      "index": "color-spray",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of powder or sand that is colored red, yellow, and blue."
+        },
+        "it": {
+          "testo": "Un pizzico di polvere o sabbia di colore rosso, giallo e blu."
+        }
+      }
+    },
+    {
+      "index": "commune",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Incense and a vial of holy or unholy water."
+        },
+        "it": {
+          "testo": "Incenso e una fiala di acqua santa o sacrilega."
+        }
+      }
+    },
+    {
+      "index": "comprehend-languages",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of soot and salt."
+        },
+        "it": {
+          "testo": "Un pizzico di fuliggine e di sale."
+        }
+      }
+    },
+    {
+      "index": "cone-of-cold",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small crystal or glass cone."
+        },
+        "it": {
+          "testo": "Un piccolo cono di cristallo o vetro."
+        }
+      }
+    },
+    {
+      "index": "confusion",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Three walnut shells."
+        },
+        "it": {
+          "testo": "Tre gusci di noce."
+        }
+      }
+    },
+    {
+      "index": "conjure-elemental",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Burning incense for air, soft clay for earth, sulfur and phosphorus for fire, or water and sand for water."
+        },
+        "it": {
+          "testo": "Incenso bruciato per l'aria, argilla morbida per la terra, zolfo e fosforo per il fuoco o acqua e sabbia per l'acqua."
+        }
+      }
+    },
+    {
+      "index": "conjure-woodland-beings",
+      "perBersaglio": true,
+      "translations": {
+        "en": {
+          "testo": "One holly berry per creature summoned."
+        },
+        "it": {
+          "testo": "Una bacca di agrifoglio per ogni creatura evocata."
+        }
+      }
+    },
+    {
+      "index": "contingency",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A statuette of yourself carved from ivory and decorated with gems worth at least 1,500 gp."
+        },
+        "it": {
+          "testo": "Una statuetta dell'incantatore scolpita in avorio e decorata con gemme del valore di almeno 1.500 mo."
+        }
+      }
+    },
+    {
+      "index": "continual-flame",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Ruby dust worth 50 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Polvere di rubino del valore di 50 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "control-water",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of water and a pinch of dust."
+        },
+        "it": {
+          "testo": "Una goccia d'acqua e un pizzico di polvere."
+        }
+      }
+    },
+    {
+      "index": "control-weather",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Burning incense and bits of earth and wood mixed in water."
+        },
+        "it": {
+          "testo": "Incenso bruciato e frammenti di terra e legno mescolati nell'acqua."
+        }
+      }
+    },
+    {
+      "index": "create-or-destroy-water",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of water if creating water, or a few grains of sand if destroying it."
+        },
+        "it": {
+          "testo": "Una goccia d'acqua per creare l'acqua o qualche granello di sabbia per distruggerla."
+        }
+      }
+    },
+    {
+      "index": "create-undead",
+      "perBersaglio": true,
+      "translations": {
+        "en": {
+          "testo": "One clay pot filled with grave dirt, one clay pot filled with brackish water, and one 150 gp black onyx stone for each corpse."
+        },
+        "it": {
+          "testo": "Un vaso d'argilla colmo di terra raccolta in un cimitero, un vaso d'argilla colmo d'acqua salmastra e una pietra onice nera del valore di 150 mo per ogni cadavere."
+        }
+      }
+    },
+    {
+      "index": "creation",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny piece of matter of the same type of the item you plan to create."
+        },
+        "it": {
+          "testo": "Un minuscolo frammento di materia dello stesso tipo dell'oggetto che l'incantatore desidera creare."
+        }
+      }
+    },
+    {
+      "index": "dancing-lights",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of phosphorus or wychwood, or a glowworm."
+        },
+        "it": {
+          "testo": "Un frammento di fosforo, di legno wych o una lucciola."
+        }
+      }
+    },
+    {
+      "index": "darkness",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Bat fur and a drop of pitch or piece of coal."
+        },
+        "it": {
+          "testo": "Pelo di pipistrello e una goccia di pece o un pezzo di carbone."
+        }
+      }
+    },
+    {
+      "index": "darkvision",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Either a pinch of dried carrot or an agate."
+        },
+        "it": {
+          "testo": "Un pizzico di carota essiccata o un'agata."
+        }
+      }
+    },
+    {
+      "index": "delayed-blast-fireball",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny ball of bat guano and sulfur."
+        },
+        "it": {
+          "testo": "Una pallina di guano di pipistrello e zolfo."
+        }
+      }
+    },
+    {
+      "index": "detect-poison-and-disease",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A yew leaf."
+        },
+        "it": {
+          "testo": "Una foglia di tasso."
+        }
+      }
+    },
+    {
+      "index": "detect-thoughts",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A copper coin."
+        },
+        "it": {
+          "testo": "Una moneta di rame."
+        }
+      }
+    },
+    {
+      "index": "disintegrate",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A lodestone and a pinch of dust."
+        },
+        "it": {
+          "testo": "Una calamita e un pizzico di polvere."
+        }
+      }
+    },
+    {
+      "index": "dispel-evil-and-good",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Holy water or powdered silver and iron."
+        },
+        "it": {
+          "testo": "Acqua santa o polvere d'argento e ferro."
+        }
+      }
+    },
+    {
+      "index": "divination",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Incense and a sacrificial offering appropriate to your religion, together worth at least 25gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Incenso e un'offerta sacrificale appropriata alla religione dell'incantatore del valore complessivo di almeno 25 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "dream",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A handful of sand, a dab of ink, and a writing quill plucked from a sleeping bird."
+        },
+        "it": {
+          "testo": "Una manciata di sabbia, una goccia d'inchiostro e un penna strappata a un uccello addormentato."
+        }
+      }
+    },
+    {
+      "index": "earthquake",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of dirt, a piece of rock, and a lump of clay."
+        },
+        "it": {
+          "testo": "Un pizzico di terriccio, un frammento di roccia e un pezzo d'argilla."
+        }
+      }
+    },
+    {
+      "index": "enhance-ability",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Fur or a feather from a beast."
+        },
+        "it": {
+          "testo": "Un ciuffo di pelliccia o una piuma strappata a una bestia."
+        }
+      }
+    },
+    {
+      "index": "enlarge-reduce",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch iron powder."
+        },
+        "it": {
+          "testo": "Un pizzico di polvere di ferro."
+        }
+      }
+    },
+    {
+      "index": "faithful-hound",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny silver whistle, a piece of bone, and a thread"
+        },
+        "it": {
+          "testo": "Un fischietto d'argento, un pezzo d'osso e un filo."
+        }
+      }
+    },
+    {
+      "index": "false-life",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small amount of alcohol or distilled spirits."
+        },
+        "it": {
+          "testo": "Una piccola quantità di alcol o liquori distillati."
+        }
+      }
+    },
+    {
+      "index": "fear",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A white feather or the heart of a hen."
+        },
+        "it": {
+          "testo": "Una piuma bianca o un cuore di pollo."
+        }
+      }
+    },
+    {
+      "index": "feather-fall",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small feather or a piece of down."
+        },
+        "it": {
+          "testo": "Una piccola piuma."
+        }
+      }
+    },
+    {
+      "index": "feeblemind",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A handful of clay, crystal, glass, or mineral spheres."
+        },
+        "it": {
+          "testo": "Una manciata di argilla, cristallo, vetro o sfere di minerali."
+        }
+      }
+    },
+    {
+      "index": "find-familiar",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "10gp worth of charcoal, incense, and herbs that must be consumed by fire in a brass brazier."
+        },
+        "it": {
+          "testo": "Carbone, incenso ed erbe del valore di 10 mo da bruciare in un braciere d'ottone."
+        }
+      }
+    },
+    {
+      "index": "find-the-path",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A set of divinatory tools--such as bones, ivory sticks, cards, teeth, or carved runes--worth 100gp and an object from the location you wish to find."
+        },
+        "it": {
+          "testo": "Una serie di strumenti da divinazione, come ossa, bastoncini d'avorio, carte, denti o incisioni runiche, del valore di 100 mo e un oggetto proveniente dal luogo che si desidera trovare."
+        }
+      }
+    },
+    {
+      "index": "fire-shield",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A little phosphorus or a firefly."
+        },
+        "it": {
+          "testo": "Un frammento di fosforo o una lucciola."
+        }
+      }
+    },
+    {
+      "index": "fireball",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny ball of bat guano and sulfur."
+        },
+        "it": {
+          "testo": "Una pallina di guano di pipistrello e zolfo."
+        }
+      }
+    },
+    {
+      "index": "flame-blade",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Leaf of sumac."
+        },
+        "it": {
+          "testo": "Foglia di sommacco."
+        }
+      }
+    },
+    {
+      "index": "flame-strike",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Pinch of sulfur."
+        },
+        "it": {
+          "testo": "Un pizzico di zolfo."
+        }
+      }
+    },
+    {
+      "index": "flaming-sphere",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of tallow, a pinch of brimstone, and a dusting of powdered iron."
+        },
+        "it": {
+          "testo": "Un frammento di sego, un pizzico di zolfo e una manciata di polvere di ferro."
+        }
+      }
+    },
+    {
+      "index": "flesh-to-stone",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of lime, water, and earth."
+        },
+        "it": {
+          "testo": "Un pizzico di calce, acqua e terra."
+        }
+      }
+    },
+    {
+      "index": "floating-disk",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of mercury."
+        },
+        "it": {
+          "testo": "Una goccia di mercurio."
+        }
+      }
+    },
+    {
+      "index": "fly",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A wing feather from any bird."
+        },
+        "it": {
+          "testo": "La piuma dell'ala di un qualsiasi uccello."
+        }
+      }
+    },
+    {
+      "index": "forbiddance",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A sprinkling of holy water, rare incense, and powdered ruby worth at least 1,000 gp."
+        },
+        "it": {
+          "testo": "Uno spruzzo di acqua santa, incenso raro e polvere di rubino del valore di almeno 1.000 mo."
+        }
+      }
+    },
+    {
+      "index": "forcecage",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Ruby dust worth 1,500 gp."
+        },
+        "it": {
+          "testo": "Polvere di rubino del valore di 1.500 mo."
+        }
+      }
+    },
+    {
+      "index": "foresight",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A hummingbird feather."
+        },
+        "it": {
+          "testo": "Una piuma di colibrì."
+        }
+      }
+    },
+    {
+      "index": "freedom-of-movement",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A leather strap, bound around the arm or a similar appendage."
+        },
+        "it": {
+          "testo": "Una cinghia di cuoio legata intorno al braccio o un'appendice simile."
+        }
+      }
+    },
+    {
+      "index": "freezing-sphere",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small crystal sphere."
+        },
+        "it": {
+          "testo": "Un piccola sfera di cristallo."
+        }
+      }
+    },
+    {
+      "index": "gaseous-form",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of gauze and a wisp of smoke."
+        },
+        "it": {
+          "testo": "Un frammento di garza e un filo di fumo."
+        }
+      }
+    },
+    {
+      "index": "gate",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A diamond worth at least 5,000gp."
+        },
+        "it": {
+          "testo": "Un diamante del valore di almeno 5.000 mo."
+        }
+      }
+    },
+    {
+      "index": "gentle-repose",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of salt and one copper piece placed on each of the corpse's eyes, which must remain there for the duration."
+        },
+        "it": {
+          "testo": "Un pizzico di sale e due monete di rame da posizionare sugli occhi del cadavere, che deve rimanere in quella posizione per la durata dell'incantesimo."
+        }
+      }
+    },
+    {
+      "index": "globe-of-invulnerability",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A glass or crystal bead that shatters when the spell ends."
+        },
+        "it": {
+          "testo": "Una perla di vetro o cristallo che si frantuma al termine dell'incantesimo."
+        }
+      }
+    },
+    {
+      "index": "glyph-of-warding",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Incense and powdered diamond worth at least 200 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Incenso e polvere di diamante del valore di almeno 200 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "goodberry",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A sprig of mistletoe."
+        },
+        "it": {
+          "testo": "Un rametto di vischio."
+        }
+      }
+    },
+    {
+      "index": "grease",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of pork rind or butter."
+        },
+        "it": {
+          "testo": "Un pezzo di cotenna di maiale o burro."
+        }
+      }
+    },
+    {
+      "index": "greater-restoration",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Diamond dust worth at least 100gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Polvere di diamante del valore di almeno 100 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "guards-and-wards",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Burning incense, a small measure of brimstone and oil, a knotted string, a small amount of umber hulk blood, and a small silver rod worth at least 10 gp."
+        },
+        "it": {
+          "testo": "Incenso bruciato, una piccola dose di zolfo e olio, uno spago annodato, una piccola quantità di sangue di umber hulk e una piccola verga d'argento del valore di almeno 10 mo."
+        }
+      }
+    },
+    {
+      "index": "gust-of-wind",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A legume seed."
+        },
+        "it": {
+          "testo": "Un seme di legume."
+        }
+      }
+    },
+    {
+      "index": "hallow",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Herbs, oils, and incense worth at least 1,000 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Erbe, oli e incenso del valore di almeno 1.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "hallucinatory-terrain",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A stone, a twig, and a bit of green plant."
+        },
+        "it": {
+          "testo": "Una pietra, un rametto e un frammento di un vegetale florido."
+        }
+      }
+    },
+    {
+      "index": "haste",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A shaving of licorice root."
+        },
+        "it": {
+          "testo": "Una scaglia di radice di liquirizia."
+        }
+      }
+    },
+    {
+      "index": "heat-metal",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A piece of iron and a flame."
+        },
+        "it": {
+          "testo": "Un pezzo di ferro e una fiamma."
+        }
+      }
+    },
+    {
+      "index": "heroes-feast",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A gem-encrusted bowl worth at least 1,000gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Una ciotola tempestata di gemme del valore di almeno 1.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "hideous-laughter",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Tiny tarts and a feather that is waved in the air."
+        },
+        "it": {
+          "testo": "Una manciata di briciole e una piuma da agitare in aria."
+        }
+      }
+    },
+    {
+      "index": "hold-monster",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small piece of iron."
+        },
+        "it": {
+          "testo": "Un piccola sbarra di ferro."
+        }
+      }
+    },
+    {
+      "index": "hold-person",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small, straight piece of iron."
+        },
+        "it": {
+          "testo": "Un piccola sbarra di ferro."
+        }
+      }
+    },
+    {
+      "index": "holy-aura",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny reliquary worth at least 1,000gp containing a sacred relic, such as a scrap of cloth from a saint's robe or a piece of parchment from a religious text."
+        },
+        "it": {
+          "testo": "Un minuscolo reliquiario del valore di almeno 1.000 mo contenente una reliquia sacra, come un brandello della tunica di un santo o un frammento di pergamena di un testo religioso."
+        }
+      }
+    },
+    {
+      "index": "hypnotic-pattern",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A glowing stick of incense or a crystal vial filled with phosphorescent material."
+        },
+        "it": {
+          "testo": "Un bastoncino d'incenso acceso o una fiala di cristallo piena di materiale fosforescente."
+        }
+      }
+    },
+    {
+      "index": "ice-storm",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of dust and a few drops of water."
+        },
+        "it": {
+          "testo": "Un pizzico di polvere e qualche goccia d'acqua."
+        }
+      }
+    },
+    {
+      "index": "identify",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pearl worth at least 100gp and an owl feather."
+        },
+        "it": {
+          "testo": "Una perla del valore di almeno 100 mo e una piuma di gufo."
+        }
+      }
+    },
+    {
+      "index": "illusory-script",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A lead-based ink worth at least 10gp, which this spell consumes."
+        },
+        "it": {
+          "testo": "Inchiostro a base di piombo del valore di almeno 10 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "imprisonment",
+      "perBersaglio": true,
+      "translations": {
+        "en": {
+          "testo": "A vellum depiction or a carved statuette in the likeness of the target, and a special component that varies according to the version of the spell you choose, worth at least 500gp per Hit Die of the target."
+        },
+        "it": {
+          "testo": "Un ritratto su pergamena o una statuetta intagliata con le fattezze del bersaglio e una componente speciale che varia in base alla versione dell'incantesimo scelta, del valore di almeno 500 mo per ogni Dado Vita del bersaglio."
+        }
+      }
+    },
+    {
+      "index": "insect-plague",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A few grains of sugar, some kernels of grain, and a smear of fat."
+        },
+        "it": {
+          "testo": "Qualche granello di zucchero, alcuni chicchi di grano e uno sbaffo di grasso."
+        }
+      }
+    },
+    {
+      "index": "instant-summons",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A sapphire worth 1,000 gp."
+        },
+        "it": {
+          "testo": "Uno zaffiro del valore di 1.000 mo."
+        }
+      }
+    },
+    {
+      "index": "invisibility",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "An eyelash encased in gum arabic."
+        },
+        "it": {
+          "testo": "Un ciglio ricoperto da uno strato di resina."
+        }
+      }
+    },
+    {
+      "index": "jump",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A grasshopper's hind leg."
+        },
+        "it": {
+          "testo": "La zampa posteriore di una cavalletta."
+        }
+      }
+    },
+    {
+      "index": "legend-lore",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Incense worth at least 250 gp, which the spell consumes, and four ivory strips worth at least 50 gp each."
+        },
+        "it": {
+          "testo": "Incenso del valore di almeno 250 mo, che l'incantesimo consuma e quattro lamine di avorio del valore di almeno 50 mo ciascuna."
+        }
+      }
+    },
+    {
+      "index": "levitate",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Either a small leather loop or a piece of golden wire bent into a cup shape with a long shank on one end."
+        },
+        "it": {
+          "testo": "Un piccolo cappio di cuoio o un sottile cavo dorato piegato a forma di coppa con un lungo manico a un'estremità."
+        }
+      }
+    },
+    {
+      "index": "light",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A firefly or phosphorescent moss."
+        },
+        "it": {
+          "testo": "Una lucciola o del muschio fosforescente."
+        }
+      }
+    },
+    {
+      "index": "lightning-bolt",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fur and a rod of amber, crystal, or glass."
+        },
+        "it": {
+          "testo": "Un ciuffo di pelo e una verga d'ambra, di cristallo o di vetro."
+        }
+      }
+    },
+    {
+      "index": "locate-animals-or-plants",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fur from a bloodhound."
+        },
+        "it": {
+          "testo": "Un ciuffo di peli di un segugio."
+        }
+      }
+    },
+    {
+      "index": "locate-creature",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fur from a bloodhound."
+        },
+        "it": {
+          "testo": "Un ciuffo di peli di un segugio."
+        }
+      }
+    },
+    {
+      "index": "locate-object",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A forked twig."
+        },
+        "it": {
+          "testo": "Un ramoscello biforcuto."
+        }
+      }
+    },
+    {
+      "index": "longstrider",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of dirt."
+        },
+        "it": {
+          "testo": "Un pizzico di terriccio."
+        }
+      }
+    },
+    {
+      "index": "mage-armor",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A piece of cured leather."
+        },
+        "it": {
+          "testo": "Un pezzo di cuoio trattato."
+        }
+      }
+    },
+    {
+      "index": "magic-circle",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Holy water or powdered silver and iron worth at least 100 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Acqua santa o polvere d'argento e di ferro del valore di almeno 100 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "magic-jar",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A gem, crystal, reliquary, or some other ornamental container worth at least 500 gp."
+        },
+        "it": {
+          "testo": "Una gemma, un cristallo, un reliquiario o un altro contenitore ornamentale del valore di almeno 500 mo."
+        }
+      }
+    },
+    {
+      "index": "magic-mouth",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A honeycomb and jade dust of at least 10 inches, the spell consumes."
+        },
+        "it": {
+          "testo": "Un frammento di favo e polvere di giada del valore di almeno 10 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "magnificent-mansion",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A miniature portal carved from ivory, a small piece of polished marble, and a tiny silver spoon, each item worth at least 5 gp."
+        },
+        "it": {
+          "testo": "Un portale in miniatura scolpito in avorio, un frammento di marmo lucido, un cucchiaino d'argento, del valore di almeno 5 mo ciascuno."
+        }
+      }
+    },
+    {
+      "index": "major-image",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fleece."
+        },
+        "it": {
+          "testo": "Un ciuffo di lana."
+        }
+      }
+    },
+    {
+      "index": "mass-suggestion",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A snake's tongue and either a bit of honeycomb or a drop of sweet oil."
+        },
+        "it": {
+          "testo": "Una lingua di serpente e un elemento a scelta tra un frammento di alveare e una goccia di olio dolce."
+        }
+      }
+    },
+    {
+      "index": "mending",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Two lodestones."
+        },
+        "it": {
+          "testo": "Due calamite."
+        }
+      }
+    },
+    {
+      "index": "message",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A short piece of copper wire."
+        },
+        "it": {
+          "testo": "Un piccolo pezzo di filo di rame."
+        }
+      }
+    },
+    {
+      "index": "minor-illusion",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fleece."
+        },
+        "it": {
+          "testo": "Un ciuffo di lana."
+        }
+      }
+    },
+    {
+      "index": "moonbeam",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Several seeds of any moonseed plant and a piece of opalescent feldspar."
+        },
+        "it": {
+          "testo": "Alcuni semi a mezzaluna di un qualsiasi vitigno legnoso e un frammento di feldspato opalescente."
+        }
+      }
+    },
+    {
+      "index": "move-earth",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "An iron blade and a small bag containing a mixture of soils--clay, loam, and sand."
+        },
+        "it": {
+          "testo": "Una lama di ferro e un sacchetto contenente un misto di terre: argilla, terriccio e sabbia."
+        }
+      }
+    },
+    {
+      "index": "nondetection",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of diamond dust worth 25 gp sprinkled over the target, which the spell consumes."
+        },
+        "it": {
+          "testo": "Un pizzico di polvere di diamante del valore di 25 mo da spargere sul bersaglio, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "pass-without-trace",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Ashes from a burned leaf of mistletoe and a sprig of spruce."
+        },
+        "it": {
+          "testo": "Cenere di una foglia di vischio bruciata e un rametto di abete."
+        }
+      }
+    },
+    {
+      "index": "passwall",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of sesame seeds."
+        },
+        "it": {
+          "testo": "Un pizzico di semi di sesamo."
+        }
+      }
+    },
+    {
+      "index": "planar-binding",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A jewel worth at least 1,000 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Una gemma del valore di almeno 1.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "plane-shift",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A forked, metal rod worth at least 250 gp, attuned to a particular plane of existence."
+        },
+        "it": {
+          "testo": "Una verga di metallo biforcuta del valore di almeno 250 mo, in sintonia con un particolare piano di esistenza."
+        }
+      }
+    },
+    {
+      "index": "polymorph",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A caterpillar cocoon."
+        },
+        "it": {
+          "testo": "Il bozzolo di un bruco."
+        }
+      }
+    },
+    {
+      "index": "private-sanctum",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A thin sheet of lead, a piece of opaque glass, a wad of cotton or cloth, and powdered chrysolite."
+        },
+        "it": {
+          "testo": "Una sottile lamina di piombo, un frammento di vetro opaco, un pezzo di cotone o stoffa e polvere di crisolito."
+        }
+      }
+    },
+    {
+      "index": "programmed-illusion",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fleece and jade dust worth at least 25 gp."
+        },
+        "it": {
+          "testo": "Un ciuffo di lana e polvere di giada del valore di almeno 25 mo."
+        }
+      }
+    },
+    {
+      "index": "project-image",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small replica of you made from materials worth at least 5 gp."
+        },
+        "it": {
+          "testo": "Una piccola replica dell'incantatore realizzata con materiali del valore di almeno 5 mo."
+        }
+      }
+    },
+    {
+      "index": "protection-from-evil-and-good",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Holy water or powdered silver and iron, which the spell consumes."
+        },
+        "it": {
+          "testo": "Acqua santa o polvere d'argento e ferro, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "raise-dead",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A diamond worth at least 500gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Un diamante del valore di almeno 500 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "regenerate",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A prayer wheel and holy water."
+        },
+        "it": {
+          "testo": "Un ruota della preghiera e acqua santa."
+        }
+      }
+    },
+    {
+      "index": "reincarnate",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Rare oils and unguents worth at least 1,000 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Oli e unguenti rari del valore di almeno 1.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "resilient-sphere",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A hemispherical piece of clear crystal and a matching hemispherical piece of gum arabic."
+        },
+        "it": {
+          "testo": "Una semisfera di cristallo trasparente e una semisfera corrispondente di resina."
+        }
+      }
+    },
+    {
+      "index": "resistance",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A miniature cloak."
+        },
+        "it": {
+          "testo": "Un mantello in miniatura."
+        }
+      }
+    },
+    {
+      "index": "resurrection",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A diamond worth at least 1,000gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Un diamante del valore di almeno 1.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "reverse-gravity",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A lodestone and iron filings."
+        },
+        "it": {
+          "testo": "Una calamita e limatura di ferro."
+        }
+      }
+    },
+    {
+      "index": "revivify",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Diamonds worth 300gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Diamanti del valore di 300 mo, che vengono consumati dall'incantesimo."
+        }
+      }
+    },
+    {
+      "index": "rope-trick",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Powdered corn extract and a twisted loop of parchment."
+        },
+        "it": {
+          "testo": "Estratto di mais in polvere e un pezzo di pergamena intrecciato."
+        }
+      }
+    },
+    {
+      "index": "sanctuary",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small silver mirror."
+        },
+        "it": {
+          "testo": "Uno specchietto d'argento."
+        }
+      }
+    },
+    {
+      "index": "scrying",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A focus worth at least 1,000 gp, such as a crystal ball, a silver mirror, or a font filled with holy water."
+        },
+        "it": {
+          "testo": "Un focus del valore di almeno 1.000 mo, come una sfera di cristallo, uno specchio d'argento o un bacile pieno di acqua santa."
+        }
+      }
+    },
+    {
+      "index": "secret-chest",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "An exquisite chest, 3 feet by 2 feet by 2 feet, constructed from rare materials worth at least 5,000 gp, and a Tiny replica made from the same materials worth at least 50 gp."
+        },
+        "it": {
+          "testo": "Un forziere di fattura pregiata che misura 90 × 60 × 60 cm, realizzato con materiali rari del valore di almeno 5.000 mo e una riproduzione minuscola fatta degli stessi materiali del valore di 50 mo."
+        }
+      }
+    },
+    {
+      "index": "see-invisibility",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A dash of talc and a small amount of silver powder."
+        },
+        "it": {
+          "testo": "Un pizzico di talco e una spolverata di polvere d'argento."
+        }
+      }
+    },
+    {
+      "index": "sending",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A short piece of fine copper wire."
+        },
+        "it": {
+          "testo": "Un piccolo pezzo di filo di rame."
+        }
+      }
+    },
+    {
+      "index": "sequester",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A powder composed of diamond, emerald, ruby, and sapphire dust worth at least 5,000 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Un composto di polvere di diamante, smeraldo, rubino e zaffiro del valore di almeno 5.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "shapechange",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell."
+        },
+        "it": {
+          "testo": "Un diadema di giada del valore di almeno 1.500 mo, che l'incantatore deve indossare prima di lanciare l'incantesimo."
+        }
+      }
+    },
+    {
+      "index": "shatter",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A burst of mica."
+        },
+        "it": {
+          "testo": "Un frammento di mica."
+        }
+      }
+    },
+    {
+      "index": "shield-of-faith",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small parchment with a bit of holy text written on it."
+        },
+        "it": {
+          "testo": "Una piccola pergamena recante un frammento di un testo sacro."
+        }
+      }
+    },
+    {
+      "index": "shillelagh",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Mistletoe, a shamrock leaf, and a club or quarterstaff."
+        },
+        "it": {
+          "testo": "Vischio, una foglia di trifoglio e un randello o un bastone ferrato."
+        }
+      }
+    },
+    {
+      "index": "silent-image",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of fleece."
+        },
+        "it": {
+          "testo": "Un ciuffo di lana."
+        }
+      }
+    },
+    {
+      "index": "simulacrum",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Snow or ice in quantities sufficient to made a life-size copy of the duplicated creature; some hair, fingernail clippings, or other piece of that creature's body placed inside the snow or ice; and powdered ruby worth 1,500 gp, sprinkled over the duplicate and consumed by the spell."
+        },
+        "it": {
+          "testo": "Una quantità di neve o ghiaccio sufficiente per realizzare una copia a grandezza naturale della creatura da duplicare; una ciocca di capelli, un'unghia tagliata o un altro pezzo del corpo di quella creatura da collocare in mezzo alla neve o al ghiaccio; polvere di rubino del valore di 1.500 mo da cospargere sul duplicato, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "sleep",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of fine sand, rose petals, or a cricket."
+        },
+        "it": {
+          "testo": "Un pizzico di sabbia finissima, petali di rosa o un grillo."
+        }
+      }
+    },
+    {
+      "index": "sleet-storm",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of dust and a few drops of water."
+        },
+        "it": {
+          "testo": "Un pizzico di polvere e qualche goccia d'acqua."
+        }
+      }
+    },
+    {
+      "index": "slow",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of molasses."
+        },
+        "it": {
+          "testo": "Una goccia di melassa."
+        }
+      }
+    },
+    {
+      "index": "speak-with-dead",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Burning incense."
+        },
+        "it": {
+          "testo": "Incenso bruciato."
+        }
+      }
+    },
+    {
+      "index": "spider-climb",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of bitumen and a spider."
+        },
+        "it": {
+          "testo": "Una goccia di bitume e un ragno."
+        }
+      }
+    },
+    {
+      "index": "spike-growth",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Seven sharp thorns or seven small twigs, each sharpened to a point."
+        },
+        "it": {
+          "testo": "Sette spine aguzze o sette rametti appuntiti."
+        }
+      }
+    },
+    {
+      "index": "spirit-guardians",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A holy symbol."
+        },
+        "it": {
+          "testo": "Un simbolo sacro."
+        }
+      }
+    },
+    {
+      "index": "stinking-cloud",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A rotten egg or several skunk cabbage leaves."
+        },
+        "it": {
+          "testo": "Un uovo marcio o alcune foglie di cavolo puzzola."
+        }
+      }
+    },
+    {
+      "index": "stone-shape",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Soft clay, to be crudely worked into the desired shape for the stone object."
+        },
+        "it": {
+          "testo": "Argilla morbida, che deve essere plasmata nella forma dell'oggetto desiderato."
+        }
+      }
+    },
+    {
+      "index": "stoneskin",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Diamond dust worth 100 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Polvere di diamante del valore di 100 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "suggestion",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A snake's tongue and either a bit of honeycomb or a drop of sweet oil."
+        },
+        "it": {
+          "testo": "Una lingua di serpente e un elemento a scelta tra un frammento di alveare e una goccia di olio dolce."
+        }
+      }
+    },
+    {
+      "index": "sunbeam",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A magnifying glass."
+        },
+        "it": {
+          "testo": "Una lente d'ingrandimento."
+        }
+      }
+    },
+    {
+      "index": "sunburst",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Fire and a piece of sunstone."
+        },
+        "it": {
+          "testo": "Fuoco e un frammento di pietra del sole."
+        }
+      }
+    },
+    {
+      "index": "symbol",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Mercury, phosphorus, and powdered diamond and opal with a total value of at least 1,000 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Mercurio, fosforo e polvere di diamante e opale del valore totale di almeno 1.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "telepathic-bond",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Pieces of eggshell from two different kinds of creatures"
+        },
+        "it": {
+          "testo": "Pezzi di gusci d'uovo di due tipi di creature diverse."
+        }
+      }
+    },
+    {
+      "index": "teleportation-circle",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Rare chalks and inks infused with precious gems with 50 gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Gessetti e inchiostri rari infusi di gemme preziose del valore di 50 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "tiny-hut",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small crystal bead."
+        },
+        "it": {
+          "testo": "Un piccola perla di cristallo."
+        }
+      }
+    },
+    {
+      "index": "tongues",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small clay model of a ziggurat."
+        },
+        "it": {
+          "testo": "Una piccola riproduzione in argilla di una ziggurat."
+        }
+      }
+    },
+    {
+      "index": "true-polymorph",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A drop of mercury, a dollop of gum arabic, and a wisp of smoke."
+        },
+        "it": {
+          "testo": "Una goccia di mercurio, una piccola quantità di resina e uno sbuffo di fumo."
+        }
+      }
+    },
+    {
+      "index": "true-resurrection",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A sprinkle of holy water and diamonds worth at least 25,000gp, which the spell consumes."
+        },
+        "it": {
+          "testo": "Uno spruzzo di acqua santa e diamanti del valore di almeno 25.000 mo, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "true-seeing",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "An ointment for the eyes that costs 25gp; is made from mushroom powder, saffron, and fat; and is consumed by the spell."
+        },
+        "it": {
+          "testo": "Un unguento per gli occhi del costo di 25 mo, realizzato con polvere di funghi, zafferano e grasso, che l'incantesimo consuma."
+        }
+      }
+    },
+    {
+      "index": "unseen-servant",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A piece of string and a bit of wood."
+        },
+        "it": {
+          "testo": "Un pezzo di spago e un pezzo di legno."
+        }
+      }
+    },
+    {
+      "index": "wall-of-fire",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small piece of phosphorus."
+        },
+        "it": {
+          "testo": "Un frammento di fosforo."
+        }
+      }
+    },
+    {
+      "index": "wall-of-force",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pinch of powder made by crushing a clear gemstone."
+        },
+        "it": {
+          "testo": "Un pizzico di polvere ricavata dalla distruzione di una gemma trasparente."
+        }
+      }
+    },
+    {
+      "index": "wall-of-ice",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small piece of quartz."
+        },
+        "it": {
+          "testo": "Un frammento di quarzo."
+        }
+      }
+    },
+    {
+      "index": "wall-of-stone",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A small block of granite."
+        },
+        "it": {
+          "testo": "Un piccolo blocco di granito."
+        }
+      }
+    },
+    {
+      "index": "wall-of-thorns",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A handful of thorns."
+        },
+        "it": {
+          "testo": "Una manciata di spine."
+        }
+      }
+    },
+    {
+      "index": "warding-bond",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A pair of platinum rings worth at least 50gp each, which you and the target must wear for the duration."
+        },
+        "it": {
+          "testo": "Un paio di anelli di platino del valore di almeno 50 mo, che l'incantatore e il bersaglio devono indossare per la durata dell'incantesimo."
+        }
+      }
+    },
+    {
+      "index": "water-breathing",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A short piece of reed or straw."
+        },
+        "it": {
+          "testo": "Un piccolo giunco o una pagliuzza."
+        }
+      }
+    },
+    {
+      "index": "water-walk",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A piece of cork."
+        },
+        "it": {
+          "testo": "Un pezzo di sughero."
+        }
+      }
+    },
+    {
+      "index": "web",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A bit of spiderweb."
+        },
+        "it": {
+          "testo": "Un frammento di ragnatela comune."
+        }
+      }
+    },
+    {
+      "index": "wind-walk",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "Fire and holy water."
+        },
+        "it": {
+          "testo": "Fuoco e acqua santa."
+        }
+      }
+    },
+    {
+      "index": "wind-wall",
+      "perBersaglio": false,
+      "translations": {
+        "en": {
+          "testo": "A tiny fan and a feather of exotic origin."
+        },
+        "it": {
+          "testo": "Un ventaglio minuscolo e una piuma di origini esotiche."
+        }
+      }
+    }
+  ]
+}
