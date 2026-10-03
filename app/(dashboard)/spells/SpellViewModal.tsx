@@ -163,6 +163,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
       show={!!spellId}
       onClose={close}
       title={title}
+      titleSkeleton={loading}
       size="lg"
       fullscreenOnMobile
       footer={

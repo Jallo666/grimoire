@@ -12,9 +12,11 @@ type Props = {
   size?: "sm" | "lg" | "xl";
   // Sotto i 992px la modale occupa tutto lo schermo (modal-fullscreen-lg-down di Bootstrap)
   fullscreenOnMobile?: boolean;
+  // Mentre i dati arrivano: barra grigia che pulsa al posto del titolo
+  titleSkeleton?: boolean;
 };
 
-export default function GrimoireModal({ show, onClose, title, children, footer, size, fullscreenOnMobile = false }: Props) {
+export default function GrimoireModal({ show, onClose, title, children, footer, size, fullscreenOnMobile = false, titleSkeleton = false }: Props) {
   const t = useTranslations("ui");
 
   useEffect(() => {
@@ -61,8 +63,8 @@ export default function GrimoireModal({ show, onClose, title, children, footer, 
             }}
           >
             <div className="modal-header" style={{ borderColor: "var(--g-card-border)" }}>
-              <h5 className="modal-title" style={{ color: "var(--g-text)" }}>
-                {title}
+              <h5 className="modal-title placeholder-glow flex-grow-1" style={{ color: "var(--g-text)" }}>
+                {titleSkeleton ? <span className="placeholder col-6 rounded" /> : title}
               </h5>
               <button type="button" className="btn-close" onClick={onClose} aria-label={t("close")} />
             </div>
