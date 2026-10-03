@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, boolean, timestamp, jsonb, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, boolean, timestamp, jsonb, primaryKey, numeric } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -62,6 +62,42 @@ export const spellMaterials = pgTable("spell_materials", {
   translations: jsonb("translations").$type<Record<string, { testo: string }>>().default({}),
   perBersaglio: boolean("per_bersaglio").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Oggetti (es. Diamante): ingredienti dei componenti materiali, e in futuro dell'inventario.
+// Quelli SRD (scripts/srd-items.json) sono di sistema, con "codice" = index del file;
+// gli utenti possono crearne di loro. "nome" nella lingua di creazione (SRD: inglese), traduzioni in
+// "translations". Valori in mo con i decimali (5 ma = 0.5): il front-end li mostra nella moneta adatta.
+export const items = pgTable("items", {
+  id: serial("id").primaryKey(),
+  codice: text("codice").unique(),
+  nome: text("nome").notNull(),
+  translations: jsonb("translations").$type<Record<string, { nome: string }>>().default({}),
+  categoria: text("categoria"),
+  valoreBase: numeric("valore_base", { precision: 12, scale: 2, mode: "number" }),
+  peso: numeric("peso", { precision: 10, scale: 2, mode: "number" }),
+  isSystem: boolean("is_system").notNull().default(false),
+  creatorId: integer("creator_id").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Alternative di un componente materiale ("acqua santa OPPURE polvere d'argento e ferro"): ne basta una.
+// "valoreTotaleMinimo": valore minimo in mo sul totale degli ingredienti dell'opzione.
+export const materialOptions = pgTable("material_options", {
+  id: serial("id").primaryKey(),
+  materialId: integer("material_id").references(() => spellMaterials.id).notNull(),
+  ordine: integer("ordine").notNull().default(1),
+  valoreTotaleMinimo: numeric("valore_totale_minimo", { precision: 12, scale: 2, mode: "number" }),
+});
+
+// Ingredienti di un'opzione: servono tutti insieme. "valoreMinimo" in mo, per pezzo.
+export const materialIngredients = pgTable("material_ingredients", {
+  id: serial("id").primaryKey(),
+  optionId: integer("option_id").references(() => materialOptions.id).notNull(),
+  itemId: integer("item_id").references(() => items.id).notNull(),
+  quantita: integer("quantita").notNull().default(1),
+  valoreMinimo: numeric("valore_minimo", { precision: 12, scale: 2, mode: "number" }),
+  consumato: boolean("consumato").notNull().default(false),
 });
 
 // Classi dei personaggi (es. Mago). Le 8 SRD (scripts/srd-classes.json) sono di sistema

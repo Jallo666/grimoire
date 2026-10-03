@@ -1,11 +1,12 @@
 import { gql } from "graphql-tag";
 import { eq, and, or, ilike, isNull, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups, classes, spellClasses, damageTypes, spellDamageTypes, spellMaterials } from "@/db/schema";
+import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups, classes, spellClasses, damageTypes, spellDamageTypes, spellMaterials, items, materialOptions, materialIngredients } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
 import { getOrCreateGroup } from "./spellGroups";
 import type { Context } from "./context";
 import { appError } from "./errors";
+import { itemToGql } from "./items";
 
 export const spellTypeDefs = gql`
   type SpellTranslation {
@@ -51,6 +52,34 @@ export const spellTypeDefs = gql`
     testo: String!
     perBersaglio: Boolean!
     translations: [SpellMaterialTranslation!]!
+    # alternative (ne basta una), ognuna con gli ingredienti che servono insieme
+    opzioni: [MaterialOption!]!
+  }
+
+  type MaterialOption {
+    # valore minimo in mo sul totale degli ingredienti (es. "del valore totale di 1.000 mo")
+    valoreTotaleMinimo: Float
+    ingredienti: [MaterialIngredient!]!
+  }
+
+  type MaterialIngredient {
+    item: Item!
+    quantita: Int!
+    # valore minimo in mo per pezzo ("almeno X")
+    valoreMinimo: Float
+    consumato: Boolean!
+  }
+
+  input MaterialOptionInput {
+    valoreTotaleMinimo: Float
+    ingredienti: [MaterialIngredientInput!]!
+  }
+
+  input MaterialIngredientInput {
+    itemId: ID!
+    quantita: Int
+    valoreMinimo: Float
+    consumato: Boolean
   }
 
   type SpellMaterialTranslation {
@@ -98,6 +127,8 @@ export const spellTypeDefs = gql`
       # testo del componente materiale (vale solo se componenti ha la "M")
       materiale: String
       materialePerBersaglio: Boolean
+      # se passate, sostituiscono le opzioni del materiale
+      materialeOpzioni: [MaterialOptionInput!]
       groupId: ID
       translationLocale: String
       translationNome: String
@@ -124,6 +155,7 @@ export const spellTypeDefs = gql`
       # traduzione del materiale in un'altra lingua (vuota = la si toglie)
       materialeLocale: String
       materialeTraduzione: String
+      materialeOpzioni: [MaterialOptionInput!]
       # se passati, sostituiscono classi e tipi di danno dell'incantesimo
       classIds: [ID!]
       damageTypeIds: [ID!]
@@ -243,8 +275,61 @@ function componentLetters(componenti: string | null | undefined) {
 
 const hasM = (letters: string | null) => !!letters && letters.split(",").map((p) => p.trim()).includes("M");
 
-// Salva il materiale di un incantesimo: senza "M" o senza testo lo toglie.
+type OptionInput = {
+  valoreTotaleMinimo?: number | null;
+  ingredienti: { itemId: string; quantita?: number | null; valoreMinimo?: number | null; consumato?: boolean | null }[];
+};
+
+// Toglie i materiali di questi incantesimi, con opzioni e ingredienti
+async function deleteMaterials(tx: Tx, spellIds: number[]) {
+  if (spellIds.length === 0) return;
+  const mats = await tx.select({ id: spellMaterials.id }).from(spellMaterials).where(inArray(spellMaterials.spellId, spellIds));
+  await deleteOptions(tx, mats.map((m) => m.id));
+  await tx.delete(spellMaterials).where(inArray(spellMaterials.spellId, spellIds));
+}
+
+async function deleteOptions(tx: Tx, materialIds: number[]) {
+  if (materialIds.length === 0) return;
+  const opts = await tx.select({ id: materialOptions.id }).from(materialOptions).where(inArray(materialOptions.materialId, materialIds));
+  if (opts.length) await tx.delete(materialIngredients).where(inArray(materialIngredients.optionId, opts.map((o) => o.id)));
+  await tx.delete(materialOptions).where(inArray(materialOptions.materialId, materialIds));
+}
+
+// Sostituisce le opzioni del materiale. Gli oggetti ammessi: quelli di base, quelli dell'utente
+// e quelli già usati da questo materiale (es. di chi gli ha condiviso l'incantesimo).
+// Opzioni senza ingredienti vengono ignorate.
+async function replaceOptions(tx: Tx, materialId: number, userId: number, opzioni: OptionInput[]) {
+  const wanted = [...new Set(opzioni.flatMap((o) => o.ingredienti.map((i) => Number(i.itemId))))];
+  if (wanted.length) {
+    const alreadyUsed = tx.select({ id: materialIngredients.itemId }).from(materialIngredients)
+      .innerJoin(materialOptions, eq(materialIngredients.optionId, materialOptions.id))
+      .where(eq(materialOptions.materialId, materialId));
+    const allowed = await tx.select({ id: items.id }).from(items).where(and(
+      inArray(items.id, wanted),
+      or(eq(items.isSystem, true), eq(items.creatorId, userId), inArray(items.id, alreadyUsed)),
+    ));
+    if (allowed.length !== wanted.length) throw appError("ITEM_NOT_ALLOWED");
+  }
+  await deleteOptions(tx, [materialId]);
+  let ordine = 1;
+  for (const o of opzioni) {
+    if (o.ingredienti.length === 0) continue;
+    const [opt] = await tx.insert(materialOptions)
+      .values({ materialId, ordine: ordine++, valoreTotaleMinimo: o.valoreTotaleMinimo ?? null })
+      .returning({ id: materialOptions.id });
+    await tx.insert(materialIngredients).values(o.ingredienti.map((i) => ({
+      optionId: opt.id,
+      itemId: Number(i.itemId),
+      quantita: Math.max(1, i.quantita ?? 1),
+      valoreMinimo: i.valoreMinimo ?? null,
+      consumato: !!i.consumato,
+    })));
+  }
+}
+
+// Salva il materiale di un incantesimo: senza "M" o senza testo lo toglie (con le opzioni).
 // Le traduzioni passate si aggiungono a quelle che ci sono (null = togli quella lingua).
+// Restituisce l'id del materiale, o null se non c'è.
 async function saveMaterial(
   tx: Tx,
   spellId: number,
@@ -254,8 +339,8 @@ async function saveMaterial(
   translations?: Record<string, string | null>
 ) {
   if (!hasM(letters) || !testo) {
-    await tx.delete(spellMaterials).where(eq(spellMaterials.spellId, spellId));
-    return;
+    await deleteMaterials(tx, [spellId]);
+    return null;
   }
   const [existing] = await tx.select().from(spellMaterials).where(eq(spellMaterials.spellId, spellId)).limit(1);
   const merged = { ...(existing?.translations ?? {}) };
@@ -264,8 +349,12 @@ async function saveMaterial(
     else delete merged[l];
   }
   const values = { testo, translations: merged, perBersaglio: perBersaglio ?? existing?.perBersaglio ?? false };
-  if (existing) await tx.update(spellMaterials).set(values).where(eq(spellMaterials.id, existing.id));
-  else await tx.insert(spellMaterials).values({ spellId, ...values });
+  if (existing) {
+    await tx.update(spellMaterials).set(values).where(eq(spellMaterials.id, existing.id));
+    return existing.id;
+  }
+  const [created] = await tx.insert(spellMaterials).values({ spellId, ...values }).returning({ id: spellMaterials.id });
+  return created.id;
 }
 
 // Nome nella lingua richiesta (se c'è la traduzione), altrimenti quello inglese
@@ -318,11 +407,35 @@ async function withTags<S extends { id: number }>(list: S[], locale?: string | n
 }
 
 export const spellResolvers = {
+  SpellMaterial: {
+    // Opzioni in ordine, con i loro ingredienti e gli oggetti
+    opzioni: async (parent: { _id: number }, _: unknown, context: Context) => {
+      const opts = await db.select().from(materialOptions)
+        .where(eq(materialOptions.materialId, parent._id)).orderBy(materialOptions.ordine);
+      if (opts.length === 0) return [];
+      const rows = await db.select({ ing: materialIngredients, item: items }).from(materialIngredients)
+        .innerJoin(items, eq(materialIngredients.itemId, items.id))
+        .where(inArray(materialIngredients.optionId, opts.map((o) => o.id)))
+        .orderBy(materialIngredients.id);
+      const userId = context.user?.id ?? null;
+      return opts.map((o) => ({
+        valoreTotaleMinimo: o.valoreTotaleMinimo,
+        ingredienti: rows.filter((r) => r.ing.optionId === o.id).map((r) => ({
+          item: itemToGql(r.item, userId),
+          quantita: r.ing.quantita,
+          valoreMinimo: r.ing.valoreMinimo,
+          consumato: r.ing.consumato,
+        })),
+      }));
+    },
+  },
+
   Spell: {
     materiale: async (parent: { id: number }) => {
       const [m] = await db.select().from(spellMaterials).where(eq(spellMaterials.spellId, parent.id)).limit(1);
       if (!m) return null;
       return {
+        _id: m.id,
         testo: m.testo,
         perBersaglio: m.perBersaglio,
         translations: Object.entries(m.translations ?? {}).map(([locale, v]) => ({ locale, testo: v.testo })),
@@ -445,7 +558,7 @@ export const spellResolvers = {
   Mutation: {
     createSpell: async (
       _: unknown,
-      args: { nome: string; lingua?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string; materialePerBersaglio?: boolean; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string; translationHigherLevel?: string; translationMateriale?: string; classIds?: string[]; damageTypeIds?: string[] },
+      args: { nome: string; lingua?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string; materialePerBersaglio?: boolean; materialeOpzioni?: OptionInput[]; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string; translationHigherLevel?: string; translationMateriale?: string; classIds?: string[]; damageTypeIds?: string[] },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -478,8 +591,9 @@ export const spellResolvers = {
           ...(Object.keys(translationsData).length > 0 ? { translations: translationsData } : {}),
         }).returning();
         await tx.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id, groupId });
-        await saveMaterial(tx, spell.id, letters, testo, args.materialePerBersaglio,
+        const materialId = await saveMaterial(tx, spell.id, letters, testo, args.materialePerBersaglio,
           args.translationLocale ? { [args.translationLocale]: args.translationMateriale ?? null } : undefined);
+        if (materialId && args.materialeOpzioni) await replaceOptions(tx, materialId, user.id, args.materialeOpzioni);
         await setSpellTags(tx, spell.id, user.id, args.classIds, args.damageTypeIds);
         return toGql(spell, user.id, true, groupId, null);
       });
@@ -487,7 +601,7 @@ export const spellResolvers = {
 
     updateSpell: async (
       _: unknown,
-      args: { id: string; nome?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string | null; materialePerBersaglio?: boolean; materialeLocale?: string; materialeTraduzione?: string | null; classIds?: string[]; damageTypeIds?: string[] },
+      args: { id: string; nome?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string | null; materialePerBersaglio?: boolean; materialeLocale?: string; materialeTraduzione?: string | null; materialeOpzioni?: OptionInput[]; classIds?: string[]; damageTypeIds?: string[] },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -503,7 +617,7 @@ export const spellResolvers = {
       if (args.gittata !== undefined) updates.gittata = args.gittata;
       if (args.durata !== undefined) updates.durata = args.durata;
       // Componenti e materiale: ciò che non arriva resta com'è
-      const touchesMaterial = args.componenti !== undefined || args.materiale !== undefined || args.materialePerBersaglio !== undefined;
+      const touchesMaterial = args.componenti !== undefined || args.materiale !== undefined || args.materialePerBersaglio !== undefined || args.materialeOpzioni !== undefined;
       const [currentMaterial] = touchesMaterial
         ? await db.select().from(spellMaterials).where(eq(spellMaterials.spellId, spell.id)).limit(1)
         : [];
@@ -515,8 +629,9 @@ export const spellResolvers = {
           ? await tx.update(spells).set(updates).where(eq(spells.id, spell.id)).returning()
           : [spell];
         if (touchesMaterial) {
-          await saveMaterial(tx, spell.id, letters, testo, args.materialePerBersaglio,
+          const materialId = await saveMaterial(tx, spell.id, letters, testo, args.materialePerBersaglio,
             args.materialeLocale ? { [args.materialeLocale]: args.materialeTraduzione ?? null } : undefined);
+          if (materialId && args.materialeOpzioni) await replaceOptions(tx, materialId, user.id, args.materialeOpzioni);
         }
         await setSpellTags(tx, spell.id, user.id, args.classIds, args.damageTypeIds);
         return toGql(updated, user.id, true);
@@ -529,7 +644,7 @@ export const spellResolvers = {
       if (spell.creatorId !== user.id) throw appError("ONLY_CREATOR_DELETES");
       await db.delete(spellClasses).where(eq(spellClasses.spellId, spell.id));
       await db.delete(spellDamageTypes).where(eq(spellDamageTypes.spellId, spell.id));
-      await db.delete(spellMaterials).where(eq(spellMaterials.spellId, spell.id));
+      await db.transaction((tx) => deleteMaterials(tx, [spell.id]));
       await db.delete(userSpellLibrary).where(eq(userSpellLibrary.spellId, spell.id));
       await db.delete(campaignSpellLibrary).where(eq(campaignSpellLibrary.spellId, spell.id));
       await db.delete(spells).where(eq(spells.id, spell.id));
@@ -599,7 +714,7 @@ export const spellResolvers = {
       await db.transaction(async (tx) => {
         await tx.delete(spellClasses).where(inArray(spellClasses.spellId, own));
         await tx.delete(spellDamageTypes).where(inArray(spellDamageTypes.spellId, own));
-        await tx.delete(spellMaterials).where(inArray(spellMaterials.spellId, own));
+        await deleteMaterials(tx, own);
         await tx.delete(userSpellLibrary).where(inArray(userSpellLibrary.spellId, own));
         await tx.delete(campaignSpellLibrary).where(inArray(campaignSpellLibrary.spellId, own));
         await tx.delete(spells).where(inArray(spells.id, own));

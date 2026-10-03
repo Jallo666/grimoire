@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 
 const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi { id nome } tipiDanno { id nome } groupId groupNome createdAt`;
-const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi(locale: $tagsLocale) { id nome } sottoclassi tipiDanno(locale: $tagsLocale) { id nome } creatorId isOwner isSystem inLibrary groupId groupNome createdAt lingua translations { locale nome descrizione highLevel } materiale { testo perBersaglio translations { locale testo } }`;
+const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi(locale: $tagsLocale) { id nome } sottoclassi tipiDanno(locale: $tagsLocale) { id nome } creatorId isOwner isSystem inLibrary groupId groupNome createdAt lingua translations { locale nome descrizione highLevel } materiale { testo perBersaglio translations { locale testo } opzioni { valoreTotaleMinimo ingredienti { quantita valoreMinimo consumato item { id nome(locale: $tagsLocale) } } } }`;
 
 export const MY_SPELLS = gql`
   query MySpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $concentration: Boolean, $ritual: Boolean, $groupIds: [ID!], $locale: String) {
@@ -52,6 +52,7 @@ export const CREATE_SPELL = gql`
     $componenti: String
     $materiale: String
     $materialePerBersaglio: Boolean
+    $materialeOpzioni: [MaterialOptionInput!]
     $groupId: ID
     $translationLocale: String
     $translationNome: String
@@ -64,7 +65,7 @@ export const CREATE_SPELL = gql`
     createSpell(
       nome: $nome lingua: $lingua descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
-      materiale: $materiale materialePerBersaglio: $materialePerBersaglio
+      materiale: $materiale materialePerBersaglio: $materialePerBersaglio materialeOpzioni: $materialeOpzioni
       groupId: $groupId
       translationLocale: $translationLocale translationNome: $translationNome
       translationDescrizione: $translationDescrizione translationHigherLevel: $translationHigherLevel
@@ -90,6 +91,7 @@ export const UPDATE_SPELL = gql`
     $materialePerBersaglio: Boolean
     $materialeLocale: String
     $materialeTraduzione: String
+    $materialeOpzioni: [MaterialOptionInput!]
     $classIds: [ID!]
     $damageTypeIds: [ID!]
   ) {
@@ -97,7 +99,7 @@ export const UPDATE_SPELL = gql`
       id: $id nome: $nome descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
       materiale: $materiale materialePerBersaglio: $materialePerBersaglio
-      materialeLocale: $materialeLocale materialeTraduzione: $materialeTraduzione
+      materialeLocale: $materialeLocale materialeTraduzione: $materialeTraduzione materialeOpzioni: $materialeOpzioni
       classIds: $classIds damageTypeIds: $damageTypeIds
     ) { id }
   }

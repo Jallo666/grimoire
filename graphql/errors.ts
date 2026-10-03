@@ -27,6 +27,8 @@ const ERRORS = {
   ONLY_CREATOR_DELETES: { code: "FORBIDDEN", message: "Solo il creatore può eliminare l'incantesimo" },
   GROUP_NOT_FOUND: { code: "NOT_FOUND", message: "Gruppo non trovato" },
   GROUP_EXISTS: { code: "BAD_USER_INPUT", message: "Gruppo già esistente" },
+  ITEM_NAME_REQUIRED: { code: "BAD_USER_INPUT", message: "Il nome dell'oggetto è obbligatorio" },
+  ITEM_NOT_ALLOWED: { code: "FORBIDDEN", message: "Oggetto non utilizzabile" },
 } as const;
 
 export type ErrorReason = keyof typeof ERRORS;
