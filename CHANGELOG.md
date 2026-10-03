@@ -3,6 +3,23 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.18.0] - 2026-10-03
+
+### Aggiunto
+- Controlli automatici su GitHub (`.github/workflows/controlli.yml`): lint e build (con controllo dei tipi) a ogni push e pull request.
+- Errori tradotti: il server manda un codice (`graphql/errors.ts`, es. `SPELL_NOT_FOUND`) e la pagina mostra il testo in italiano o inglese (gruppo `errors`), o un messaggio generico.
+- Nuovi componenti: `GrimoireModalFooter`, `GrimoireField`, `GrimoireDivider`, `GrimoirePager`, `GrimoireText`, `GrimoireExternalLink`, `GrimoireSwipeArea`.
+
+### Modificato
+- Pagine senza classi Bootstrap, tag HTML stilizzati o `style` scritti a mano: tutto passa dai componenti.
+- Tutte le modali hanno i bottoni nel footer (`GrimoireModalFooter`); tolto `GrimoireModalActions`.
+- `GrimoireInlineGroup`, `GrimoireSelect`, `GrimoireMultiSelect`: prop chiare (`wrap`, `spaced`, `fillFirst`, `minWidth`) al posto di `style`/`className`.
+- Modifica incantesimo: la card delle traduzioni è un `GrimoireForm`.
+
+### Corretto
+- Pagina d'errore della dashboard: con la sessione scaduta torna di nuovo al login (leggeva il codice nel formato della vecchia versione di Apollo).
+- 6 errori trovati dal lint: stato aggiornato dentro un effetto (input speciali, dettaglio, profilo) e cookie della lingua scritto in un modo vietato da React.
+
 ## [0.17.1] - 2026-10-03
 
 ### Modificato
