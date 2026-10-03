@@ -3,6 +3,15 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.16.0] - 2026-10-03
+
+### Corretto
+- Dettaglio incantesimo: classi e tipi di danno tradotti (prima in inglese). I campi `classi` e `tipiDanno` accettano un parametro `locale` facoltativo.
+
+### Database
+- Cancellata la colonna `spells.tipi_danno` (migrazione temporanea `scripts/migrate-0.16.ts` nel build; tolta la 0.15).
+- `spells.classi` non è più usata dal codice; verrà cancellata dal database nella prossima versione.
+
 ## [0.15.0] - 2026-10-03
 
 ### Modificato
