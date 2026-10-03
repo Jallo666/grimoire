@@ -48,7 +48,9 @@
     "statoConclusa": "Conclusa",
     "unitaPiedi": "Piedi (ft)",
     "unitaMetri": "Metri (m)",
-    "unitaQuadretti": "Quadretti"
+    "unitaQuadretti": "Quadretti",
+    "confirmDeleteTitle": "Eliminare la campagna?",
+    "confirmDeleteMessage": "La campagna «{name}» verrà eliminata definitivamente. Non si può annullare."
   },
   "campaignDetail": {
     "pageTitle": "Gestione Campagna: {name}",
@@ -206,7 +208,15 @@
     "compV": "Verbale (V)",
     "compS": "Somatico (S)",
     "compM": "Materiale (M)",
-    "compMaterialPlaceholder": "Componente materiale..."
+    "compMaterialPlaceholder": "Componente materiale...",
+    "confirmDeleteTitle": "Eliminare l'incantesimo?",
+    "confirmDeleteMessage": "«{name}» verrà eliminato definitivamente. Non si può annullare.",
+    "confirmDeleteManyTitle": "Eliminare {count, plural, one {# incantesimo} other {# incantesimi}}?",
+    "confirmDeleteManyMessage": "Verranno eliminati definitivamente gli incantesimi creati da te tra quelli selezionati. Non si può annullare.",
+    "confirmRemoveManyTitle": "Togliere {count, plural, one {# incantesimo} other {# incantesimi}} dalla libreria?",
+    "confirmRemoveManyMessage": "Gli incantesimi SRD selezionati verranno tolti dalla tua libreria. Potrai aggiungerli di nuovo dal compendio SRD.",
+    "confirmDeleteGroupTitle": "Eliminare il gruppo?",
+    "confirmDeleteGroupMessage": "Il gruppo «{name}» verrà eliminato. I suoi incantesimi restano nella libreria, senza gruppo."
   },
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",
@@ -244,7 +254,9 @@
     "next": "Successivo",
     "back": "Torna indietro",
     "owner": "Owner",
-    "version": "Versione {version}"
+    "version": "Versione {version}",
+    "delete": "Elimina",
+    "remove": "Rimuovi"
   },
   "profile": {
     "pageTitle": "Il mio profilo",

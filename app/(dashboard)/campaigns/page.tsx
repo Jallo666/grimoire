@@ -12,6 +12,7 @@ import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
+import GrimoireConfirm, { type ConfirmRequest } from "@/components/ui/GrimoireConfirm";
 
 type CampaignRow = {
   id: string;
@@ -70,6 +71,9 @@ export default function CampaignsPage() {
     onCompleted: () => { refetch(); setShowCreate(false); },
   });
   const [deleteCampaign] = useMutation(DELETE_CAMPAIGN, { onCompleted: () => refetch() });
+  // Conferma prima di eliminare
+  const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
+  const tUi = useTranslations("ui");
 
   const campaigns: CampaignRow[] = data?.campaigns ?? [];
 
@@ -101,7 +105,13 @@ export default function CampaignsPage() {
           const isMember = meId !== undefined && c.members.some((m) => m.userId === meId);
           return [
             { icon: "gear", tooltip: t("tooltipManage"), variant: "outline-secondary", href: `/campaigns/${c.id}`, hidden: !isOwner && !isMember },
-            { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteCampaign({ variables: { id: c.id } }), hidden: !isOwner },
+            { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => setConfirm({
+              title: t("confirmDeleteTitle"),
+              message: t("confirmDeleteMessage", { name: c.nome }),
+              confirmLabel: tUi("delete"),
+              danger: true,
+              onConfirm: async () => { await deleteCampaign({ variables: { id: c.id } }); },
+            }), hidden: !isOwner },
           ];
         }}
       />
@@ -131,6 +141,8 @@ export default function CampaignsPage() {
           onValidationError={setCreateFormError}
         />
       </GrimoireModal>
+
+      <GrimoireConfirm request={confirm} onClose={() => setConfirm(null)} />
     </GrimoirePage>
   );
 }

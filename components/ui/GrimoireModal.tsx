@@ -14,9 +14,11 @@ type Props = {
   fullscreenOnMobile?: boolean;
   // Mentre i dati arrivano: barra grigia che pulsa al posto del titolo
   titleSkeleton?: boolean;
+  // Sopra le altre modali (es. una conferma aperta da dentro un'altra modale)
+  onTop?: boolean;
 };
 
-export default function GrimoireModal({ show, onClose, title, children, footer, size, fullscreenOnMobile = false, titleSkeleton = false }: Props) {
+export default function GrimoireModal({ show, onClose, title, children, footer, size, fullscreenOnMobile = false, titleSkeleton = false, onTop = false }: Props) {
   const t = useTranslations("ui");
 
   useEffect(() => {
@@ -48,8 +50,8 @@ export default function GrimoireModal({ show, onClose, title, children, footer, 
 
   return (
     <>
-      <div className="modal-backdrop fade show" onClick={onClose} />
-      <div className="modal fade show d-block" tabIndex={-1} role="dialog" aria-modal="true" style={{ overflowY: "auto" }}>
+      <div className="modal-backdrop fade show" onClick={onClose} style={onTop ? { zIndex: 1062 } : undefined} />
+      <div className="modal fade show d-block" tabIndex={-1} role="dialog" aria-modal="true" style={{ overflowY: "auto", zIndex: onTop ? 1063 : undefined }}>
         <div
           className={`modal-dialog modal-dialog-centered modal-dialog-scrollable${size ? ` modal-${size}` : ""}${fullscreenOnMobile ? " modal-fullscreen-lg-down" : ""}`}
           role="document"

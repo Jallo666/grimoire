@@ -48,7 +48,9 @@
     "statoConclusa": "Concluded",
     "unitaPiedi": "Feet (ft)",
     "unitaMetri": "Metres (m)",
-    "unitaQuadretti": "Squares"
+    "unitaQuadretti": "Squares",
+    "confirmDeleteTitle": "Delete campaign?",
+    "confirmDeleteMessage": "The campaign “{name}” will be permanently deleted. This can't be undone."
   },
   "campaignDetail": {
     "pageTitle": "Campaign: {name}",
@@ -206,7 +208,15 @@
     "compV": "Verbal (V)",
     "compS": "Somatic (S)",
     "compM": "Material (M)",
-    "compMaterialPlaceholder": "Material component..."
+    "compMaterialPlaceholder": "Material component...",
+    "confirmDeleteTitle": "Delete spell?",
+    "confirmDeleteMessage": "“{name}” will be permanently deleted. This can't be undone.",
+    "confirmDeleteManyTitle": "Delete {count, plural, one {# spell} other {# spells}}?",
+    "confirmDeleteManyMessage": "The spells you created among the selected ones will be permanently deleted. This can't be undone.",
+    "confirmRemoveManyTitle": "Remove {count, plural, one {# spell} other {# spells}} from your library?",
+    "confirmRemoveManyMessage": "The selected SRD spells will be removed from your library. You can add them again from the SRD compendium.",
+    "confirmDeleteGroupTitle": "Delete group?",
+    "confirmDeleteGroupMessage": "The group “{name}” will be deleted. Its spells stay in your library, without a group."
   },
   "spellDetail": {
     "formTitle": "Spell details",
@@ -244,7 +254,9 @@
     "next": "Next",
     "back": "Go back",
     "owner": "Owner",
-    "version": "Version {version}"
+    "version": "Version {version}",
+    "delete": "Delete",
+    "remove": "Remove"
   },
   "profile": {
     "pageTitle": "My profile",

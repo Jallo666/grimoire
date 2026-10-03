@@ -30,6 +30,7 @@ import GrimoireFilterButton from "@/components/ui/GrimoireFilterButton";
 import GrimoireFilterModal from "@/components/ui/GrimoireFilterModal";
 import GrimoireChips from "@/components/ui/GrimoireChips";
 import GrimoireFieldGrid from "@/components/ui/GrimoireFieldGrid";
+import GrimoireConfirm, { type ConfirmRequest } from "@/components/ui/GrimoireConfirm";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireSearchInput from "@/components/ui/GrimoireSearchInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
@@ -100,6 +101,8 @@ export default function SpellsPage() {
   });
   const [showGroups, setShowGroups] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  // Conferma prima delle azioni distruttive (eliminare, togliere dalla libreria)
+  const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
   const [moveGroupId, setMoveGroupId] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
@@ -320,12 +323,22 @@ export default function SpellsPage() {
   // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
   const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, concentration, ritual].filter(Boolean).length;
 
+  function askDeleteSpell(s: SpellRow) {
+    setConfirm({
+      title: t("confirmDeleteTitle"),
+      message: t("confirmDeleteMessage", { name: s.nome }),
+      confirmLabel: tUi("delete"),
+      danger: true,
+      onConfirm: async () => { await deleteSpell({ variables: { id: s.id } }); },
+    });
+  }
+
   // Azioni di ogni tab (bottoni della tabella su desktop, menu dal basso su mobile e nelle card)
   const myActions = (s: SpellRow): TableAction[] => [
     { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
     { label: t("moveToGroup"), variant: "outline-secondary", onClick: () => { setMoveSpell(s); setMoveGroupId(s.groupId ?? ""); } },
     { label: t("removeFromLibrary"), variant: "danger", onClick: () => removeSrdSpell({ variables: { spellId: s.id } }), hidden: !s.isSystem },
-    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
+    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => askDeleteSpell(s), hidden: !s.isOwner },
   ];
   const srdActions = (s: SpellRow): TableAction[] => [
     { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
@@ -334,7 +347,7 @@ export default function SpellsPage() {
   const allActions = (s: SpellRow): TableAction[] => [
     { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
     { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.isSystem ? (s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } })) : undefined, hidden: !s.isSystem },
-    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => deleteSpell({ variables: { id: s.id } }), hidden: !s.isOwner },
+    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => askDeleteSpell(s), hidden: !s.isOwner },
   ];
 
   // Disegna la lista nella vista scelta: tabella o card. Entrambe partono ordinate per livello, poi per nome
@@ -649,7 +662,13 @@ export default function SpellsPage() {
               emptyMessage={t("groupsEmpty")}
               actions={(g) => [
                 { icon: "pencil", tooltip: t("groupRename"), variant: "outline-secondary", onClick: () => { setRenameId(g.id); setRenameName(g.nome); } },
-                { icon: "trash", tooltip: t("groupDelete"), variant: "danger", onClick: () => deleteGroup({ variables: { id: g.id } }) },
+                { icon: "trash", tooltip: t("groupDelete"), variant: "danger", onClick: () => setConfirm({
+                  title: t("confirmDeleteGroupTitle"),
+                  message: t("confirmDeleteGroupMessage", { name: g.nome }),
+                  confirmLabel: tUi("delete"),
+                  danger: true,
+                  onConfirm: async () => { await deleteGroup({ variables: { id: g.id } }); },
+                }) },
               ]}
             />
           </>
@@ -662,6 +681,8 @@ export default function SpellsPage() {
         onNext={nextSpellId ? () => setViewSpellId(nextSpellId) : undefined}
         position={viewIndex >= 0 ? { current: viewIndex + 1, total: visibleIds.length } : undefined}
       />
+
+      <GrimoireConfirm request={confirm} onClose={() => setConfirm(null)} />
     </GrimoirePage>
   );
 }
