@@ -66,7 +66,6 @@ async function main() {
       higherLevel: s.higher_level?.join("\n\n") ?? null,
       concentration: s.concentration,
       ritual: s.ritual,
-      classi: s.classes.map((c) => c.name).join(", ") || null,
       sottoclassi: s.subclasses?.map((c) => c.name).join(", ") || null,
       isSystem: true,
       creatorId: null,

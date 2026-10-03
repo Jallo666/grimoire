@@ -45,9 +45,6 @@ export const spells = pgTable("spells", {
   concentration: boolean("concentration"),
   ritual: boolean("ritual"),
   higherLevel: text("higher_level"),
-  // Vecchia colonna di testo (es. "Bard, Wizard"): le classi ora sono nella tabella spell_classes.
-  // Resta finché i dati non sono stati copiati e verificati (scripts/seed-classes.ts), poi si toglie.
-  classi: text("classi"),
   sottoclassi: text("sottoclassi"),
   translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>>().default({}),
 });
