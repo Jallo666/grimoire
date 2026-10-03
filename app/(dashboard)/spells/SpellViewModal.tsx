@@ -12,6 +12,7 @@ import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import styles from "./SpellViewModal.module.css";
+import { translateClassi } from "@/lib/spellClasses";
 
 type Translation = {
   locale: string;
@@ -156,6 +157,12 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
     return t.has(key) ? t(key) : scuola;
   }
 
+  // Classi salvate in inglese (es. "Bard, Wizard"): si mostrano tradotte (chiavi classBard, …)
+  function classLabel(cls: string) {
+    const key = `class${cls}` as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : cls;
+  }
+
   const langData = getLangData(viewLang);
   const title = langData?.nome ?? spell?.nome ?? "—";
 
@@ -264,7 +271,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
                 </div>
               )}
             </div>
-            <Field label={t("colClassi")} value={spell.classi} />
+            <Field label={t("colClassi")} value={translateClassi(spell.classi, classLabel)} />
           </>
         ) : null}
       </div>

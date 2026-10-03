@@ -8,6 +8,7 @@ import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
+import { SPELL_CLASSES, translateClassi } from "@/lib/spellClasses";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
 import SpellViewModal from "./SpellViewModal";
 import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP, MOVE_SPELLS_TO_GROUP } from "@/lib/queries/spellGroups";
@@ -73,6 +74,7 @@ export default function SpellsPage() {
   // Filtri a scelta multipla: nell'URL i valori sono separati da virgola (es. ?livello=0,3)
   const scuole = getListParam("scuola");
   const livelli = getListParam("livello");
+  const classi = getListParam("classe");
   const concentration = searchParams.get("concentration") ?? "";
   const ritual = searchParams.get("ritual") ?? "";
   const groupFilter = getListParam("group");
@@ -140,7 +142,7 @@ export default function SpellsPage() {
   }
 
   function resetFilters() {
-    setParams({ search: "", group: "", scuola: "", livello: "", concentration: "", ritual: "" }); // la vista resta
+    setParams({ search: "", group: "", scuola: "", livello: "", classe: "", concentration: "", ritual: "" }); // la vista resta
   }
 
   function handleTabChange(k: string) {
@@ -169,6 +171,13 @@ export default function SpellsPage() {
     { value: "Necromanzia", label: t("scuolaNecromanzia") },
     { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
   ];
+
+  // Classi: valori in inglese come nel database, etichette tradotte
+  const classLabel = (cls: string) => {
+    const key = `class${cls}` as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : cls;
+  };
+  const classOptions = SPELL_CLASSES.map((c) => ({ value: c, label: classLabel(c) }));
 
   const livelloOptions = [
     { value: "0", label: t("livelloOption0") },
@@ -216,6 +225,7 @@ export default function SpellsPage() {
     search: search || undefined,
     scuole: scuole.length ? scuole : undefined,
     livelli: livelli.length ? livelli.map(Number) : undefined,
+    classi: classi.length ? classi : undefined,
     concentration: concentration === "true" ? true : undefined,
     ritual: ritual === "true" ? true : undefined,
   };
@@ -331,11 +341,11 @@ export default function SpellsPage() {
   const extraColumns: Column<SpellRow>[] = [
     { key: "concentration", label: t("colConcentrazione"), render: (v) => v ? <GrimoireBadge variant="warning">{t("si")}</GrimoireBadge> : null },
     { key: "ritual", label: t("colRituale"), render: (v) => v ? <GrimoireBadge variant="secondary">{t("si")}</GrimoireBadge> : null },
-    { key: "classi", label: t("colClassi"), render: (v) => <span style={{ fontSize: "0.8rem", color: "var(--g-text-muted)" }}>{String(v ?? "")}</span> },
+    { key: "classi", label: t("colClassi"), render: (v) => <span style={{ fontSize: "0.8rem", color: "var(--g-text-muted)" }}>{translateClassi(v as string | null, classLabel)}</span> },
   ];
 
   // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
-  const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, concentration, ritual].filter(Boolean).length;
+  const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, classi.length, concentration, ritual].filter(Boolean).length;
 
   function askDeleteSpell(s: SpellRow) {
     setConfirm({
@@ -498,6 +508,7 @@ export default function SpellsPage() {
         )}
         <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} style={{ minWidth: "160px" }} />
         <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} style={{ minWidth: "130px" }} />
+        <GrimoireMultiSelect id="spell-classe" placeholder={t("filterAllClasses")} value={classi} onChange={(v) => setParam("classe", v.join(","))} options={classOptions} style={{ minWidth: "150px" }} />
         <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
         <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
       </GrimoireInlineGroup>
@@ -516,6 +527,7 @@ export default function SpellsPage() {
       )}
       <GrimoireChips label={t("colLivello")} options={livelloOptions} value={livelli} onChange={(v) => setParam("livello", v.join(","))} />
       <GrimoireChips label={t("colScuola")} options={scuolaOptions} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} />
+      <GrimoireChips label={t("colClassi")} options={classOptions} value={classi} onChange={(v) => setParam("classe", v.join(","))} />
       <GrimoireChips
         label={t("filterOther")}
         options={[
