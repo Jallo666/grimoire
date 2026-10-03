@@ -3,6 +3,18 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.15.0] - 2026-10-03
+
+### Modificato
+- Classi e tipi di danno SRD in file di dati (`scripts/srd-classes.json`, `scripts/srd-damage-types.json`) con le traduzioni, come gli incantesimi: niente più elenchi scritti nel codice.
+- Tipi di danno come tabella (`damage_types`, collegata con `spell_damage_types`), con la stessa logica delle classi; i nomi tradotti arrivano dal database.
+
+### Aggiunto
+- Un solo comando per inizializzare il database da zero: `npm run db:setup` (oppure `db:push` e `db:seed`). README in italiano con le istruzioni.
+
+### Database
+- Migrazione automatica nel build (`scripts/migrate-0.15.ts`, temporanea; tolta la 0.14): tabelle dei tipi di danno, classi e tipi di danno dai JSON, collegamenti. La colonna `spells.tipi_danno` non è più usata dal codice ma resta nel database per ora, come `spells.classi`.
+
 ## [0.14.0] - 2026-10-03
 
 ### Aggiunto
