@@ -100,6 +100,8 @@
     "tooltipDelete": "Elimina",
     "createModalTitle": "Nuovo incantesimo",
     "createSubmit": "Crea incantesimo",
+    "editModalTitle": "Modifica incantesimo",
+    "editSubmit": "Salva modifiche",
     "cancelButton": "Annulla",
     "fieldNome": "Nome",
     "fieldScuola": "Scuola",
@@ -234,19 +236,12 @@
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",
     "saveButton": "Salva modifiche",
-    "tooltipShare": "Condividi",
     "shareModalTitle": "Condividi incantesimo",
     "shareEmailLabel": "Email utente",
     "shareEmailPlaceholder": "utente@esempio.it",
     "shareSuccess": "Incantesimo condiviso!",
     "shareButton": "Condividi",
     "cancelButton": "Annulla",
-    "translationTitle": "Traduzione ({locale})",
-    "translationNome": "Nome tradotto",
-    "translationDescrizione": "Descrizione tradotta",
-    "translationHigherLevel": "Ai livelli superiori (traduzione)",
-    "translationMaterial": "Componente materiale (traduzione)",
-    "translationSave": "Salva traduzione",
     "editButton": "Modifica"
   },
   "ui": {

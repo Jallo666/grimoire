@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations, useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { SPELL } from "@/lib/queries/spells";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireButton from "@/components/ui/GrimoireButton";
+import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import GrimoireField from "@/components/ui/GrimoireField";
@@ -55,15 +55,17 @@ type Props = {
   onNext?: () => void;
   // Posizione nella lista, mostrata come "3 / 42"
   position?: { current: number; total: number };
+  // Solo per chi l'ha creato: apri la modifica / la condivisione (la modale di dettaglio si chiude)
+  onEdit: (id: string) => void;
+  onShare: (id: string) => void;
 };
 
-export default function SpellViewModal({ spellId, onClose, onPrev, onNext, position }: Props) {
+export default function SpellViewModal({ spellId, onClose, onPrev, onNext, position, onEdit, onShare }: Props) {
   const t = useTranslations("spells");
   const tDetail = useTranslations("spellDetail");
   const tUi = useTranslations("ui");
   const locale = useLocale();
   const secondaryLocale = locale === "it" ? "en" : "it";
-  const router = useRouter();
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
 
@@ -156,13 +158,14 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
       footer={
         <GrimoireModalFooter
           start={spell?.isOwner && (
-            <GrimoireButton
-              variant="outline-secondary"
-              mobileIcon="pencil"
-              onClick={() => { close(); router.push(`/spells/${spell.id}`); }}
-            >
-              {tDetail("editButton")}
-            </GrimoireButton>
+            <GrimoireInlineGroup>
+              <GrimoireButton variant="outline-secondary" mobileIcon="pencil" onClick={() => { close(); onEdit(spell.id); }}>
+                {tDetail("editButton")}
+              </GrimoireButton>
+              <GrimoireButton variant="outline-secondary" mobileIcon="share" onClick={() => { close(); onShare(spell.id); }}>
+                {tDetail("shareButton")}
+              </GrimoireButton>
+            </GrimoireInlineGroup>
           )}
           center={position && (
             <GrimoirePager current={position.current} total={position.total} onPrev={onPrev && goPrev} onNext={onNext && goNext} />

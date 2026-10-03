@@ -77,10 +77,12 @@ export const spellTypeDefs = gql`
       gittata: String
       durata: String
       componenti: String
+      higherLevel: String
       groupId: ID
       translationLocale: String
       translationNome: String
       translationDescrizione: String
+      translationHigherLevel: String
       classIds: [ID!]
       damageTypeIds: [ID!]
     ): Spell!
@@ -371,7 +373,7 @@ export const spellResolvers = {
   Mutation: {
     createSpell: async (
       _: unknown,
-      args: { nome: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string; classIds?: string[]; damageTypeIds?: string[] },
+      args: { nome: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string; translationHigherLevel?: string; classIds?: string[]; damageTypeIds?: string[] },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -384,12 +386,14 @@ export const spellResolvers = {
           translationsData[args.translationLocale] = {
             nome: args.translationNome,
             ...(args.translationDescrizione?.trim() ? { descrizione: args.translationDescrizione } : {}),
+            ...(args.translationHigherLevel?.trim() ? { highLevel: args.translationHigherLevel } : {}),
           };
         }
         const [spell] = await tx.insert(spells).values({
           creatorId: user.id,
           nome: args.nome,
           descrizione: args.descrizione ?? null,
+          higherLevel: args.higherLevel || null,
           scuola: args.scuola ?? null,
           livello: args.livello ?? 1,
           tempoLancio: args.tempoLancio ?? null,
@@ -564,8 +568,10 @@ export const spellResolvers = {
     },
 
     upsertSpellTranslation: async (_: unknown, args: { spellId: string; locale: string; nome: string; descrizione?: string; highLevel?: string; material?: string }, context: Context) => {
-      assertAuthenticated(context);
+      const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.spellId));
+      // Come per la modifica: solo chi l'ha creato (le traduzioni SRD valgono per tutti)
+      if (spell.creatorId !== user.id) throw appError("ONLY_CREATOR_EDITS");
       const existing = ((spell.translations ?? {}) as TranslationsMap);
       const updated: TranslationsMap = {
         ...existing,

@@ -23,7 +23,8 @@ import { useSpellOptions } from "@/components/features/spells/useSpellOptions";
 import SpellFilters from "@/components/features/spells/SpellFilters";
 import SpellList from "@/components/features/spells/SpellList";
 import SpellBulkActions from "@/components/features/spells/SpellBulkActions";
-import CreateSpellModal from "@/components/features/spells/CreateSpellModal";
+import SpellFormModal from "@/components/features/spells/SpellFormModal";
+import ShareSpellModal from "@/components/features/spells/ShareSpellModal";
 import MoveSpellModal from "@/components/features/spells/MoveSpellModal";
 import SpellGroupsModal from "@/components/features/spells/SpellGroupsModal";
 import type { SpellGroup, SpellRow, SpellTab } from "@/components/features/spells/spellTypes";
@@ -72,7 +73,9 @@ export default function SpellsPage() {
   // ── Modali, conferme, messaggi ──
   const [viewSpellId, setViewSpellId] = useState<string | null>(null);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
+  // Modale di creazione/modifica: null = chiusa, spellId null = nuovo incantesimo
+  const [form, setForm] = useState<{ spellId: string | null } | null>(null);
+  const [shareSpellId, setShareSpellId] = useState<string | null>(null);
   const [showGroups, setShowGroups] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
@@ -154,7 +157,7 @@ export default function SpellsPage() {
         <GrimoireInlineGroup>
           <GrimoireButton variant="outline-secondary" mobileIcon="collection" onClick={() => setShowGroups(true)}>{t("manageGroups")}</GrimoireButton>
           <GrimoireButton variant={selecting ? "primary" : "outline-secondary"} mobileIcon="check2-square" onClick={() => (selecting ? exitSelection() : setSelecting(true))}>{tUi("select")}</GrimoireButton>
-          <GrimoireButton mobileIcon="plus-lg" onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
+          <GrimoireButton mobileIcon="plus-lg" onClick={() => setForm({ spellId: null })}>{t("newButton")}</GrimoireButton>
         </GrimoireInlineGroup>
       }>
         {t("pageTitle")}
@@ -213,7 +216,8 @@ export default function SpellsPage() {
         />
       )}
 
-      <CreateSpellModal show={showCreate} onClose={() => setShowCreate(false)} onCreated={refetchEverything} groups={groups} options={options} />
+      <SpellFormModal show={!!form} spellId={form?.spellId} onClose={() => setForm(null)} onSaved={refetchEverything} groups={groups} options={options} />
+      <ShareSpellModal spellId={shareSpellId} onClose={() => setShareSpellId(null)} />
       <MoveSpellModal spell={moveSpell} groups={groups} onClose={() => setMoveSpell(null)} onMoved={refetchMy} />
       <SpellGroupsModal show={showGroups} onClose={() => setShowGroups(false)} groups={groups} onChanged={refetchEverything} onAskConfirm={setConfirm} />
 
@@ -223,6 +227,8 @@ export default function SpellsPage() {
         onPrev={prevSpellId ? () => setViewSpellId(prevSpellId) : undefined}
         onNext={nextSpellId ? () => setViewSpellId(nextSpellId) : undefined}
         position={viewIndex >= 0 ? { current: viewIndex + 1, total: visibleIds.length } : undefined}
+        onEdit={(id) => setForm({ spellId: id })}
+        onShare={setShareSpellId}
       />
 
       <GrimoireConfirm request={confirm} onClose={() => setConfirm(null)} />

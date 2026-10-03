@@ -36,10 +36,13 @@ export const CAMPAIGN_SPELLS = gql`
   }
 `;
 
+// Creazione e modifica restituiscono solo l'id: i campi originali (non tradotti) finirebbero
+// nella cache sopra a quelli tradotti delle liste. Le liste si ricaricano dopo il salvataggio.
 export const CREATE_SPELL = gql`
   mutation CreateSpell(
     $nome: String!
     $descrizione: String
+    $higherLevel: String
     $scuola: String
     $livello: Int
     $tempoLancio: String
@@ -50,16 +53,18 @@ export const CREATE_SPELL = gql`
     $translationLocale: String
     $translationNome: String
     $translationDescrizione: String
+    $translationHigherLevel: String
     $classIds: [ID!]
     $damageTypeIds: [ID!]
   ) {
     createSpell(
-      nome: $nome descrizione: $descrizione scuola: $scuola livello: $livello
+      nome: $nome descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
       groupId: $groupId
-      translationLocale: $translationLocale translationNome: $translationNome translationDescrizione: $translationDescrizione
+      translationLocale: $translationLocale translationNome: $translationNome
+      translationDescrizione: $translationDescrizione translationHigherLevel: $translationHigherLevel
       classIds: $classIds damageTypeIds: $damageTypeIds
-    ) { id nome }
+    ) { id }
   }
 `;
 
@@ -82,7 +87,7 @@ export const UPDATE_SPELL = gql`
       id: $id nome: $nome descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
       classIds: $classIds damageTypeIds: $damageTypeIds
-    ) { id nome descrizione higherLevel scuola livello tempoLancio gittata durata componenti isOwner }
+    ) { id }
   }
 `;
 

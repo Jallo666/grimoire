@@ -100,6 +100,8 @@
     "tooltipDelete": "Delete",
     "createModalTitle": "New spell",
     "createSubmit": "Create spell",
+    "editModalTitle": "Edit spell",
+    "editSubmit": "Save changes",
     "cancelButton": "Cancel",
     "fieldNome": "Name",
     "fieldScuola": "School",
@@ -234,19 +236,12 @@
   "spellDetail": {
     "formTitle": "Spell details",
     "saveButton": "Save changes",
-    "tooltipShare": "Share",
     "shareModalTitle": "Share spell",
     "shareEmailLabel": "User email",
     "shareEmailPlaceholder": "user@example.com",
     "shareSuccess": "Spell shared!",
     "shareButton": "Share",
     "cancelButton": "Cancel",
-    "translationTitle": "Translation ({locale})",
-    "translationNome": "Translated name",
-    "translationDescrizione": "Translated description",
-    "translationHigherLevel": "At higher levels (translation)",
-    "translationMaterial": "Material component (translation)",
-    "translationSave": "Save translation",
     "editButton": "Edit"
   },
   "ui": {
