@@ -3,6 +3,21 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.20.0] - 2026-10-03
+
+### Aggiunto
+- Componente materiale degli incantesimi in una tabella sua (`spell_materials`), in inglese e italiano: per gli incantesimi SRD i testi vengono da `scripts/srd-materials.json` (italiano dal PDF ufficiale SRD 5.1).
+- Nel dettaglio il materiale si vede nella lingua scelta, con l'indicazione "per bersaglio" quando la quantità si moltiplica.
+- Nel form il testo del materiale sta nelle tab della lingua (compare con la M spuntata), più la casella "per bersaglio".
+
+### Modificato
+- Il campo componenti mostra solo V, S, M: il testo del materiale ha il suo campo.
+- Migrazione temporanea `scripts/migrate-0.20.ts` nel build: crea la tabella e ci sposta i materiali SRD e quelli degli incantesimi degli utenti. Non cancella niente: per questa versione il testo resta anche nella vecchia colonna.
+- Nei controlli su GitHub le migrazioni si saltano (`SKIP_DB_MIGRATIONS=1`).
+
+### Corretto
+- Bocca Magica: il materiale inglese diceva "10 inches" (refuso della fonte), ora "10 gp".
+
 ## [0.19.1] - 2026-10-03
 
 ### Corretto
