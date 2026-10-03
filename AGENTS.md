@@ -73,6 +73,8 @@ Si scrive in italiano: commenti nel codice, messaggi di commit, CHANGELOG e risp
   - mai cancellare una colonna che la versione ancora online legge (Drizzle legge tutte
     le colonne dello schema): prima la si toglie dal codice, la si cancella al rilascio dopo;
   - lo script e la sua riga nel `build` si tolgono al push successivo.
+  - nei controlli su GitHub il database è finto: lo script deve saltarsi con
+    `SKIP_DB_MIGRATIONS=1` (già impostata in `.github/workflows/controlli.yml`).
 
 ## Git, versioni e pubblicazione
 

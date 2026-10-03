@@ -29,7 +29,7 @@ Gestione di campagne e incantesimi per giochi di ruolo (D&D 5e). Next.js, GraphQ
 |---|---|
 | `npm run db:setup` | Da zero: crea tabelle e colonne (`db:push`) e carica tutti i dati SRD (`db:seed`). |
 | `npm run db:push` | Allinea il database allo schema in `db/schema.ts` (drizzle-kit). Mostra le modifiche e chiede conferma. |
-| `npm run db:seed` | Carica i dati SRD, nell'ordine: incantesimi, traduzioni italiane, classi, tipi di danno (con i collegamenti agli incantesimi). Si può rilanciare: non crea doppioni. |
+| `npm run db:seed` | Carica i dati SRD, nell'ordine: incantesimi, traduzioni italiane, classi, tipi di danno (con i collegamenti agli incantesimi), componenti materiali. Si può rilanciare: non crea doppioni. |
 
 I dati SRD stanno in `scripts/`:
 
@@ -39,6 +39,7 @@ I dati SRD stanno in `scripts/`:
 | `srd-translations-it.json` | Traduzioni italiane degli incantesimi |
 | `srd-classes.json` | Classi, con traduzioni |
 | `srd-damage-types.json` | Tipi di danno, con traduzioni |
+| `srd-materials.json` | Componenti materiali degli incantesimi (inglese e italiano, dal PDF ufficiale SRD 5.1) |
 
 ## Versioni
 

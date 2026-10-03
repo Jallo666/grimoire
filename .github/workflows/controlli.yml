@@ -35,3 +35,5 @@ jobs:
           # Il build non si collega al database: bastano valori finti
           DATABASE_URL: postgres://ci:ci@localhost:5432/ci
           JWT_SECRET: ci
+          # le migrazioni temporanee lanciate dal build non partono (il database è finto)
+          SKIP_DB_MIGRATIONS: "1"
