@@ -3,6 +3,14 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.13.0] - 2026-10-03
+
+### Aggiunto
+- Incantesimi: modalità selezione (bottone "Seleziona" nel titolo) in tabella e card, con "Seleziona tutti" che rispetta i filtri. Barra in basso con le azioni in blocco: Aggiungi alla libreria (con scelta del gruppo), Sposta nel gruppo, Togli dalla libreria, Elimina; alla fine un messaggio dice quanti incantesimi sono stati cambiati e quanti ignorati. Nuovi componenti `GrimoireSelectionBar` e `GrimoireToast`.
+- Server: operazioni in blocco `addSrdSpellsToLibrary`, `removeSrdSpellsFromLibrary`, `deleteSpells`, `moveSpellsToGroup` (una richiesta per tante voci; l'eliminazione tocca solo gli incantesimi dell'utente).
+- Conferma prima di eliminare un incantesimo, un gruppo o una campagna e prima delle azioni in blocco distruttive (nuovo componente `GrimoireConfirm`).
+- Filtro per classe (tendina su desktop, pillole su mobile); classi tradotte in tabella e nel dettaglio.
+
 ## [0.12.1] - 2026-10-03
 
 ### Corretto
