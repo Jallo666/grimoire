@@ -3,6 +3,18 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.14.0] - 2026-10-03
+
+### Aggiunto
+- Tipo di danno degli incantesimi (Fuoco, Freddo, Radioso, …): colonna Danno in tabella, nelle card e nel dettaglio, filtro a scelta multipla; 13 tipi tradotti IT/EN. Nuova colonna `spells.tipi_danno`.
+- Classi nel database: tabella `classes` (le 8 classi SRD, con traduzioni; pronta per le classi create dagli utenti) e collegamento `spell_classes`. Filtro, tabella e dettaglio usano le classi dal database, col nome tradotto dal server.
+
+### Corretto
+- Dettaglio incantesimo: tempo di lancio e durata tradotti (prima in inglese, es. "Instantaneous").
+
+### Database
+- Migrazione automatica nel build (`scripts/migrate-0.14.ts`, temporanea): colonna e tabelle nuove, tipi di danno SRD, classi SRD e collegamenti. La vecchia colonna di testo `spells.classi` resta per ora.
+
 ## [0.13.0] - 2026-10-03
 
 ### Aggiunto
