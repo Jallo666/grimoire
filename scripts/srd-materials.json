@@ -1,7 +1,7 @@
 {
   "_attribution": "D&D 5e SRD (c) Wizards of the Coast LLC, licensed under CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
   "_source": "Inglese: srd-spells.json (campo material). Italiano: SRD 5.1 in italiano, https://media.wizards.com/2023/downloads/dnd/SRD_CC_v5.1_IT.pdf",
-  "_note": "Componenti materiali degli incantesimi SRD, uno per incantesimo. \"index\" è lo stesso di srd-spells.json. \"perBersaglio\": la quantità si moltiplica (per creatura, cadavere, Dado Vita…), i dettagli sono nel testo. Gli ingredienti arriveranno in un passo successivo.",
+  "_note": "Componenti materiali degli incantesimi SRD, uno per incantesimo. \"index\" è lo stesso di srd-spells.json. \"perBersaglio\": la quantità si moltiplica (per creatura, cadavere, Dado Vita…), i dettagli sono nel testo. Gli ingredienti arriveranno in un passo successivo. Correzioni rispetto a srd-spells.json: magic-mouth (\"10 inches\" → \"10 gp\", refuso della fonte).",
   "materials": [
     {
       "index": "acid-arrow",
@@ -1340,7 +1340,7 @@
       "perBersaglio": false,
       "translations": {
         "en": {
-          "testo": "A honeycomb and jade dust of at least 10 inches, the spell consumes."
+          "testo": "A honeycomb and jade dust worth at least 10 gp, which the spell consumes."
         },
         "it": {
           "testo": "Un frammento di favo e polvere di giada del valore di almeno 10 mo, che l'incantesimo consuma."
