@@ -25,3 +25,9 @@ export const DELETE_SPELL_GROUP = gql`
 export const MOVE_SPELL_TO_GROUP = gql`
   mutation MoveSpellToGroup($spellId: ID!, $groupId: ID!) { moveSpellToGroup(spellId: $spellId, groupId: $groupId) }
 `;
+
+export const MOVE_SPELLS_TO_GROUP = gql`
+  mutation MoveSpellsToGroup($spellIds: [ID!]!, $groupId: ID!) {
+    moveSpellsToGroup(spellIds: $spellIds, groupId: $groupId)
+  }
+`;

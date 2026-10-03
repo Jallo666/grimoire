@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and, ilike, isNull, inArray } from "drizzle-orm";
+import { eq, and, or, ilike, isNull, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
@@ -42,10 +42,10 @@ export const spellTypeDefs = gql`
   }
 
   type Query {
-    mySpells(search: String, scuole: [String!], livelli: [Int!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
+    mySpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
     spell(id: ID!, locale: String): Spell
-    srdSpells(search: String, scuole: [String!], livelli: [Int!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
-    allSpells(search: String, scuole: [String!], livelli: [Int!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    srdSpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    allSpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
     campaignSpells(campaignId: ID!): [Spell!]!
   }
 
@@ -84,6 +84,11 @@ export const spellTypeDefs = gql`
 
     addSrdSpellToLibrary(spellId: ID!, groupId: ID): Boolean!
     removeSrdSpellFromLibrary(spellId: ID!): Boolean!
+
+    # Operazioni in blocco: restituiscono quanti incantesimi sono stati davvero cambiati
+    addSrdSpellsToLibrary(spellIds: [ID!]!, groupId: ID): Int!
+    removeSrdSpellsFromLibrary(spellIds: [ID!]!): Int!
+    deleteSpells(ids: [ID!]!): Int!
     shareSpellWithUser(spellId: ID!, email: String!): Boolean!
     shareSpellWithCampaign(spellId: ID!, campaignId: ID!): Boolean!
     removeSpellFromCampaign(spellId: ID!, campaignId: ID!): Boolean!
@@ -130,13 +135,20 @@ function toGql(
   };
 }
 
+// Filtro per classe: l'incantesimo è di almeno una delle classi scelte.
+// "classi" è salvato come testo in inglese, es. "Bard, Wizard".
+function classiCondition(classi: string[]) {
+  return or(...classi.map((c) => ilike(spells.classi, `%${c}%`)))!;
+}
+
 export const spellResolvers = {
   Query: {
-    mySpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; concentration?: boolean; ritual?: boolean; groupIds?: string[]; locale?: string }, context: Context) => {
+    mySpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; concentration?: boolean; ritual?: boolean; groupIds?: string[]; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const conditions = [eq(userSpellLibrary.userId, user.id)];
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
+      if (args.classi?.length) conditions.push(classiCondition(args.classi));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -160,13 +172,14 @@ export const spellResolvers = {
       return toGql(spell, user.id, true, null, null, args.locale);
     },
 
-    srdSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    srdSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       assertAuthenticated(context);
       const user = context.user!;
 
       const conditions = [eq(spells.isSystem, true), isNull(spells.creatorId)];
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
+      if (args.classi?.length) conditions.push(classiCondition(args.classi));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -180,12 +193,13 @@ export const spellResolvers = {
       return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale));
     },
 
-    allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
 
       const conditions = [];
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
+      if (args.classi?.length) conditions.push(classiCondition(args.classi));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -295,6 +309,58 @@ export const spellResolvers = {
       return true;
     },
 
+    // Aggiunge alla libreria gli incantesimi SRD della lista (salta quelli già presenti e i non SRD)
+    addSrdSpellsToLibrary: async (_: unknown, args: { spellIds: string[]; groupId?: string }, context: Context) => {
+      const user = assertAuthenticated(context);
+      const ids = args.spellIds.map(Number);
+      if (ids.length === 0) return 0;
+      const srd = await db.select({ id: spells.id }).from(spells)
+        .where(and(inArray(spells.id, ids), eq(spells.isSystem, true)));
+      const already = await db.select({ spellId: userSpellLibrary.spellId }).from(userSpellLibrary)
+        .where(and(eq(userSpellLibrary.userId, user.id), inArray(userSpellLibrary.spellId, ids)));
+      const alreadySet = new Set(already.map((r) => r.spellId));
+      const toAdd = srd.map((r) => r.id).filter((id) => !alreadySet.has(id));
+      if (toAdd.length === 0) return 0;
+      let groupId: number;
+      if (args.groupId) {
+        groupId = Number(args.groupId);
+        const [group] = await db.select().from(spellGroups)
+          .where(and(eq(spellGroups.id, groupId), eq(spellGroups.userId, user.id))).limit(1);
+        if (!group) throw new GraphQLError("Gruppo non trovato", { extensions: { code: "NOT_FOUND" } });
+      } else {
+        groupId = await getOrCreateGroup(user.id, "ufficiali", "Ufficiali");
+      }
+      await db.insert(userSpellLibrary).values(toAdd.map((spellId) => ({ userId: user.id, spellId, groupId })));
+      return toAdd.length;
+    },
+    // Toglie dalla libreria gli incantesimi SRD della lista (i non SRD vengono ignorati)
+    removeSrdSpellsFromLibrary: async (_: unknown, args: { spellIds: string[] }, context: Context) => {
+      const user = assertAuthenticated(context);
+      const ids = args.spellIds.map(Number);
+      if (ids.length === 0) return 0;
+      const srd = await db.select({ id: spells.id }).from(spells)
+        .where(and(inArray(spells.id, ids), eq(spells.isSystem, true)));
+      if (srd.length === 0) return 0;
+      const removed = await db.delete(userSpellLibrary)
+        .where(and(eq(userSpellLibrary.userId, user.id), inArray(userSpellLibrary.spellId, srd.map((r) => r.id))))
+        .returning({ spellId: userSpellLibrary.spellId });
+      return removed.length;
+    },
+    // Elimina gli incantesimi della lista creati dall'utente (gli altri vengono ignorati), tutto o niente
+    deleteSpells: async (_: unknown, args: { ids: string[] }, context: Context) => {
+      const user = assertAuthenticated(context);
+      const ids = args.ids.map(Number);
+      if (ids.length === 0) return 0;
+      const own = (await db.select({ id: spells.id }).from(spells)
+        .where(and(inArray(spells.id, ids), eq(spells.creatorId, user.id)))).map((r) => r.id);
+      if (own.length === 0) return 0;
+      await db.transaction(async (tx) => {
+        await tx.delete(userSpellLibrary).where(inArray(userSpellLibrary.spellId, own));
+        await tx.delete(campaignSpellLibrary).where(inArray(campaignSpellLibrary.spellId, own));
+        await tx.delete(spells).where(inArray(spells.id, own));
+      });
+      return own.length;
+    },
     removeSrdSpellFromLibrary: async (_: unknown, args: { spellId: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.spellId));

@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { spellGroups, userSpellLibrary } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
@@ -21,6 +21,8 @@ export const spellGroupTypeDefs = gql`
     renameSpellGroup(id: ID!, nome: String!): SpellGroup!
     deleteSpellGroup(id: ID!): Boolean!
     moveSpellToGroup(spellId: ID!, groupId: ID!): Boolean!
+    # In blocco: sposta nel gruppo gli incantesimi della lista che sono nella libreria; restituisce quanti
+    moveSpellsToGroup(spellIds: [ID!]!, groupId: ID!): Int!
   }
 `;
 
@@ -78,6 +80,20 @@ export const spellGroupResolvers = {
       return true;
     },
 
+    moveSpellsToGroup: async (_: unknown, args: { spellIds: string[]; groupId: string }, context: Context) => {
+      const user = assertAuthenticated(context);
+      const groupId = Number(args.groupId);
+      const ids = args.spellIds.map(Number);
+      if (ids.length === 0) return 0;
+      const [group] = await db.select().from(spellGroups)
+        .where(and(eq(spellGroups.id, groupId), eq(spellGroups.userId, user.id))).limit(1);
+      if (!group) throw new GraphQLError("Gruppo non trovato", { extensions: { code: "NOT_FOUND" } });
+      const moved = await db.update(userSpellLibrary)
+        .set({ groupId })
+        .where(and(eq(userSpellLibrary.userId, user.id), inArray(userSpellLibrary.spellId, ids)))
+        .returning({ spellId: userSpellLibrary.spellId });
+      return moved.length;
+    },
     moveSpellToGroup: async (_: unknown, args: { spellId: string; groupId: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const groupId = Number(args.groupId);
