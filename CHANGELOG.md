@@ -3,6 +3,17 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.23.0] - 2026-10-03
+
+### Aggiunto
+- Pagina **Oggetti** (`/items`) nel menu: oggetti di base e propri, con ricerca, filtro per categoria e tab Tutti / Di base / Miei.
+- Dettaglio di un oggetto: categoria, origine e gli incantesimi che lo usano con il requisito (quantità, valore minimo, consumato); da lì si apre il dettaglio dell'incantesimo.
+- Creazione, modifica (nome nelle due lingue, categoria) ed eliminazione dei propri oggetti; l'eliminazione è bloccata se un incantesimo li usa.
+- Filtri negli incantesimi: **Ingrediente** (incantesimi che usano un oggetto) e **Componenti** (V, S, M: devono esserci tutti quelli scelti).
+
+### Modificato
+- Tolta la migrazione temporanea 0.22 dal build (questa versione non cambia il database).
+
 ## [0.22.0] - 2026-10-03
 
 ### Aggiunto
