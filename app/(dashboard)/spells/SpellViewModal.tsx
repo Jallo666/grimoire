@@ -10,6 +10,7 @@ import { SPELL } from "@/lib/queries/spells";
 import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
+import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import styles from "./SpellViewModal.module.css";
 
 type Translation = {
@@ -212,27 +213,15 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
           </>
         ) : spell ? (
           <>
-            {/* Language tabs */}
-            <ul className="nav nav-tabs mb-3" style={{ borderColor: "var(--g-card-border)" }}>
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link${viewLang === locale ? " active" : ""}`}
-                  onClick={() => setViewLang(locale)}
-                >
-                  {locale.toUpperCase()}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link${viewLang === secondaryLocale ? " active" : ""}`}
-                  onClick={() => setViewLang(secondaryLocale)}
-                >
-                  {secondaryLocale.toUpperCase()}
-                </button>
-              </li>
-            </ul>
+            {/* Tab della lingua */}
+            <GrimoireTabs
+              tabs={[
+                { key: locale, label: locale.toUpperCase() },
+                { key: secondaryLocale, label: secondaryLocale.toUpperCase() },
+              ]}
+              active={viewLang}
+              onChange={setViewLang}
+            />
 
             {/* Language-specific fields */}
             <Field label={t("fieldDescrizione")} value={langData?.descrizione} multiline />

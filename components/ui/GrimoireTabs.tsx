@@ -21,6 +21,7 @@ export default function GrimoireTabs({ tabs, active, onChange, action }: Props) 
         return (
           <li key={tab.key} className={`nav-item ${styles.tab}`}>
             <button
+              type="button"
               className={`nav-link${isActive ? " active" : ""}`}
               onClick={() => onChange(tab.key)}
               style={{

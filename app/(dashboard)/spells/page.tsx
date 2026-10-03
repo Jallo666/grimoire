@@ -29,6 +29,7 @@ import GrimoireFilterPanel from "@/components/ui/GrimoireFilterPanel";
 import GrimoireFilterButton from "@/components/ui/GrimoireFilterButton";
 import GrimoireFilterModal from "@/components/ui/GrimoireFilterModal";
 import GrimoireChips from "@/components/ui/GrimoireChips";
+import GrimoireFieldGrid from "@/components/ui/GrimoireFieldGrid";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireSearchInput from "@/components/ui/GrimoireSearchInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
@@ -471,6 +472,7 @@ export default function SpellsPage() {
         onClose={() => { setShowCreate(false); resetCreate(); }}
         title={t("createModalTitle")}
         size="lg"
+        fullscreenOnMobile
         footer={
           <div className="d-flex flex-column gap-2 w-100">
             {(createFormError || createError?.message) && (
@@ -484,28 +486,15 @@ export default function SpellsPage() {
         }
       >
         <form id="create-spell-form" onSubmit={handleCreateSubmit} noValidate>
-          {/* Language tabs */}
-          <ul className="nav nav-tabs mb-3" style={{ borderColor: "var(--g-card-border)" }}>
-            <li className="nav-item">
-              <button
-                type="button"
-                className={`nav-link${createActiveLang === locale ? " active" : ""}`}
-                onClick={() => setCreateActiveLang(locale)}
-              >
-                {locale.toUpperCase()}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                type="button"
-                className={`nav-link${createActiveLang === secondaryLocale ? " active" : ""}`}
-                onClick={() => setCreateActiveLang(secondaryLocale)}
-              >
-                {secondaryLocale.toUpperCase()}{" "}
-                <small style={{ fontSize: "0.75rem", opacity: 0.7 }}>{t("langTabOptional")}</small>
-              </button>
-            </li>
-          </ul>
+          {/* Tab della lingua: la seconda lingua è facoltativa */}
+          <GrimoireTabs
+            tabs={[
+              { key: locale, label: locale.toUpperCase() },
+              { key: secondaryLocale, label: `${secondaryLocale.toUpperCase()} ${t("langTabOptional")}` },
+            ]}
+            active={createActiveLang}
+            onChange={setCreateActiveLang}
+          />
 
           {/* Language-specific fields */}
           {createActiveLang === locale ? (
@@ -550,54 +539,56 @@ export default function SpellsPage() {
 
           <hr style={{ borderColor: "var(--g-card-border)", margin: "1.25rem 0" }} />
 
-          {/* Common fields */}
-          <GrimoireInput
-            id="create-group"
-            label={t("groupLabel")}
-            type="select"
-            value={createCommon.groupId}
-            onChange={(e) => setCreateCommon((v) => ({ ...v, groupId: e.target.value }))}
-            options={groupSelectOptions}
-          />
-          <GrimoireInput
-            id="create-scuola"
-            label={t("fieldScuola")}
-            type="select"
-            required
-            value={createCommon.scuola}
-            onChange={(e) => setCreateCommon((v) => ({ ...v, scuola: e.target.value }))}
-            options={createScuolaOptions}
-          />
-          <GrimoireInput
-            id="create-livello"
-            label={t("fieldLivello")}
-            type="select"
-            value={createCommon.livello}
-            onChange={(e) => setCreateCommon((v) => ({ ...v, livello: e.target.value }))}
-            options={createLivelloOptions}
-          />
-          <GrimoireSelectOrText
-            id="create-tempo"
-            label={t("fieldTempoLancio")}
-            value={createCommon.tempoLancio}
-            onChange={(val) => setCreateCommon((v) => ({ ...v, tempoLancio: val }))}
-            options={castingTimeOptions}
-            customLabel={t("ctCustom")}
-          />
-          <GrimoireRangeInput
-            id="create-gittata"
-            label={t("fieldGittata")}
-            value={createCommon.gittata}
-            onChange={(val) => setCreateCommon((v) => ({ ...v, gittata: val }))}
-          />
-          <GrimoireSelectOrText
-            id="create-durata"
-            label={t("fieldDurata")}
-            value={createCommon.durata}
-            onChange={(val) => setCreateCommon((v) => ({ ...v, durata: val }))}
-            options={durationOptions}
-            customLabel={t("durCustom")}
-          />
+          {/* Campi comuni: due colonne da tablet in su */}
+          <GrimoireFieldGrid>
+            <GrimoireInput
+              id="create-scuola"
+              label={t("fieldScuola")}
+              type="select"
+              required
+              value={createCommon.scuola}
+              onChange={(e) => setCreateCommon((v) => ({ ...v, scuola: e.target.value }))}
+              options={createScuolaOptions}
+            />
+            <GrimoireInput
+              id="create-livello"
+              label={t("fieldLivello")}
+              type="select"
+              value={createCommon.livello}
+              onChange={(e) => setCreateCommon((v) => ({ ...v, livello: e.target.value }))}
+              options={createLivelloOptions}
+            />
+            <GrimoireSelectOrText
+              id="create-tempo"
+              label={t("fieldTempoLancio")}
+              value={createCommon.tempoLancio}
+              onChange={(val) => setCreateCommon((v) => ({ ...v, tempoLancio: val }))}
+              options={castingTimeOptions}
+              customLabel={t("ctCustom")}
+            />
+            <GrimoireRangeInput
+              id="create-gittata"
+              label={t("fieldGittata")}
+              value={createCommon.gittata}
+              onChange={(val) => setCreateCommon((v) => ({ ...v, gittata: val }))}
+            />
+            <GrimoireSelectOrText
+              id="create-durata"
+              label={t("fieldDurata")}
+              value={createCommon.durata}
+              onChange={(val) => setCreateCommon((v) => ({ ...v, durata: val }))}
+              options={durationOptions}
+              customLabel={t("durCustom")}
+            />
+            <GrimoireInput
+              id="create-group"
+              label={t("groupLabel")}
+              type="select"
+              value={createCommon.groupId}
+              onChange={(e) => setCreateCommon((v) => ({ ...v, groupId: e.target.value }))}
+              options={groupSelectOptions}
+            />
+          </GrimoireFieldGrid>
           <GrimoireComponentsInput
             id="create-componenti"
             label={t("fieldComponenti")}
