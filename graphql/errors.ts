@@ -29,6 +29,9 @@ const ERRORS = {
   GROUP_EXISTS: { code: "BAD_USER_INPUT", message: "Gruppo già esistente" },
   ITEM_NAME_REQUIRED: { code: "BAD_USER_INPUT", message: "Il nome dell'oggetto è obbligatorio" },
   ITEM_NOT_ALLOWED: { code: "FORBIDDEN", message: "Oggetto non utilizzabile" },
+  ITEM_NOT_FOUND: { code: "NOT_FOUND", message: "Oggetto non trovato" },
+  ONLY_CREATOR_EDITS_ITEM: { code: "FORBIDDEN", message: "Solo il creatore può modificare l'oggetto" },
+  ITEM_IN_USE: { code: "CONFLICT", message: "Oggetto usato da un incantesimo" },
 } as const;
 
 export type ErrorReason = keyof typeof ERRORS;
