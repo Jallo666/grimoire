@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 import { parseFeetString, toFeetString, type UnitSystem } from "@/lib/formatRange";
@@ -21,17 +21,19 @@ export default function GrimoireRangeInput({ id, label, value, onChange, disable
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const defaultUnit: UnitSystem = unitSystem || "piedi";
 
-  const [special, setSpecial] = useState("");
-  const [valore, setValore] = useState("");
-  const [unita, setUnita] = useState<UnitSystem>(defaultUnit);
+  const [special, setSpecial] = useState(() => parseFeetString(value ?? "", defaultUnit).special);
+  const [valore, setValore] = useState(() => parseFeetString(value ?? "", defaultUnit).valore);
+  const [unita, setUnita] = useState<UnitSystem>(() => parseFeetString(value ?? "", defaultUnit).unita);
 
-  useEffect(() => {
+  // Se il valore cambia da fuori (es. dati caricati), riallinea i campi
+  const [lastValue, setLastValue] = useState(value);
+  if (value !== lastValue) {
+    setLastValue(value);
     const parsed = parseFeetString(value ?? "", defaultUnit);
     setSpecial(parsed.special);
     setValore(parsed.valore);
     setUnita(parsed.unita);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }
 
   function emitSpecial(val: string) {
     setSpecial(val);

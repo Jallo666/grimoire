@@ -6,6 +6,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { ME } from "@/lib/queries/users";
 import { applyTheme, THEME_STORAGE_KEY } from "./ThemeSync";
 import { setUnitSystem, type UnitSystem } from "@/store/prefsSlice";
+import { getLocaleCookie, setLocaleCookie } from "@/lib/localeCookie";
 
 type MeData = {
   me: {
@@ -32,9 +33,9 @@ export default function UserPreferencesSync() {
     }
 
     if (me.defaultLocale === "it" || me.defaultLocale === "en") {
-      const current = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/)?.[1];
+      const current = getLocaleCookie();
       if (current !== me.defaultLocale) {
-        document.cookie = `NEXT_LOCALE=${me.defaultLocale}; path=/; max-age=31536000; SameSite=Lax`;
+        setLocaleCookie(me.defaultLocale);
         window.location.reload();
       }
     }

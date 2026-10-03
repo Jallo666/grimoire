@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type Option = { value: string; label: string };
 
@@ -22,10 +22,12 @@ export default function GrimoireSelectOrText({
   const isKnown = options.some((o) => o.value === value);
   const [isCustom, setIsCustom] = useState(!isKnown && value !== "");
 
-  useEffect(() => {
-    const known = options.some((o) => o.value === value);
-    setIsCustom(!known && value !== "");
-  }, [value, options]);
+  // Se il valore cambia da fuori (es. dati caricati), decide di nuovo se è un valore personalizzato
+  const [lastValue, setLastValue] = useState(value);
+  if (value !== lastValue) {
+    setLastValue(value);
+    setIsCustom(!isKnown && value !== "");
+  }
 
   const inputStyle = {
     backgroundColor: "var(--g-input-bg)",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 type State = { v: boolean; s: boolean; m: boolean; material: string };
@@ -36,9 +36,12 @@ export default function GrimoireComponentsInput({ id, label, value, onChange, di
   const t = useTranslations("spells");
   const [state, setState] = useState<State>(() => parse(value));
 
-  useEffect(() => {
+  // Se il valore cambia da fuori (es. dati caricati), riallinea le caselle
+  const [lastValue, setLastValue] = useState(value);
+  if (value !== lastValue) {
+    setLastValue(value);
     setState(parse(value));
-  }, [value]);
+  }
 
   function update(patch: Partial<State>) {
     const next = { ...state, ...patch };

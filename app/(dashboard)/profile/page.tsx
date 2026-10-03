@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { useAppDispatch } from "@/store/hooks";
@@ -10,11 +10,11 @@ import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireCardGrid from "@/components/ui/GrimoireCardGrid";
 import GrimoireCardGridItem from "@/components/ui/GrimoireCardGridItem";
-import GrimoireFormSection from "@/components/ui/GrimoireFormSection";
 import GrimoireCard from "@/components/ui/GrimoireCard";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
+import { getLocaleCookie, setLocaleCookie } from "@/lib/localeCookie";
 
 type UserPrefs = {
   id: string;
@@ -53,14 +53,15 @@ export default function ProfilePage() {
   const [prefCampaignLocale, setPrefCampaignLocale] = useState("");
   const [campaignPrefsMsg, setCampaignPrefsMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  useEffect(() => {
-    if (me) {
-      setPrefTheme(me.defaultTheme ?? "");
-      setPrefLocale(me.defaultLocale ?? "");
-      setPrefUnitSystem(me.defaultUnitSystem ?? "");
-      setPrefCampaignLocale(me.defaultCampaignLocale ?? "");
-    }
-  }, [me?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Quando arrivano i dati dell'utente, riempie le preferenze (una volta per utente)
+  const [loadedUserId, setLoadedUserId] = useState<string | null>(null);
+  if (me && me.id !== loadedUserId) {
+    setLoadedUserId(me.id);
+    setPrefTheme(me.defaultTheme ?? "");
+    setPrefLocale(me.defaultLocale ?? "");
+    setPrefUnitSystem(me.defaultUnitSystem ?? "");
+    setPrefCampaignLocale(me.defaultCampaignLocale ?? "");
+  }
 
   const [updateEmail, { loading: updatingEmail }] = useMutation(UPDATE_EMAIL, {
     onCompleted: () => {
@@ -96,9 +97,9 @@ export default function ProfilePage() {
       }
 
       if (saved.defaultLocale === "it" || saved.defaultLocale === "en") {
-        const current = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/)?.[1];
+        const current = getLocaleCookie();
         if (current !== saved.defaultLocale) {
-          document.cookie = `NEXT_LOCALE=${saved.defaultLocale}; path=/; max-age=31536000; SameSite=Lax`;
+          setLocaleCookie(saved.defaultLocale);
           window.location.reload();
         }
       }

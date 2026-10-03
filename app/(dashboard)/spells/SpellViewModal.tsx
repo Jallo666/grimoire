@@ -78,9 +78,13 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
 
   const [viewLang, setViewLang] = useState<string>(locale);
 
-  useEffect(() => {
+  // Cambiando incantesimo o lingua dell'interfaccia, la tab della lingua torna a quella dell'interfaccia
+  const viewKey = `${spellId}|${locale}`;
+  const [lastViewKey, setLastViewKey] = useState(viewKey);
+  if (viewKey !== lastViewKey) {
+    setLastViewKey(viewKey);
     setViewLang(locale);
-  }, [spellId, locale]);
+  }
 
   const { data, loading } = useQuery<{ spell: SpellFull | null }>(SPELL, {
     // tagsLocale: classi e tipi di danno tradotti nella lingua dell'interfaccia
