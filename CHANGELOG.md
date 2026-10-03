@@ -3,6 +3,13 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.21.1] - 2026-10-03
+
+### Modificato
+- Dettaglio: se il componente materiale non è tradotto nella lingua scelta si vede quello originale, con la lingua indicata nell'etichetta (es. "non tradotto, in inglese").
+- Il testo del materiale sta solo nella tabella `spell_materials`: la colonna `componenti` ha solo V, S, M e le vecchie copie nelle traduzioni sono state tolte.
+- Migrazione temporanea `scripts/migrate-0.21.1.ts` al posto della 0.21 (pulizia, con recupero di eventuali materiali rimasti solo nella vecchia colonna).
+
 ## [0.21.0] - 2026-10-03
 
 ### Aggiunto
