@@ -187,7 +187,6 @@ export default function SpellFormModal({ show, spellId, initialLang, onClose, on
               nome: secondary.nome,
               descrizione: secondary.descrizione.trim() || null,
               highLevel: secondary.higherLevel.trim() || null,
-              material: secondaryMaterial,
             },
           });
         }

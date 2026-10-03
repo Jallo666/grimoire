@@ -13,7 +13,6 @@ export const spellTypeDefs = gql`
     nome: String!
     descrizione: String
     highLevel: String
-    material: String
   }
 
   type Spell {
@@ -82,7 +81,7 @@ export const spellTypeDefs = gql`
   }
 
   type Mutation {
-    upsertSpellTranslation(spellId: ID!, locale: String!, nome: String!, descrizione: String, highLevel: String, material: String): Spell!
+    upsertSpellTranslation(spellId: ID!, locale: String!, nome: String!, descrizione: String, highLevel: String): Spell!
 
     createSpell(
       nome: String!
@@ -151,7 +150,7 @@ async function getSpellOrThrow(spellId: number) {
   return spell;
 }
 
-type TranslationsMap = Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>;
+type TranslationsMap = Record<string, { nome: string; descrizione?: string; highLevel?: string }>;
 
 function toGql(
   spell: typeof spells.$inferSelect,
@@ -168,13 +167,11 @@ function toGql(
     nome: v.nome,
     descrizione: v.descrizione ?? null,
     highLevel: v.highLevel ?? null,
-    material: v.material ?? null,
   }));
   return {
     ...spell,
     // solo le lettere (V, S, M): il testo del materiale arriva da "materiale"
     componenti: componentLetters(spell.componenti),
-    _componentiColonna: spell.componenti,
     nome: t?.nome ?? spell.nome,
     descrizione: t?.descrizione ?? spell.descrizione,
     higherLevel: (t?.highLevel ?? spell.higherLevel) || null,
@@ -236,22 +233,15 @@ async function setSpellTags(tx: Tx, spellId: number, userId: number, classIds?: 
 type TagGql = { id: string; nome: string };
 
 // ── Componente materiale ──
-// Dalla 0.20.0 il testo del materiale sta in spell_materials. Nella colonna "componenti" si scrive
-// ancora anche "(testo)", così la versione 0.19 (che legge solo la colonna) resta utilizzabile se si
-// torna indietro; al client si mandano solo le lettere. Il testo nella colonna si toglierà al rilascio dopo.
+// Il testo del materiale sta in spell_materials; la colonna "componenti" ha solo le lettere (V, S, M).
 
-// "V, S, M (un pizzico di sale)" → "V, S, M"
+// "V, S, M (un pizzico di sale)" → "V, S, M" (per sicurezza, se arrivasse ancora un testo tra parentesi)
 function componentLetters(componenti: string | null | undefined) {
   if (!componenti) return null;
   return componenti.replace(/\s*\([\s\S]*\)\s*$/, "").trim() || null;
 }
 
 const hasM = (letters: string | null) => !!letters && letters.split(",").map((p) => p.trim()).includes("M");
-
-// Valore per la colonna "componenti": lettere + testo del materiale tra parentesi
-function componentiColumn(letters: string | null, testo: string | null) {
-  return letters && testo && hasM(letters) ? `${letters} (${testo})` : letters;
-}
 
 // Salva il materiale di un incantesimo: senza "M" o senza testo lo toglie.
 // Le traduzioni passate si aggiungono a quelle che ci sono (null = togli quella lingua).
@@ -329,21 +319,9 @@ async function withTags<S extends { id: number }>(list: S[], locale?: string | n
 
 export const spellResolvers = {
   Spell: {
-    materiale: async (parent: { id: number; _componentiColonna?: string | null; translations?: { locale: string; material: string | null }[] }) => {
+    materiale: async (parent: { id: number }) => {
       const [m] = await db.select().from(spellMaterials).where(eq(spellMaterials.spellId, parent.id)).limit(1);
-      if (!m) {
-        // Rete di sicurezza: incantesimo salvato con la 0.19 dopo la migrazione, testo solo nella
-        // colonna "componenti". Si mostra da lì; al prossimo salvataggio finisce in spell_materials.
-        const testo = parent._componentiColonna?.match(/\(([\s\S]*)\)\s*$/)?.[1].trim();
-        if (!testo || !hasM(componentLetters(parent._componentiColonna))) return null;
-        return {
-          testo,
-          perBersaglio: false,
-          translations: (parent.translations ?? [])
-            .filter((tr) => tr.material?.trim())
-            .map((tr) => ({ locale: tr.locale, testo: tr.material!.trim() })),
-        };
-      }
+      if (!m) return null;
       return {
         testo: m.testo,
         perBersaglio: m.perBersaglio,
@@ -481,8 +459,6 @@ export const spellResolvers = {
             nome: args.translationNome,
             ...(args.translationDescrizione?.trim() ? { descrizione: args.translationDescrizione } : {}),
             ...(args.translationHigherLevel?.trim() ? { highLevel: args.translationHigherLevel } : {}),
-            // copia per la 0.19 (vedi componentiColumn)
-            ...(args.translationMateriale?.trim() ? { material: args.translationMateriale.trim() } : {}),
           };
         }
         const letters = componentLetters(args.componenti);
@@ -498,7 +474,7 @@ export const spellResolvers = {
           tempoLancio: args.tempoLancio ?? null,
           gittata: args.gittata ?? null,
           durata: args.durata ?? null,
-          componenti: componentiColumn(letters, testo),
+          componenti: letters,
           ...(Object.keys(translationsData).length > 0 ? { translations: translationsData } : {}),
         }).returning();
         await tx.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id, groupId });
@@ -533,7 +509,7 @@ export const spellResolvers = {
         : [];
       const letters = args.componenti !== undefined ? componentLetters(args.componenti) : componentLetters(spell.componenti);
       const testo = args.materiale !== undefined ? args.materiale?.trim() || null : currentMaterial?.testo ?? null;
-      if (touchesMaterial) updates.componenti = componentiColumn(letters, testo);
+      if (touchesMaterial) updates.componenti = letters;
       return db.transaction(async (tx) => {
         const [updated] = Object.keys(updates).length
           ? await tx.update(spells).set(updates).where(eq(spells.id, spell.id)).returning()
@@ -681,7 +657,7 @@ export const spellResolvers = {
       return true;
     },
 
-    upsertSpellTranslation: async (_: unknown, args: { spellId: string; locale: string; nome: string; descrizione?: string; highLevel?: string; material?: string }, context: Context) => {
+    upsertSpellTranslation: async (_: unknown, args: { spellId: string; locale: string; nome: string; descrizione?: string; highLevel?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.spellId));
       // Come per la modifica: solo chi l'ha creato (le traduzioni SRD valgono per tutti)
@@ -693,16 +669,11 @@ export const spellResolvers = {
           nome: args.nome,
           descrizione: args.descrizione ?? undefined,
           highLevel: args.highLevel ?? undefined,
-          material: args.material ?? undefined,
         },
       };
-      return db.transaction(async (tx) => {
-        const [result] = await tx.update(spells).set({ translations: updated }).where(eq(spells.id, spell.id)).returning();
-        // Il materiale tradotto va anche (soprattutto) nel materiale dell'incantesimo, se c'è
-        const [m] = await tx.select().from(spellMaterials).where(eq(spellMaterials.spellId, spell.id)).limit(1);
-        if (m) await saveMaterial(tx, spell.id, componentLetters(spell.componenti), m.testo, undefined, { [args.locale]: args.material ?? null });
-        return toGql(result, null, false);
-      });
+      // il materiale tradotto si salva con updateSpell (materialeLocale / materialeTraduzione)
+      const [result] = await db.update(spells).set({ translations: updated }).where(eq(spells.id, spell.id)).returning();
+      return toGql(result, null, false);
     },
   },
 };

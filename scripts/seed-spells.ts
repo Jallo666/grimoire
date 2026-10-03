@@ -53,7 +53,8 @@ async function main() {
 
   for (const s of srdSpells) {
     if (existingNames.has(s.name)) { skipped++; continue; }
-    const componenti = s.components.join(", ") + (s.material ? ` (${s.material})` : "");
+    // solo le lettere: il testo del materiale va in spell_materials (seed-materials.ts)
+    const componenti = s.components.join(", ");
     await db.insert(spells).values({
       nome: s.name,
       scuola: SCHOOL_MAP[s.school.name] ?? s.school.name,

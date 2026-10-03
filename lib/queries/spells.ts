@@ -104,9 +104,9 @@ export const UPDATE_SPELL = gql`
 `;
 
 export const UPSERT_SPELL_TRANSLATION = gql`
-  mutation UpsertSpellTranslation($spellId: ID!, $locale: String!, $nome: String!, $descrizione: String, $highLevel: String, $material: String) {
-    upsertSpellTranslation(spellId: $spellId, locale: $locale, nome: $nome, descrizione: $descrizione, highLevel: $highLevel, material: $material) {
-      id translations { locale nome descrizione highLevel material }
+  mutation UpsertSpellTranslation($spellId: ID!, $locale: String!, $nome: String!, $descrizione: String, $highLevel: String) {
+    upsertSpellTranslation(spellId: $spellId, locale: $locale, nome: $nome, descrizione: $descrizione, highLevel: $highLevel) {
+      id translations { locale nome descrizione highLevel }
     }
   }
 `;
