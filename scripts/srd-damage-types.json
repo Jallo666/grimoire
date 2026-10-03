@@ -1,0 +1,162 @@
+{
+  "_attribution": "D&D 5e SRD (c) Wizards of the Coast LLC, licensed under CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+  "_note": "Tipi di danno SRD. \"name\" è il nome inglese, uguale a damage_type.name in srd-spells.json; le traduzioni vanno nel database.",
+  "damageTypes": [
+    {
+      "index": "acid",
+      "name": "Acid",
+      "translations": {
+        "it": {
+          "nome": "Acido"
+        },
+        "en": {
+          "nome": "Acid"
+        }
+      }
+    },
+    {
+      "index": "bludgeoning",
+      "name": "Bludgeoning",
+      "translations": {
+        "it": {
+          "nome": "Contundente"
+        },
+        "en": {
+          "nome": "Bludgeoning"
+        }
+      }
+    },
+    {
+      "index": "cold",
+      "name": "Cold",
+      "translations": {
+        "it": {
+          "nome": "Freddo"
+        },
+        "en": {
+          "nome": "Cold"
+        }
+      }
+    },
+    {
+      "index": "fire",
+      "name": "Fire",
+      "translations": {
+        "it": {
+          "nome": "Fuoco"
+        },
+        "en": {
+          "nome": "Fire"
+        }
+      }
+    },
+    {
+      "index": "force",
+      "name": "Force",
+      "translations": {
+        "it": {
+          "nome": "Forza"
+        },
+        "en": {
+          "nome": "Force"
+        }
+      }
+    },
+    {
+      "index": "lightning",
+      "name": "Lightning",
+      "translations": {
+        "it": {
+          "nome": "Fulmine"
+        },
+        "en": {
+          "nome": "Lightning"
+        }
+      }
+    },
+    {
+      "index": "necrotic",
+      "name": "Necrotic",
+      "translations": {
+        "it": {
+          "nome": "Necrotico"
+        },
+        "en": {
+          "nome": "Necrotic"
+        }
+      }
+    },
+    {
+      "index": "piercing",
+      "name": "Piercing",
+      "translations": {
+        "it": {
+          "nome": "Perforante"
+        },
+        "en": {
+          "nome": "Piercing"
+        }
+      }
+    },
+    {
+      "index": "poison",
+      "name": "Poison",
+      "translations": {
+        "it": {
+          "nome": "Veleno"
+        },
+        "en": {
+          "nome": "Poison"
+        }
+      }
+    },
+    {
+      "index": "psychic",
+      "name": "Psychic",
+      "translations": {
+        "it": {
+          "nome": "Psichico"
+        },
+        "en": {
+          "nome": "Psychic"
+        }
+      }
+    },
+    {
+      "index": "radiant",
+      "name": "Radiant",
+      "translations": {
+        "it": {
+          "nome": "Radioso"
+        },
+        "en": {
+          "nome": "Radiant"
+        }
+      }
+    },
+    {
+      "index": "slashing",
+      "name": "Slashing",
+      "translations": {
+        "it": {
+          "nome": "Tagliente"
+        },
+        "en": {
+          "nome": "Slashing"
+        }
+      }
+    },
+    {
+      "index": "thunder",
+      "name": "Thunder",
+      "translations": {
+        "it": {
+          "nome": "Tuono"
+        },
+        "en": {
+          "nome": "Thunder"
+        }
+      }
+    }
+  ]
+}

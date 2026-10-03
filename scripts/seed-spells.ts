@@ -24,7 +24,6 @@ type SrdSpell = {
   higher_level?: string[];
   classes: { name: string }[];
   subclasses?: { name: string }[];
-  damage?: { damage_type?: { index: string } }[];
 };
 
 const SCHOOL_MAP: Record<string, string> = {
@@ -37,12 +36,6 @@ const SCHOOL_MAP: Record<string, string> = {
   Necromancy: "Necromanzia",
   Transmutation: "Trasmutazione",
 };
-
-// Tipi di danno dell'incantesimo, senza doppioni (es. ["fire", "radiant"]); null se non fa danni
-function damageTypes(s: SrdSpell): string[] | null {
-  const types = [...new Set((s.damage ?? []).map((d) => d.damage_type?.index).filter((x): x is string => !!x))];
-  return types.length ? types : null;
-}
 
 async function main() {
   const client = postgres(process.env.DATABASE_URL!);
@@ -75,7 +68,6 @@ async function main() {
       ritual: s.ritual,
       classi: s.classes.map((c) => c.name).join(", ") || null,
       sottoclassi: s.subclasses?.map((c) => c.name).join(", ") || null,
-      tipiDanno: damageTypes(s),
       isSystem: true,
       creatorId: null,
     });

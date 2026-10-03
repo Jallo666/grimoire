@@ -1,49 +1,62 @@
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { spells } from "@/db/schema";
+import { damageTypes, spellDamageTypes, spells } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-// Riempie la colonna tipi_danno degli incantesimi SRD già presenti nel database,
-// leggendo i tipi di danno da scripts/srd-spells.json. Si può rilanciare senza problemi.
-// Prima va creata la colonna: npx drizzle-kit push
+// Crea i tipi di danno SRD da scripts/srd-damage-types.json (se mancano, altrimenti ne aggiorna
+// le traduzioni) e collega gli incantesimi SRD ai loro tipi di danno, leggendo da srd-spells.json.
+// Si può rilanciare senza problemi: non crea doppioni.
+// Prima: npx drizzle-kit push e npx tsx scripts/seed-spells.ts
 // Uso: npx tsx scripts/seed-damage-types.ts
 
 // dotenv must run before we create the postgres client
 config({ path: ".env.local" });
 
-type SrdSpell = {
-  name: string;
-  damage?: { damage_type?: { index: string } }[];
-};
-
-// Tipi di danno dell'incantesimo, senza doppioni (es. ["fire", "radiant"]); null se non fa danni
-function damageTypes(s: SrdSpell): string[] | null {
-  const types = [...new Set((s.damage ?? []).map((d) => d.damage_type?.index).filter((x): x is string => !!x))];
-  return types.length ? types : null;
-}
+type SrdDamageType = { name: string; translations: Record<string, { nome: string }> };
+type SrdSpell = { name: string; damage?: { damage_type?: { name: string } }[] };
 
 async function main() {
   const client = postgres(process.env.DATABASE_URL!);
   const db = drizzle(client);
 
-  const raw = JSON.parse(readFileSync(resolve("scripts/srd-spells.json"), "utf-8")) as { spells: SrdSpell[] };
-  let updated = 0;
-
-  for (const s of raw.spells) {
-    const types = damageTypes(s);
-    if (!types) continue;
-    const rows = await db.update(spells)
-      .set({ tipiDanno: types })
-      .where(and(eq(spells.isSystem, true), eq(spells.nome, s.name)))
-      .returning({ id: spells.id });
-    updated += rows.length;
-    process.stdout.write(`\r${updated} incantesimi aggiornati`);
+  // 1. Tipi di danno
+  const srdTypes = (JSON.parse(readFileSync(resolve("scripts/srd-damage-types.json"), "utf-8")) as { damageTypes: SrdDamageType[] }).damageTypes;
+  const typeIds = new Map<string, number>();
+  for (const d of srdTypes) {
+    const [existing] = await db.select().from(damageTypes)
+      .where(and(eq(damageTypes.isSystem, true), eq(damageTypes.nome, d.name))).limit(1);
+    if (existing) {
+      await db.update(damageTypes).set({ translations: d.translations }).where(eq(damageTypes.id, existing.id));
+      typeIds.set(d.name, existing.id);
+    } else {
+      const [created] = await db.insert(damageTypes)
+        .values({ nome: d.name, translations: d.translations, isSystem: true })
+        .returning({ id: damageTypes.id });
+      typeIds.set(d.name, created.id);
+    }
   }
+  console.log(`Tipi di danno SRD: ${typeIds.size}`);
 
-  console.log(`\nFatto. Incantesimi SRD con tipo di danno: ${updated}`);
+  // 2. Collegamenti incantesimo ↔ tipo di danno
+  const srdSpells = (JSON.parse(readFileSync(resolve("scripts/srd-spells.json"), "utf-8")) as { spells: SrdSpell[] }).spells;
+  let links = 0;
+  for (const s of srdSpells) {
+    const ids = [...new Set((s.damage ?? []).map((d) => d.damage_type && typeIds.get(d.damage_type.name)).filter((id): id is number => !!id))];
+    if (ids.length === 0) continue;
+    const [spell] = await db.select({ id: spells.id }).from(spells)
+      .where(and(eq(spells.isSystem, true), eq(spells.nome, s.name))).limit(1);
+    if (!spell) continue;
+    const inserted = await db.insert(spellDamageTypes)
+      .values(ids.map((damageTypeId) => ({ spellId: spell.id, damageTypeId })))
+      .onConflictDoNothing()
+      .returning({ spellId: spellDamageTypes.spellId });
+    links += inserted.length;
+  }
+  console.log(`Nuovi collegamenti incantesimo-tipo di danno: ${links}`);
+
   await client.end();
   process.exit(0);
 }

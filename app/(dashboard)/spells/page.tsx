@@ -8,8 +8,7 @@ import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
-import { DAMAGE_TYPES, damageKey } from "@/lib/damageTypes";
-import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, SPELL_CLASSES, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
+import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, SPELL_CLASSES, DAMAGE_TYPES, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
 import SpellViewModal from "./SpellViewModal";
 import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP, MOVE_SPELLS_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
@@ -55,7 +54,7 @@ type SpellRow = {
   concentration: boolean | null;
   ritual: boolean | null;
   classi: { id: string; nome: string }[];
-  tipiDanno: string[] | null;
+  tipiDanno: { id: string; nome: string }[];
   groupId: string | null;
   groupNome: string | null;
 };
@@ -178,12 +177,9 @@ export default function SpellsPage() {
   const { data: classesData } = useQuery<{ spellClasses: { id: string; nome: string }[] }>(SPELL_CLASSES, { variables: { locale } });
   const classOptions = (classesData?.spellClasses ?? []).map((c) => ({ value: c.id, label: c.nome }));
 
-  // Tipi di danno: valori in inglese come nel database, etichette tradotte
-  const damageLabel = (type: string) => {
-    const key = damageKey(type) as Parameters<typeof t>[0];
-    return t.has(key) ? t(key) : type;
-  };
-  const damageOptions = DAMAGE_TYPES.map((d) => ({ value: d, label: damageLabel(d) }));
+  // Tipi di danno dal database (id e nome già tradotto dal server)
+  const { data: damageData } = useQuery<{ damageTypes: { id: string; nome: string }[] }>(DAMAGE_TYPES, { variables: { locale } });
+  const damageOptions = (damageData?.damageTypes ?? []).map((d) => ({ value: d.id, label: d.nome }));
 
   const livelloOptions = [
     { value: "0", label: t("livelloOption0") },
@@ -338,7 +334,7 @@ export default function SpellsPage() {
     { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: SCUOLA_BADGE_COLORS, badgeLabels: Object.fromEntries(scuolaOptions.map((o) => [o.value, o.label])) },
     { key: "livello", label: t("colLivello"), sortable: true, render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
     { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
-    { key: "tipiDanno", label: t("colDanno"), render: (v) => ((v as string[] | null) ?? []).map(damageLabel).join(", ") },
+    { key: "tipiDanno", label: t("colDanno"), render: (v) => (v as SpellRow["tipiDanno"]).map((d) => d.nome).join(", ") },
   ];
 
   const meiColumns: Column<SpellRow>[] = [
@@ -396,7 +392,7 @@ export default function SpellsPage() {
               gittata={s.gittata}
               concentration={s.concentration}
               ritual={s.ritual}
-              tipiDanno={s.tipiDanno}
+              tipiDanno={s.tipiDanno.map((d) => d.nome)}
               groupNome={tab === "miei" ? s.groupNome : null}
             />
           )}

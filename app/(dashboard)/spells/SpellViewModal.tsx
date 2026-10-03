@@ -12,7 +12,6 @@ import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import styles from "./SpellViewModal.module.css";
-import { damageKey } from "@/lib/damageTypes";
 import { CASTING_TIME_MAP, DURATION_MAP, translateField } from "@/lib/formatSpellFields";
 
 type Translation = {
@@ -37,7 +36,7 @@ type SpellFull = {
   concentration: boolean | null;
   ritual: boolean | null;
   classi: { id: string; nome: string }[];
-  tipiDanno: string[] | null;
+  tipiDanno: { id: string; nome: string }[];
   isOwner: boolean;
   isSystem: boolean;
   translations: Translation[];
@@ -159,12 +158,6 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
     return t.has(key) ? t(key) : scuola;
   }
 
-  // Tipi di danno salvati in inglese (es. "fire"): si mostrano tradotti (chiavi damageFire, …)
-  function damageLabel(type: string) {
-    const key = damageKey(type) as Parameters<typeof t>[0];
-    return t.has(key) ? t(key) : type;
-  }
-
   // Tempo di lancio e durata sono salvati in inglese (es. "1 action", "Instantaneous"):
   // si mostrano tradotti con le stesse chiavi delle tendine del form (ct1Action, durInstantaneous, …)
   const tKey = (key: string) => t(key as Parameters<typeof t>[0]);
@@ -277,7 +270,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
                 </div>
               )}
             </div>
-            <Field label={t("fieldDanno")} value={(spell.tipiDanno ?? []).map(damageLabel).join(", ")} />
+            <Field label={t("fieldDanno")} value={spell.tipiDanno.map((d) => d.nome).join(", ")} />
             <Field label={t("colClassi")} value={spell.classi.map((c) => c.nome).join(", ")} />
           </>
         ) : null}

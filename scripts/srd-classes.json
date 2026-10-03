@@ -1,0 +1,102 @@
+{
+  "_attribution": "D&D 5e SRD (c) Wizards of the Coast LLC, licensed under CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+  "_note": "Classi SRD. \"name\" è il nome inglese, uguale a classes[].name in srd-spells.json; le traduzioni vanno nel database.",
+  "classes": [
+    {
+      "index": "bard",
+      "name": "Bard",
+      "translations": {
+        "it": {
+          "nome": "Bardo"
+        },
+        "en": {
+          "nome": "Bard"
+        }
+      }
+    },
+    {
+      "index": "cleric",
+      "name": "Cleric",
+      "translations": {
+        "it": {
+          "nome": "Chierico"
+        },
+        "en": {
+          "nome": "Cleric"
+        }
+      }
+    },
+    {
+      "index": "druid",
+      "name": "Druid",
+      "translations": {
+        "it": {
+          "nome": "Druido"
+        },
+        "en": {
+          "nome": "Druid"
+        }
+      }
+    },
+    {
+      "index": "paladin",
+      "name": "Paladin",
+      "translations": {
+        "it": {
+          "nome": "Paladino"
+        },
+        "en": {
+          "nome": "Paladin"
+        }
+      }
+    },
+    {
+      "index": "ranger",
+      "name": "Ranger",
+      "translations": {
+        "it": {
+          "nome": "Ranger"
+        },
+        "en": {
+          "nome": "Ranger"
+        }
+      }
+    },
+    {
+      "index": "sorcerer",
+      "name": "Sorcerer",
+      "translations": {
+        "it": {
+          "nome": "Stregone"
+        },
+        "en": {
+          "nome": "Sorcerer"
+        }
+      }
+    },
+    {
+      "index": "warlock",
+      "name": "Warlock",
+      "translations": {
+        "it": {
+          "nome": "Warlock"
+        },
+        "en": {
+          "nome": "Warlock"
+        }
+      }
+    },
+    {
+      "index": "wizard",
+      "name": "Wizard",
+      "translations": {
+        "it": {
+          "nome": "Mago"
+        },
+        "en": {
+          "nome": "Wizard"
+        }
+      }
+    }
+  ]
+}

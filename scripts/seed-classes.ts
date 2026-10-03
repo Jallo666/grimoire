@@ -3,65 +3,59 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { classes, spellClasses, spells } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 
-// Crea le 8 classi SRD (se non ci sono già) e collega gli incantesimi SRD alle loro classi,
-// leggendo la vecchia colonna di testo spells.classi (es. "Bard, Wizard").
+// Crea le classi SRD da scripts/srd-classes.json (se mancano, altrimenti ne aggiorna le
+// traduzioni) e collega gli incantesimi SRD alle loro classi, leggendo da srd-spells.json.
 // Si può rilanciare senza problemi: non crea doppioni.
-// Prima vanno create le tabelle: npx drizzle-kit push
+// Prima: npx drizzle-kit push e npx tsx scripts/seed-spells.ts
 // Uso: npx tsx scripts/seed-classes.ts
 
 // dotenv must run before we create the postgres client
 config({ path: ".env.local" });
 
-// Nome inglese (come nei dati SRD) → traduzioni
-const SRD_CLASSES: Record<string, { it: string; en: string }> = {
-  Bard: { it: "Bardo", en: "Bard" },
-  Cleric: { it: "Chierico", en: "Cleric" },
-  Druid: { it: "Druido", en: "Druid" },
-  Paladin: { it: "Paladino", en: "Paladin" },
-  Ranger: { it: "Ranger", en: "Ranger" },
-  Sorcerer: { it: "Stregone", en: "Sorcerer" },
-  Warlock: { it: "Warlock", en: "Warlock" },
-  Wizard: { it: "Mago", en: "Wizard" },
-};
+type SrdClass = { name: string; translations: Record<string, { nome: string }> };
+type SrdSpell = { name: string; classes: { name: string }[] };
 
 async function main() {
   const client = postgres(process.env.DATABASE_URL!);
   const db = drizzle(client);
 
-  // 1. Classi SRD
+  // 1. Classi
+  const srdClasses = (JSON.parse(readFileSync(resolve("scripts/srd-classes.json"), "utf-8")) as { classes: SrdClass[] }).classes;
   const classIds = new Map<string, number>();
-  for (const [nome, tr] of Object.entries(SRD_CLASSES)) {
+  for (const c of srdClasses) {
     const [existing] = await db.select().from(classes)
-      .where(and(eq(classes.isSystem, true), eq(classes.nome, nome))).limit(1);
+      .where(and(eq(classes.isSystem, true), eq(classes.nome, c.name))).limit(1);
     if (existing) {
-      classIds.set(nome, existing.id);
-      continue;
+      await db.update(classes).set({ translations: c.translations }).where(eq(classes.id, existing.id));
+      classIds.set(c.name, existing.id);
+    } else {
+      const [created] = await db.insert(classes)
+        .values({ nome: c.name, translations: c.translations, isSystem: true })
+        .returning({ id: classes.id });
+      classIds.set(c.name, created.id);
     }
-    const [created] = await db.insert(classes).values({
-      nome,
-      translations: { it: { nome: tr.it }, en: { nome: tr.en } },
-      isSystem: true,
-      creatorId: null,
-    }).returning({ id: classes.id });
-    classIds.set(nome, created.id);
   }
   console.log(`Classi SRD: ${classIds.size}`);
 
-  // 2. Collegamenti incantesimo ↔ classe dalla vecchia colonna di testo
-  const rows = await db.select({ id: spells.id, classi: spells.classi }).from(spells).where(eq(spells.isSystem, true));
+  // 2. Collegamenti incantesimo ↔ classe
+  const srdSpells = (JSON.parse(readFileSync(resolve("scripts/srd-spells.json"), "utf-8")) as { spells: SrdSpell[] }).spells;
   let links = 0;
-  for (const s of rows) {
-    if (!s.classi) continue;
-    const values = s.classi.split(",")
-      .map((c) => classIds.get(c.trim()))
+  for (const s of srdSpells) {
+    const [spell] = await db.select({ id: spells.id }).from(spells)
+      .where(and(eq(spells.isSystem, true), eq(spells.nome, s.name))).limit(1);
+    if (!spell) continue;
+    const values = s.classes
+      .map((c) => classIds.get(c.name))
       .filter((id): id is number => id !== undefined)
-      .map((classId) => ({ spellId: s.id, classId }));
+      .map((classId) => ({ spellId: spell.id, classId }));
     if (values.length === 0) continue;
     const inserted = await db.insert(spellClasses).values(values).onConflictDoNothing().returning({ spellId: spellClasses.spellId });
     links += inserted.length;
   }
-  console.log(`Collegamenti incantesimo-classe creati: ${links} (su ${rows.length} incantesimi SRD)`);
+  console.log(`Nuovi collegamenti incantesimo-classe: ${links}`);
 
   await client.end();
   process.exit(0);

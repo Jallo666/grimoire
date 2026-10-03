@@ -1,8 +1,8 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and, ilike, isNull, inArray, arrayOverlaps } from "drizzle-orm";
+import { eq, and, ilike, isNull, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups, classes, spellClasses } from "@/db/schema";
+import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups, classes, spellClasses, damageTypes, spellDamageTypes } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
 import { getOrCreateGroup } from "./spellGroups";
 import type { Context } from "./context";
@@ -31,7 +31,7 @@ export const spellTypeDefs = gql`
     ritual: Boolean
     classi: [SpellClass!]!
     sottoclassi: String
-    tipiDanno: [String!]
+    tipiDanno: [DamageType!]!
     creatorId: Int
     createdAt: String!
     isOwner: Boolean!
@@ -48,12 +48,19 @@ export const spellTypeDefs = gql`
     nome: String!
   }
 
+  # Tipo di danno (es. Fuoco), con il nome già tradotto nella lingua richiesta
+  type DamageType {
+    id: ID!
+    nome: String!
+  }
+
   type Query {
     spellClasses(locale: String): [SpellClass!]!
-    mySpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [String!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
+    damageTypes(locale: String): [DamageType!]!
+    mySpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
     spell(id: ID!, locale: String): Spell
-    srdSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
-    allSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    srdSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    allSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
     campaignSpells(campaignId: ID!): [Spell!]!
   }
 
@@ -140,13 +147,14 @@ function toGql(
     groupId: groupId ?? null,
     groupNome: groupNome ?? null,
     translations,
-    // le classi le aggiunge withClasses (liste) o il resolver Spell.classi (singolo incantesimo)
-    classi: undefined as SpellClassGql[] | undefined,
+    // classi e tipi di danno li aggiunge withTags (liste) o i resolver Spell.* (singolo incantesimo)
+    classi: undefined as TagGql[] | undefined,
+    tipiDanno: undefined as TagGql[] | undefined,
     _locale: locale ?? null,
   };
 }
 
-// Filtro per classe: l'incantesimo è collegato (spell_classes) ad almeno una delle classi scelte (id)
+// Filtri per classe e per tipo di danno: l'incantesimo è collegato ad almeno uno degli id scelti
 function classiCondition(classIds: string[]) {
   return inArray(
     spells.id,
@@ -154,42 +162,72 @@ function classiCondition(classIds: string[]) {
   );
 }
 
-type SpellClassGql = { id: string; nome: string };
+function tipiDannoCondition(damageTypeIds: string[]) {
+  return inArray(
+    spells.id,
+    db.select({ id: spellDamageTypes.spellId }).from(spellDamageTypes).where(inArray(spellDamageTypes.damageTypeId, damageTypeIds.map(Number)))
+  );
+}
 
-// Nome della classe nella lingua richiesta (se c'è la traduzione), altrimenti quello inglese
-function className(c: { nome: string; translations: Record<string, { nome: string }> | null }, locale?: string | null) {
+// Classe o tipo di danno per GraphQL: id e nome già tradotto
+type TagGql = { id: string; nome: string };
+
+// Nome nella lingua richiesta (se c'è la traduzione), altrimenti quello inglese
+function localizedName(c: { nome: string; translations: Record<string, { nome: string }> | null }, locale?: string | null) {
   return (locale && c.translations?.[locale]?.nome) || c.nome;
 }
 
-// Classi di tanti incantesimi con una sola query: id incantesimo → classi (in ordine alfabetico)
-async function loadClasses(spellIds: number[], locale?: string | null) {
-  const map = new Map<number, SpellClassGql[]>();
-  if (spellIds.length === 0) return map;
-  const rows = await db
-    .select({ spellId: spellClasses.spellId, id: classes.id, nome: classes.nome, translations: classes.translations })
-    .from(spellClasses)
-    .innerJoin(classes, eq(spellClasses.classId, classes.id))
-    .where(inArray(spellClasses.spellId, spellIds));
+// Righe { spellId, id, nome, translations } → id incantesimo → lista (in ordine alfabetico)
+function groupBySpell(
+  rows: { spellId: number; id: number; nome: string; translations: Record<string, { nome: string }> | null }[],
+  locale?: string | null
+) {
+  const map = new Map<number, TagGql[]>();
   for (const r of rows) {
     const list = map.get(r.spellId) ?? [];
-    list.push({ id: String(r.id), nome: className(r, locale) });
+    list.push({ id: String(r.id), nome: localizedName(r, locale) });
     map.set(r.spellId, list);
   }
   for (const list of map.values()) list.sort((a, b) => a.nome.localeCompare(b.nome));
   return map;
 }
 
-// Aggiunge le classi a una lista di incantesimi già pronti per GraphQL
-async function withClasses<S extends { id: number }>(list: S[], locale?: string | null) {
-  const map = await loadClasses(list.map((s) => s.id), locale);
-  return list.map((s) => ({ ...s, classi: map.get(s.id) ?? [] }));
+// Classi di tanti incantesimi con una sola query
+async function loadClasses(spellIds: number[], locale?: string | null) {
+  if (spellIds.length === 0) return new Map<number, TagGql[]>();
+  const rows = await db
+    .select({ spellId: spellClasses.spellId, id: classes.id, nome: classes.nome, translations: classes.translations })
+    .from(spellClasses)
+    .innerJoin(classes, eq(spellClasses.classId, classes.id))
+    .where(inArray(spellClasses.spellId, spellIds));
+  return groupBySpell(rows, locale);
+}
+
+// Tipi di danno di tanti incantesimi con una sola query
+async function loadDamageTypes(spellIds: number[], locale?: string | null) {
+  if (spellIds.length === 0) return new Map<number, TagGql[]>();
+  const rows = await db
+    .select({ spellId: spellDamageTypes.spellId, id: damageTypes.id, nome: damageTypes.nome, translations: damageTypes.translations })
+    .from(spellDamageTypes)
+    .innerJoin(damageTypes, eq(spellDamageTypes.damageTypeId, damageTypes.id))
+    .where(inArray(spellDamageTypes.spellId, spellIds));
+  return groupBySpell(rows, locale);
+}
+
+// Aggiunge classi e tipi di danno a una lista di incantesimi già pronti per GraphQL
+async function withTags<S extends { id: number }>(list: S[], locale?: string | null) {
+  const ids = list.map((s) => s.id);
+  const [classMap, damageMap] = await Promise.all([loadClasses(ids, locale), loadDamageTypes(ids, locale)]);
+  return list.map((s) => ({ ...s, classi: classMap.get(s.id) ?? [], tipiDanno: damageMap.get(s.id) ?? [] }));
 }
 
 export const spellResolvers = {
   Spell: {
-    // Classi già caricate dalle liste (withClasses); per un singolo incantesimo si leggono qui
-    classi: async (parent: { id: number; classi?: SpellClassGql[]; _locale?: string | null }) =>
+    // Già caricati dalle liste (withTags); per un singolo incantesimo si leggono qui
+    classi: async (parent: { id: number; classi?: TagGql[]; _locale?: string | null }) =>
       parent.classi ?? (await loadClasses([parent.id], parent._locale)).get(parent.id) ?? [],
+    tipiDanno: async (parent: { id: number; tipiDanno?: TagGql[]; _locale?: string | null }) =>
+      parent.tipiDanno ?? (await loadDamageTypes([parent.id], parent._locale)).get(parent.id) ?? [],
   },
 
   Query: {
@@ -197,7 +235,15 @@ export const spellResolvers = {
       assertAuthenticated(context);
       const rows = await db.select().from(classes);
       return rows
-        .map((c) => ({ id: String(c.id), nome: className(c, args.locale) }))
+        .map((c) => ({ id: String(c.id), nome: localizedName(c, args.locale) }))
+        .sort((a, b) => a.nome.localeCompare(b.nome));
+    },
+
+    damageTypes: async (_: unknown, args: { locale?: string }, context: Context) => {
+      assertAuthenticated(context);
+      const rows = await db.select().from(damageTypes);
+      return rows
+        .map((d) => ({ id: String(d.id), nome: localizedName(d, args.locale) }))
         .sort((a, b) => a.nome.localeCompare(b.nome));
     },
 
@@ -207,8 +253,7 @@ export const spellResolvers = {
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
-      // almeno uno dei tipi di danno scelti
-      if (args.tipiDanno?.length) conditions.push(arrayOverlaps(spells.tipiDanno, args.tipiDanno));
+      if (args.tipiDanno?.length) conditions.push(tipiDannoCondition(args.tipiDanno));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -219,7 +264,7 @@ export const spellResolvers = {
         .innerJoin(spells, eq(userSpellLibrary.spellId, spells.id))
         .leftJoin(spellGroups, eq(userSpellLibrary.groupId, spellGroups.id))
         .where(and(...conditions));
-      return withClasses(rows.map((r) => toGql(r.spell, user.id, true, r.lib.groupId, r.group?.nome, args.locale)), args.locale);
+      return withTags(rows.map((r) => toGql(r.spell, user.id, true, r.lib.groupId, r.group?.nome, args.locale)), args.locale);
     },
 
     spell: async (_: unknown, args: { id: string; locale?: string }, context: Context) => {
@@ -240,8 +285,7 @@ export const spellResolvers = {
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
-      // almeno uno dei tipi di danno scelti
-      if (args.tipiDanno?.length) conditions.push(arrayOverlaps(spells.tipiDanno, args.tipiDanno));
+      if (args.tipiDanno?.length) conditions.push(tipiDannoCondition(args.tipiDanno));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -252,7 +296,7 @@ export const spellResolvers = {
         .from(userSpellLibrary).where(eq(userSpellLibrary.userId, user.id));
       const inLibrarySet = new Set(libraryRows.map((r) => r.spellId));
 
-      return withClasses(rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale)), args.locale);
+      return withTags(rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale)), args.locale);
     },
 
     allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
@@ -262,8 +306,7 @@ export const spellResolvers = {
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
-      // almeno uno dei tipi di danno scelti
-      if (args.tipiDanno?.length) conditions.push(arrayOverlaps(spells.tipiDanno, args.tipiDanno));
+      if (args.tipiDanno?.length) conditions.push(tipiDannoCondition(args.tipiDanno));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -276,7 +319,7 @@ export const spellResolvers = {
         .from(userSpellLibrary).where(eq(userSpellLibrary.userId, user.id));
       const inLibrarySet = new Set(libraryRows.map((r) => r.spellId));
 
-      return withClasses(rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale)), args.locale);
+      return withTags(rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale)), args.locale);
     },
 
     campaignSpells: async (_: unknown, args: { campaignId: string }, context: Context) => {
@@ -287,7 +330,7 @@ export const spellResolvers = {
       const rows = await db.select({ spell: spells }).from(campaignSpellLibrary)
         .innerJoin(spells, eq(campaignSpellLibrary.spellId, spells.id))
         .where(eq(campaignSpellLibrary.campaignId, Number(args.campaignId)));
-      return withClasses(rows.map((r) => toGql(r.spell, user.id, false)));
+      return withTags(rows.map((r) => toGql(r.spell, user.id, false)));
     },
   },
 
@@ -353,6 +396,7 @@ export const spellResolvers = {
       const spell = await getSpellOrThrow(Number(args.id));
       if (spell.creatorId !== user.id) throw new GraphQLError("Solo il creatore può eliminare l'incantesimo", { extensions: { code: "FORBIDDEN" } });
       await db.delete(spellClasses).where(eq(spellClasses.spellId, spell.id));
+      await db.delete(spellDamageTypes).where(eq(spellDamageTypes.spellId, spell.id));
       await db.delete(userSpellLibrary).where(eq(userSpellLibrary.spellId, spell.id));
       await db.delete(campaignSpellLibrary).where(eq(campaignSpellLibrary.spellId, spell.id));
       await db.delete(spells).where(eq(spells.id, spell.id));
@@ -421,6 +465,7 @@ export const spellResolvers = {
       if (own.length === 0) return 0;
       await db.transaction(async (tx) => {
         await tx.delete(spellClasses).where(inArray(spellClasses.spellId, own));
+        await tx.delete(spellDamageTypes).where(inArray(spellDamageTypes.spellId, own));
         await tx.delete(userSpellLibrary).where(inArray(userSpellLibrary.spellId, own));
         await tx.delete(campaignSpellLibrary).where(inArray(campaignSpellLibrary.spellId, own));
         await tx.delete(spells).where(inArray(spells.id, own));
