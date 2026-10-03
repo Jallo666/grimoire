@@ -23,6 +23,11 @@ Si scrive in italiano: commenti nel codice, messaggi di commit, CHANGELOG e risp
   solo dentro i componenti.
 - `components/features/` contiene pezzi con logica dell'app (navbar, card di una campagna,
   card di un incantesimo, toggle di tema e lingua) costruiti con i componenti di `ui/`.
+  Qui Bootstrap è ammesso (il divieto vale solo per le pagine), ma si preferiscono i `Grimoire*`.
+- **Pagine corte.** Quando una pagina cresce troppo, i suoi pezzi (filtri, lista, modali,
+  hook con lo stato) vanno in `components/features/<sezione>/`; la pagina li collega
+  (esempio: `components/features/spells/`).
+- **Parametri dell'URL in inglese** (`search`, `school`, `level`, `class`, `damage`, `tab`…).
 - **Ogni componente gestisce tema e traduzioni** da sé: i testi con `useTranslations`,
   i colori con le variabili `--g-…`.
 - **Niente CSS incomprensibile.** Se serve CSS, un file `*.module.css` accanto al componente,
