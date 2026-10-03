@@ -1,10 +1,10 @@
-import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
 import { eq, and, count } from "drizzle-orm";
 import { db } from "@/db";
 import { users, campaignMembers } from "@/db/schema";
 import { assertAuthenticated, assertMasterOrOwner } from "./permissions";
 import type { Context } from "./context";
+import { appError } from "./errors";
 
 export const memberTypeDefs = gql`
   type CampaignMember {
@@ -32,9 +32,7 @@ export const memberResolvers = {
       const { isOwner } = await assertMasterOrOwner(Number(args.campaignId), user.id);
 
       if (args.ruolo === "master" && !isOwner) {
-        throw new GraphQLError("Solo l'owner può aggiungere un master", {
-          extensions: { code: "FORBIDDEN" },
-        });
+        throw appError("ONLY_OWNER_ADDS_MASTER");
       }
 
       const [targetUser] = await db
@@ -43,7 +41,7 @@ export const memberResolvers = {
         .where(eq(users.email, args.email))
         .limit(1);
       if (!targetUser) {
-        throw new GraphQLError("Utente non trovato", { extensions: { code: "NOT_FOUND" } });
+        throw appError("USER_NOT_FOUND");
       }
 
       const [existing] = await db
@@ -57,7 +55,7 @@ export const memberResolvers = {
         )
         .limit(1);
       if (existing) {
-        throw new GraphQLError("Utente già membro", { extensions: { code: "CONFLICT" } });
+        throw appError("ALREADY_MEMBER");
       }
 
       const [member] = await db
@@ -90,16 +88,14 @@ export const memberResolvers = {
         .where(eq(campaignMembers.id, Number(args.memberId)))
         .limit(1);
       if (!member) {
-        throw new GraphQLError("Membro non trovato", { extensions: { code: "NOT_FOUND" } });
+        throw appError("MEMBER_NOT_FOUND");
       }
 
       const { campaign, isOwner } = await assertMasterOrOwner(member.campaignId!, user.id);
 
       // Il master non può rimuovere l'owner
       if (!isOwner && member.userId === campaign.ownerId) {
-        throw new GraphQLError("Non puoi rimuovere l'owner dalla campagna", {
-          extensions: { code: "FORBIDDEN" },
-        });
+        throw appError("CANNOT_REMOVE_OWNER");
       }
 
       // Deve rimanere almeno un membro
@@ -109,9 +105,7 @@ export const memberResolvers = {
         .where(eq(campaignMembers.campaignId, member.campaignId!));
 
       if (memberCount <= 1) {
-        throw new GraphQLError("Deve rimanere almeno un membro nella campagna", {
-          extensions: { code: "FORBIDDEN" },
-        });
+        throw appError("LAST_MEMBER");
       }
 
       await db.delete(campaignMembers).where(eq(campaignMembers.id, Number(args.memberId)));
@@ -131,23 +125,19 @@ export const memberResolvers = {
         .where(eq(campaignMembers.id, Number(args.memberId)))
         .limit(1);
       if (!member) {
-        throw new GraphQLError("Membro non trovato", { extensions: { code: "NOT_FOUND" } });
+        throw appError("MEMBER_NOT_FOUND");
       }
 
       const { campaign, isOwner } = await assertMasterOrOwner(member.campaignId!, user.id);
 
       // Il master non può cambiare il ruolo dell'owner
       if (!isOwner && member.userId === campaign.ownerId) {
-        throw new GraphQLError("Non puoi modificare il ruolo dell'owner", {
-          extensions: { code: "FORBIDDEN" },
-        });
+        throw appError("CANNOT_CHANGE_OWNER_ROLE");
       }
 
       // Solo l'owner può assegnare il ruolo master
       if (args.ruolo === "master" && !isOwner) {
-        throw new GraphQLError("Solo l'owner può assegnare il ruolo master", {
-          extensions: { code: "FORBIDDEN" },
-        });
+        throw appError("ONLY_OWNER_ASSIGNS_MASTER");
       }
 
       const [updated] = await db

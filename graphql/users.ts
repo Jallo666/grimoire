@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
@@ -7,6 +6,7 @@ import { users } from "@/db/schema";
 import { hashPassword, verifyPassword, generateToken } from "@/lib/auth";
 import { assertAuthenticated } from "./permissions";
 import type { Context } from "./context";
+import { appError } from "./errors";
 
 export const userTypeDefs = gql`
   type User {
@@ -74,7 +74,7 @@ export const userResolvers = {
     register: async (_: unknown, args: { email: string; password: string; nome: string }) => {
       const existing = await db.select().from(users).where(eq(users.email, args.email)).limit(1);
       if (existing.length > 0) {
-        throw new GraphQLError("Email già registrata", { extensions: { code: "CONFLICT" } });
+        throw appError("EMAIL_IN_USE");
       }
       const passwordHash = await hashPassword(args.password);
       const result = await db
@@ -91,12 +91,12 @@ export const userResolvers = {
     login: async (_: unknown, args: { email: string; password: string }) => {
       const result = await db.select().from(users).where(eq(users.email, args.email)).limit(1);
       if (result.length === 0) {
-        throw new GraphQLError("Credenziali non valide", { extensions: { code: "UNAUTHENTICATED" } });
+        throw appError("INVALID_CREDENTIALS");
       }
       const user = result[0];
       const valid = await verifyPassword(args.password, user.passwordHash);
       if (!valid) {
-        throw new GraphQLError("Credenziali non valide", { extensions: { code: "UNAUTHENTICATED" } });
+        throw appError("INVALID_CREDENTIALS");
       }
       const token = generateToken(user.id);
       const cookieStore = await cookies();
@@ -115,11 +115,11 @@ export const userResolvers = {
       const [current] = await db.select().from(users).where(eq(users.id, context.user!.id)).limit(1);
       const valid = await verifyPassword(args.password, current.passwordHash);
       if (!valid) {
-        throw new GraphQLError("Password non corretta", { extensions: { code: "FORBIDDEN" } });
+        throw appError("WRONG_PASSWORD");
       }
       const existing = await db.select().from(users).where(eq(users.email, args.newEmail)).limit(1);
       if (existing.length > 0 && existing[0].id !== context.user!.id) {
-        throw new GraphQLError("Email già in uso", { extensions: { code: "CONFLICT" } });
+        throw appError("EMAIL_IN_USE");
       }
       const [updated] = await db
         .update(users)
@@ -134,10 +134,10 @@ export const userResolvers = {
       const [current] = await db.select().from(users).where(eq(users.id, context.user!.id)).limit(1);
       const valid = await verifyPassword(args.currentPassword, current.passwordHash);
       if (!valid) {
-        throw new GraphQLError("Password attuale non corretta", { extensions: { code: "FORBIDDEN" } });
+        throw appError("WRONG_PASSWORD");
       }
       if (args.newPassword.length < 8) {
-        throw new GraphQLError("La nuova password deve essere di almeno 8 caratteri", { extensions: { code: "BAD_USER_INPUT" } });
+        throw appError("PASSWORD_TOO_SHORT");
       }
       const passwordHash = await hashPassword(args.newPassword);
       await db.update(users).set({ passwordHash }).where(eq(users.id, context.user!.id));

@@ -1,10 +1,10 @@
-import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
 import { eq, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { spellGroups, userSpellLibrary } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
 import type { Context } from "./context";
+import { appError } from "./errors";
 
 export const spellGroupTypeDefs = gql`
   type SpellGroup {
@@ -50,7 +50,7 @@ export const spellGroupResolvers = {
       const user = assertAuthenticated(context);
       const [existing] = await db.select().from(spellGroups)
         .where(and(eq(spellGroups.userId, user.id), eq(spellGroups.nome, args.nome))).limit(1);
-      if (existing) throw new GraphQLError("Gruppo già esistente", { extensions: { code: "BAD_USER_INPUT" } });
+      if (existing) throw appError("GROUP_EXISTS");
       const [group] = await db.insert(spellGroups).values({ nome: args.nome, userId: user.id }).returning();
       return group;
     },
@@ -59,7 +59,7 @@ export const spellGroupResolvers = {
       const user = assertAuthenticated(context);
       const [group] = await db.select().from(spellGroups)
         .where(and(eq(spellGroups.id, Number(args.id)), eq(spellGroups.userId, user.id))).limit(1);
-      if (!group) throw new GraphQLError("Gruppo non trovato", { extensions: { code: "NOT_FOUND" } });
+      if (!group) throw appError("GROUP_NOT_FOUND");
       const [updated] = await db.update(spellGroups)
         .set({ nome: args.nome })
         .where(eq(spellGroups.id, group.id))
@@ -71,7 +71,7 @@ export const spellGroupResolvers = {
       const user = assertAuthenticated(context);
       const [group] = await db.select().from(spellGroups)
         .where(and(eq(spellGroups.id, Number(args.id)), eq(spellGroups.userId, user.id))).limit(1);
-      if (!group) throw new GraphQLError("Gruppo non trovato", { extensions: { code: "NOT_FOUND" } });
+      if (!group) throw appError("GROUP_NOT_FOUND");
       // null out groupId on library entries before deleting
       await db.update(userSpellLibrary)
         .set({ groupId: null })
@@ -87,7 +87,7 @@ export const spellGroupResolvers = {
       if (ids.length === 0) return 0;
       const [group] = await db.select().from(spellGroups)
         .where(and(eq(spellGroups.id, groupId), eq(spellGroups.userId, user.id))).limit(1);
-      if (!group) throw new GraphQLError("Gruppo non trovato", { extensions: { code: "NOT_FOUND" } });
+      if (!group) throw appError("GROUP_NOT_FOUND");
       const moved = await db.update(userSpellLibrary)
         .set({ groupId })
         .where(and(eq(userSpellLibrary.userId, user.id), inArray(userSpellLibrary.spellId, ids)))
@@ -99,7 +99,7 @@ export const spellGroupResolvers = {
       const groupId = Number(args.groupId);
       const [group] = await db.select().from(spellGroups)
         .where(and(eq(spellGroups.id, groupId), eq(spellGroups.userId, user.id))).limit(1);
-      if (!group) throw new GraphQLError("Gruppo non trovato", { extensions: { code: "NOT_FOUND" } });
+      if (!group) throw appError("GROUP_NOT_FOUND");
       await db.update(userSpellLibrary)
         .set({ groupId })
         .where(and(eq(userSpellLibrary.spellId, Number(args.spellId)), eq(userSpellLibrary.userId, user.id)));

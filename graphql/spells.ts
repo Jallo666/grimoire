@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
 import { eq, and, or, ilike, isNull, inArray } from "drizzle-orm";
 import { db } from "@/db";
@@ -6,6 +5,7 @@ import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellG
 import { assertAuthenticated } from "./permissions";
 import { getOrCreateGroup } from "./spellGroups";
 import type { Context } from "./context";
+import { appError } from "./errors";
 
 export const spellTypeDefs = gql`
   type SpellTranslation {
@@ -118,7 +118,7 @@ export const spellTypeDefs = gql`
 
 async function getSpellOrThrow(spellId: number) {
   const [spell] = await db.select().from(spells).where(eq(spells.id, spellId)).limit(1);
-  if (!spell) throw new GraphQLError("Incantesimo non trovato", { extensions: { code: "NOT_FOUND" } });
+  if (!spell) throw appError("SPELL_NOT_FOUND");
   return spell;
 }
 
@@ -307,7 +307,7 @@ export const spellResolvers = {
       if (spell.isSystem) return toGql(spell, user.id, false, null, null, args.locale);
       const [entry] = await db.select().from(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
-      if (!entry) throw new GraphQLError("Non autorizzato", { extensions: { code: "FORBIDDEN" } });
+      if (!entry) throw appError("FORBIDDEN");
       return toGql(spell, user.id, true, null, null, args.locale);
     },
 
@@ -360,7 +360,7 @@ export const spellResolvers = {
       const user = assertAuthenticated(context);
       const [member] = await db.select().from(campaignMembers)
         .where(and(eq(campaignMembers.campaignId, Number(args.campaignId)), eq(campaignMembers.userId, user.id))).limit(1);
-      if (!member) throw new GraphQLError("Non sei membro di questa campagna", { extensions: { code: "FORBIDDEN" } });
+      if (!member) throw appError("NOT_CAMPAIGN_MEMBER");
       const rows = await db.select({ spell: spells }).from(campaignSpellLibrary)
         .innerJoin(spells, eq(campaignSpellLibrary.spellId, spells.id))
         .where(eq(campaignSpellLibrary.campaignId, Number(args.campaignId)));
@@ -411,7 +411,7 @@ export const spellResolvers = {
     ) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.id));
-      if (spell.creatorId !== user.id) throw new GraphQLError("Solo il creatore può modificare l'incantesimo", { extensions: { code: "FORBIDDEN" } });
+      if (spell.creatorId !== user.id) throw appError("ONLY_CREATOR_EDITS");
       const updates: Record<string, unknown> = {};
       if (args.nome !== undefined) updates.nome = args.nome;
       if (args.descrizione !== undefined) updates.descrizione = args.descrizione;
@@ -434,7 +434,7 @@ export const spellResolvers = {
     deleteSpell: async (_: unknown, args: { id: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.id));
-      if (spell.creatorId !== user.id) throw new GraphQLError("Solo il creatore può eliminare l'incantesimo", { extensions: { code: "FORBIDDEN" } });
+      if (spell.creatorId !== user.id) throw appError("ONLY_CREATOR_DELETES");
       await db.delete(spellClasses).where(eq(spellClasses.spellId, spell.id));
       await db.delete(spellDamageTypes).where(eq(spellDamageTypes.spellId, spell.id));
       await db.delete(userSpellLibrary).where(eq(userSpellLibrary.spellId, spell.id));
@@ -446,7 +446,7 @@ export const spellResolvers = {
     addSrdSpellToLibrary: async (_: unknown, args: { spellId: string; groupId?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.spellId));
-      if (!spell.isSystem) throw new GraphQLError("Non è uno spell SRD", { extensions: { code: "BAD_USER_INPUT" } });
+      if (!spell.isSystem) throw appError("NOT_SRD_SPELL");
       const [existing] = await db.select().from(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
       if (!existing) {
@@ -475,7 +475,7 @@ export const spellResolvers = {
         groupId = Number(args.groupId);
         const [group] = await db.select().from(spellGroups)
           .where(and(eq(spellGroups.id, groupId), eq(spellGroups.userId, user.id))).limit(1);
-        if (!group) throw new GraphQLError("Gruppo non trovato", { extensions: { code: "NOT_FOUND" } });
+        if (!group) throw appError("GROUP_NOT_FOUND");
       } else {
         groupId = await getOrCreateGroup(user.id, "ufficiali", "Ufficiali");
       }
@@ -515,7 +515,7 @@ export const spellResolvers = {
     removeSrdSpellFromLibrary: async (_: unknown, args: { spellId: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const spell = await getSpellOrThrow(Number(args.spellId));
-      if (!spell.isSystem) throw new GraphQLError("Non è uno spell SRD", { extensions: { code: "BAD_USER_INPUT" } });
+      if (!spell.isSystem) throw appError("NOT_SRD_SPELL");
       await db.delete(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id)));
       return true;
@@ -526,10 +526,10 @@ export const spellResolvers = {
       const spell = await getSpellOrThrow(Number(args.spellId));
       const [entry] = await db.select().from(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
-      if (!entry) throw new GraphQLError("Non hai questo incantesimo in raccolta", { extensions: { code: "FORBIDDEN" } });
+      if (!entry) throw appError("SPELL_NOT_IN_LIBRARY");
       const { users } = await import("@/db/schema");
       const [target] = await db.select().from(users).where(eq(users.email, args.email)).limit(1);
-      if (!target) throw new GraphQLError("Utente non trovato", { extensions: { code: "NOT_FOUND" } });
+      if (!target) throw appError("USER_NOT_FOUND");
       const [existing] = await db.select().from(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, target.id))).limit(1);
       if (!existing) await db.insert(userSpellLibrary).values({ userId: target.id, spellId: spell.id });
@@ -541,10 +541,10 @@ export const spellResolvers = {
       const spell = await getSpellOrThrow(Number(args.spellId));
       const [entry] = await db.select().from(userSpellLibrary)
         .where(and(eq(userSpellLibrary.spellId, spell.id), eq(userSpellLibrary.userId, user.id))).limit(1);
-      if (!entry) throw new GraphQLError("Non hai questo incantesimo in raccolta", { extensions: { code: "FORBIDDEN" } });
+      if (!entry) throw appError("SPELL_NOT_IN_LIBRARY");
       const [member] = await db.select().from(campaignMembers)
         .where(and(eq(campaignMembers.campaignId, Number(args.campaignId)), eq(campaignMembers.userId, user.id))).limit(1);
-      if (!member) throw new GraphQLError("Non sei membro di questa campagna", { extensions: { code: "FORBIDDEN" } });
+      if (!member) throw appError("NOT_CAMPAIGN_MEMBER");
       const [existing] = await db.select().from(campaignSpellLibrary)
         .where(and(eq(campaignSpellLibrary.spellId, spell.id), eq(campaignSpellLibrary.campaignId, Number(args.campaignId)))).limit(1);
       if (!existing) await db.insert(campaignSpellLibrary).values({ spellId: spell.id, campaignId: Number(args.campaignId), sharedById: user.id });
@@ -556,7 +556,7 @@ export const spellResolvers = {
       const [member] = await db.select().from(campaignMembers)
         .where(and(eq(campaignMembers.campaignId, Number(args.campaignId)), eq(campaignMembers.userId, user.id))).limit(1);
       if (!member || (member.ruolo !== "master" && member.ruolo !== "owner")) {
-        throw new GraphQLError("Non autorizzato", { extensions: { code: "FORBIDDEN" } });
+        throw appError("FORBIDDEN");
       }
       await db.delete(campaignSpellLibrary)
         .where(and(eq(campaignSpellLibrary.spellId, Number(args.spellId)), eq(campaignSpellLibrary.campaignId, Number(args.campaignId))));

@@ -1,10 +1,10 @@
-import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
 import { eq, and, or, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, users, campaignMembers } from "@/db/schema";
 import { assertAuthenticated, assertOwner } from "./permissions";
 import type { Context } from "./context";
+import { appError } from "./errors";
 
 export const campaignTypeDefs = gql`
   type Campaign {
@@ -117,9 +117,7 @@ export const campaignResolvers = {
           )
           .limit(1);
         if (!member) {
-          throw new GraphQLError("Non sei membro di questa campagna", {
-            extensions: { code: "FORBIDDEN" },
-          });
+          throw appError("NOT_CAMPAIGN_MEMBER");
         }
       }
 
