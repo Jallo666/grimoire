@@ -3,6 +3,14 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.19.1] - 2026-10-03
+
+### Corretto
+- Dettaglio incantesimo: la posizione ("5 / 319") e lo swipe seguono di nuovo l'ordine mostrato nella lista. Aprendo il dettaglio, il nome originale sovrascriveva quello tradotto e la lista si riordinava.
+- Modifica incantesimo: ora è la stessa modale della creazione (tab delle lingue, stessi campi), aperta da "Modifica" nel dettaglio. La vecchia pagina `/spells/<id>` riporta alla lista; "Condividi" è nel dettaglio.
+- "Ai livelli superiori" si può scrivere anche creando un incantesimo, in entrambe le lingue.
+- Le traduzioni di un incantesimo le può modificare solo chi l'ha creato (prima chiunque poteva cambiare anche quelle SRD).
+
 ## [0.19.0] - 2026-10-03
 
 ### Modificato
