@@ -14,6 +14,7 @@ import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import styles from "./SpellViewModal.module.css";
 import { translateClassi } from "@/lib/spellClasses";
 import { damageKey } from "@/lib/damageTypes";
+import { CASTING_TIME_MAP, DURATION_MAP, translateField } from "@/lib/formatSpellFields";
 
 type Translation = {
   locale: string;
@@ -171,6 +172,10 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
     return t.has(key) ? t(key) : type;
   }
 
+  // Tempo di lancio e durata sono salvati in inglese (es. "1 action", "Instantaneous"):
+  // si mostrano tradotti con le stesse chiavi delle tendine del form (ct1Action, durInstantaneous, …)
+  const tKey = (key: string) => t(key as Parameters<typeof t>[0]);
+
   const langData = getLangData(viewLang);
   const title = langData?.nome ?? spell?.nome ?? "—";
 
@@ -259,13 +264,13 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             </div>
             <div className="row g-0 mb-1">
               <div className="col-6">
-                <Field label={t("fieldTempoLancio")} value={spell.tempoLancio} />
+                <Field label={t("fieldTempoLancio")} value={spell.tempoLancio && translateField(spell.tempoLancio, CASTING_TIME_MAP, tKey)} />
               </div>
               <div className="col-6">
                 <Field label={t("fieldGittata")} value={formatRange(spell.gittata, unitSystem, tRange)} />
               </div>
             </div>
-            <Field label={t("fieldDurata")} value={spell.durata} />
+            <Field label={t("fieldDurata")} value={spell.durata && translateField(spell.durata, DURATION_MAP, tKey)} />
             <Field label={t("fieldComponenti")} value={spell.componenti} />
             <div className="row g-0">
               {spell.concentration !== null && (
