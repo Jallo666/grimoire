@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, boolean, timestamp, jsonb, primaryKey } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -45,12 +45,32 @@ export const spells = pgTable("spells", {
   concentration: boolean("concentration"),
   ritual: boolean("ritual"),
   higherLevel: text("higher_level"),
+  // Vecchia colonna di testo (es. "Bard, Wizard"): le classi ora sono nella tabella spell_classes.
+  // Resta finché i dati non sono stati copiati e verificati (scripts/seed-classes.ts), poi si toglie.
   classi: text("classi"),
   sottoclassi: text("sottoclassi"),
   // Tipi di danno in inglese, come nei dati SRD (es. ["fire", "radiant"]); null = nessun danno
   tipiDanno: text("tipi_danno").array(),
   translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>>().default({}),
 });
+
+// Classi dei personaggi (es. Mago). Le 8 dei dati SRD sono di sistema (isSystem, creatorId null);
+// in futuro l'utente potrà crearne di sue. "nome" è in inglese come nei dati SRD ("Wizard"),
+// le traduzioni sono in "translations" come per gli incantesimi (es. { it: { nome: "Mago" } }).
+export const classes = pgTable("classes", {
+  id: serial("id").primaryKey(),
+  nome: text("nome").notNull(),
+  translations: jsonb("translations").$type<Record<string, { nome: string }>>().default({}),
+  isSystem: boolean("is_system").notNull().default(false),
+  creatorId: integer("creator_id").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Collegamento incantesimo ↔ classe: un incantesimo può essere di più classi
+export const spellClasses = pgTable("spell_classes", {
+  spellId: integer("spell_id").references(() => spells.id).notNull(),
+  classId: integer("class_id").references(() => classes.id).notNull(),
+}, (t) => [primaryKey({ columns: [t.spellId, t.classId] })]);
 
 export const spellGroups = pgTable("spell_groups", {
   id: serial("id").primaryKey(),

@@ -8,9 +8,8 @@ import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
-import { SPELL_CLASSES, translateClassi } from "@/lib/spellClasses";
 import { DAMAGE_TYPES, damageKey } from "@/lib/damageTypes";
-import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
+import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, SPELL_CLASSES, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
 import SpellViewModal from "./SpellViewModal";
 import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP, MOVE_SPELLS_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
@@ -55,7 +54,7 @@ type SpellRow = {
   inLibrary: boolean;
   concentration: boolean | null;
   ritual: boolean | null;
-  classi: string | null;
+  classi: { id: string; nome: string }[];
   tipiDanno: string[] | null;
   groupId: string | null;
   groupNome: string | null;
@@ -175,12 +174,9 @@ export default function SpellsPage() {
     { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
   ];
 
-  // Classi: valori in inglese come nel database, etichette tradotte
-  const classLabel = (cls: string) => {
-    const key = `class${cls}` as Parameters<typeof t>[0];
-    return t.has(key) ? t(key) : cls;
-  };
-  const classOptions = SPELL_CLASSES.map((c) => ({ value: c, label: classLabel(c) }));
+  // Classi dal database (id e nome già tradotto dal server)
+  const { data: classesData } = useQuery<{ spellClasses: { id: string; nome: string }[] }>(SPELL_CLASSES, { variables: { locale } });
+  const classOptions = (classesData?.spellClasses ?? []).map((c) => ({ value: c.id, label: c.nome }));
 
   // Tipi di danno: valori in inglese come nel database, etichette tradotte
   const damageLabel = (type: string) => {
@@ -353,7 +349,7 @@ export default function SpellsPage() {
   const extraColumns: Column<SpellRow>[] = [
     { key: "concentration", label: t("colConcentrazione"), render: (v) => v ? <GrimoireBadge variant="warning">{t("si")}</GrimoireBadge> : null },
     { key: "ritual", label: t("colRituale"), render: (v) => v ? <GrimoireBadge variant="secondary">{t("si")}</GrimoireBadge> : null },
-    { key: "classi", label: t("colClassi"), render: (v) => <span style={{ fontSize: "0.8rem", color: "var(--g-text-muted)" }}>{translateClassi(v as string | null, classLabel)}</span> },
+    { key: "classi", label: t("colClassi"), render: (v) => <span style={{ fontSize: "0.8rem", color: "var(--g-text-muted)" }}>{(v as SpellRow["classi"]).map((c) => c.nome).join(", ")}</span> },
   ];
 
   // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
