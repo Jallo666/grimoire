@@ -207,11 +207,6 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             {/* Language-specific fields */}
             <GrimoireField label={t("fieldDescrizione")} value={langData?.descrizione} multiline />
             <GrimoireField label={t("fieldHigherLevel")} value={langData?.highLevel} multiline />
-            <GrimoireField
-              label={spell.materiale?.perBersaglio ? `${t("fieldMaterial")} (${t("materialPerTargetShort")})` : t("fieldMaterial")}
-              value={langData?.material}
-              multiline
-            />
 
             <GrimoireDivider />
 
@@ -227,6 +222,12 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             </GrimoireFieldGrid>
             <GrimoireField label={t("fieldDurata")} value={spell.durata && translateField(spell.durata, DURATION_MAP, tKey)} />
             <GrimoireField label={t("fieldComponenti")} value={spell.componenti} />
+            {/* Materiale subito sotto V, S, M, nella lingua della tab scelta */}
+            <GrimoireField
+              label={spell.materiale?.perBersaglio ? `${t("fieldMaterial")} (${t("materialPerTargetShort")})` : t("fieldMaterial")}
+              value={langData?.material}
+              multiline
+            />
             <GrimoireFieldGrid alwaysTwoColumns>
               {spell.concentration !== null && (
                 <GrimoireField label={t("colConcentrazione")} value={spell.concentration ? t("si") : t("no")} />

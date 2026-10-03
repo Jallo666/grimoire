@@ -87,6 +87,8 @@ export const UPDATE_SPELL = gql`
     $componenti: String
     $materiale: String
     $materialePerBersaglio: Boolean
+    $materialeLocale: String
+    $materialeTraduzione: String
     $classIds: [ID!]
     $damageTypeIds: [ID!]
   ) {
@@ -94,6 +96,7 @@ export const UPDATE_SPELL = gql`
       id: $id nome: $nome descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
       materiale: $materiale materialePerBersaglio: $materialePerBersaglio
+      materialeLocale: $materialeLocale materialeTraduzione: $materialeTraduzione
       classIds: $classIds damageTypeIds: $damageTypeIds
     ) { id }
   }

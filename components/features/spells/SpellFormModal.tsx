@@ -68,8 +68,8 @@ function mainLocaleOf(spell: SpellToEdit, locale: string) {
 }
 
 // Creazione e modifica di un incantesimo: stessa modale, stessi campi.
-// Nome, descrizione, "ai livelli superiori" e componente materiale in due lingue (la principale
-// obbligatoria), poi i dati comuni, le classi e i tipi di danno. Il gruppo si sceglie solo creando
+// Nome, descrizione e "ai livelli superiori" in due lingue (la principale obbligatoria), poi i dati
+// comuni; con la M tra i componenti, il testo del materiale nelle due lingue. Infine classi e tipi di danno. Il gruppo si sceglie solo creando
 // (dopo si sposta con "Sposta nel gruppo").
 export default function SpellFormModal({ show, spellId, onClose, onSaved, groups, options }: Props) {
   const t = useTranslations("spells");
@@ -182,8 +182,9 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
 
     try {
       if (editing) {
-        await updateSpell({ variables: { id: spellId, ...shared } });
-        // La traduzione si salva solo se ha almeno il nome
+        // il materiale nella seconda lingua si salva anche senza il resto della traduzione
+        await updateSpell({ variables: { id: spellId, ...shared, materialeLocale: secondaryLocale, materialeTraduzione: secondaryMaterial } });
+        // La traduzione (nome, descrizione…) si salva solo se ha almeno il nome
         if (hasTranslation) {
           await upsertTranslation({
             variables: {
@@ -201,7 +202,8 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
           variables: {
             ...shared,
             groupId: common.groupId || null,
-            translationLocale: hasTranslation ? secondaryLocale : undefined,
+            // la lingua serve anche al materiale tradotto, che si salva pure senza nome tradotto
+            translationLocale: secondaryLocale,
             translationNome: hasTranslation ? secondary.nome : undefined,
             translationDescrizione: secondary.descrizione.trim() || undefined,
             translationHigherLevel: secondary.higherLevel.trim() || undefined,
@@ -226,10 +228,6 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
         <GrimoireInput id={`spell-nome-${lang}`} label={`${t("fieldNome")}${suffix}`} type="text" required={isMain} value={texts.nome} onChange={(e) => setTexts((v) => ({ ...v, nome: e.target.value }))} />
         <GrimoireInput id={`spell-desc-${lang}`} label={`${t("fieldDescrizione")}${suffix}`} type="textarea" required={isMain} rows={5} value={texts.descrizione} onChange={(e) => setTexts((v) => ({ ...v, descrizione: e.target.value }))} />
         <GrimoireInput id={`spell-higher-${lang}`} label={`${t("fieldHigherLevel")}${suffix}`} type="textarea" rows={2} value={texts.higherLevel} onChange={(e) => setTexts((v) => ({ ...v, higherLevel: e.target.value }))} />
-        {/* Testo del componente materiale: solo se tra i componenti c'è la M */}
-        {withMaterial && (
-          <GrimoireInput id={`spell-material-${lang}`} label={`${t("fieldMaterial")}${suffix}`} type="textarea" rows={2} value={texts.materiale} onChange={(e) => setTexts((v) => ({ ...v, materiale: e.target.value }))} />
-        )}
       </>
     );
   }
@@ -283,8 +281,13 @@ export default function SpellFormModal({ show, spellId, onClose, onSaved, groups
             )}
           </GrimoireFieldGrid>
           <GrimoireComponentsInput id="spell-componenti" label={t("fieldComponenti")} value={common.componenti} onChange={(val) => setCommon((v) => ({ ...v, componenti: val }))} />
+          {/* Con la M: testo del materiale nelle due lingue, subito sotto le caselle V, S, M */}
           {withMaterial && (
-            <GrimoireInput id="spell-per-bersaglio" label={t("materialPerTarget")} type="checkbox" value={String(perBersaglio)} onChange={(e) => setPerBersaglio(e.target.value === "true")} />
+            <>
+              <GrimoireInput id="spell-material-main" label={`${t("fieldMaterial")} (${mainLocale.toUpperCase()})`} type="textarea" rows={2} value={main.materiale} onChange={(e) => setMain((v) => ({ ...v, materiale: e.target.value }))} />
+              <GrimoireInput id="spell-material-secondary" label={`${t("fieldMaterial")} (${secondaryLocale.toUpperCase()}) ${t("langTabOptional")}`} type="textarea" rows={2} value={secondary.materiale} onChange={(e) => setSecondary((v) => ({ ...v, materiale: e.target.value }))} />
+              <GrimoireInput id="spell-per-bersaglio" label={t("materialPerTarget")} type="checkbox" value={String(perBersaglio)} onChange={(e) => setPerBersaglio(e.target.value === "true")} />
+            </>
           )}
           <GrimoireStack>
             <GrimoireChips label={t("colClassi")} options={options.classOptions} value={tags.classIds} onChange={(ids) => setTags((v) => ({ ...v, classIds: ids }))} />

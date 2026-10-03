@@ -118,6 +118,9 @@ export const spellTypeDefs = gql`
       componenti: String
       materiale: String
       materialePerBersaglio: Boolean
+      # traduzione del materiale in un'altra lingua (vuota = la si toglie)
+      materialeLocale: String
+      materialeTraduzione: String
       # se passati, sostituiscono classi e tipi di danno dell'incantesimo
       classIds: [ID!]
       damageTypeIds: [ID!]
@@ -503,7 +506,7 @@ export const spellResolvers = {
 
     updateSpell: async (
       _: unknown,
-      args: { id: string; nome?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string | null; materialePerBersaglio?: boolean; classIds?: string[]; damageTypeIds?: string[] },
+      args: { id: string; nome?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; materiale?: string | null; materialePerBersaglio?: boolean; materialeLocale?: string; materialeTraduzione?: string | null; classIds?: string[]; damageTypeIds?: string[] },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -530,7 +533,10 @@ export const spellResolvers = {
         const [updated] = Object.keys(updates).length
           ? await tx.update(spells).set(updates).where(eq(spells.id, spell.id)).returning()
           : [spell];
-        if (touchesMaterial) await saveMaterial(tx, spell.id, letters, testo, args.materialePerBersaglio);
+        if (touchesMaterial) {
+          await saveMaterial(tx, spell.id, letters, testo, args.materialePerBersaglio,
+            args.materialeLocale ? { [args.materialeLocale]: args.materialeTraduzione ?? null } : undefined);
+        }
         await setSpellTags(tx, spell.id, user.id, args.classIds, args.damageTypeIds);
         return toGql(updated, user.id, true);
       });
