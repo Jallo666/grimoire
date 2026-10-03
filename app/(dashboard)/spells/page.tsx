@@ -216,7 +216,15 @@ export default function SpellsPage() {
         />
       )}
 
-      <SpellFormModal show={!!form} spellId={form?.spellId} onClose={() => setForm(null)} onSaved={refetchEverything} groups={groups} options={options} />
+      {/* Chiudendo la modifica (salvata o annullata) si torna al dettaglio dello stesso incantesimo */}
+      <SpellFormModal
+        show={!!form}
+        spellId={form?.spellId}
+        onClose={() => { if (form?.spellId) setViewSpellId(form.spellId); setForm(null); }}
+        onSaved={refetchEverything}
+        groups={groups}
+        options={options}
+      />
       <ShareSpellModal spellId={shareSpellId} onClose={() => setShareSpellId(null)} />
       <MoveSpellModal spell={moveSpell} groups={groups} onClose={() => setMoveSpell(null)} onMoved={refetchMy} />
       <SpellGroupsModal show={showGroups} onClose={() => setShowGroups(false)} groups={groups} onChanged={refetchEverything} onAskConfirm={setConfirm} />
