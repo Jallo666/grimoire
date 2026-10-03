@@ -1,0 +1,15 @@
+/* Riga dei bottoni nel footer di una modale: tre zone (sinistra, centro, destra).
+   Le zone vuote restano larghe uguali, così il centro è davvero al centro. */
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.end {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

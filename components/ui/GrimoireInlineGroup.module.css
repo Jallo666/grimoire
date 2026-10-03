@@ -1,0 +1,22 @@
+/* Elementi affiancati su una riga, allineati al centro, con 8px di spazio */
+.group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* wrap: se non c'è spazio vanno a capo */
+.wrap {
+  flex-wrap: wrap;
+}
+
+/* spaced: spazio sotto il gruppo (16px) */
+.spaced {
+  margin-bottom: 1rem;
+}
+
+/* fillFirst: il primo elemento prende tutto lo spazio libero (es. un campo con un bottone accanto) */
+.fillFirst > :first-child {
+  flex: 1;
+  min-width: 0;
+}

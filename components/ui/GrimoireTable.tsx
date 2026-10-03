@@ -20,6 +20,8 @@ export type Column<T> = {
   // Testo da mostrare nel badge per ogni valore (es. traduzioni); il riordino usa questo testo
   badgeLabels?: Partial<Record<string, string>>;
   render?: (value: T[keyof T], row: T, meta: Record<string, unknown>) => React.ReactNode;
+  // Testo secondario: grigio e più piccolo (es. l'elenco delle classi)
+  muted?: boolean;
   // Solo sotto i 992px: la colonna resta ferma a sinistra e le altre scorrono di lato.
   // Da usare su una sola colonna, di solito la prima (es. il nome).
   leader?: boolean;
@@ -276,7 +278,11 @@ export default function GrimoireTable<T extends { id: string | number }>({
                           aria-hidden="true"
                         />
                       )}
-                      {col.render
+                      {col.muted ? (
+                        <span style={{ fontSize: "0.8rem", color: "var(--g-text-muted)" }}>
+                          {col.render ? col.render(row[col.key], row, meta) : String(row[col.key] ?? "")}
+                        </span>
+                      ) : col.render
                         ? col.render(row[col.key], row, meta)
                         : col.type === "badge"
                         ? <GrimoireBadge variant={col.badgeColors?.[String(row[col.key])] ?? "secondary"}>{col.badgeLabels?.[String(row[col.key])] ?? String(row[col.key] ?? "")}</GrimoireBadge>

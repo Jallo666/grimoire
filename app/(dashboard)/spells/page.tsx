@@ -19,7 +19,10 @@ import GrimoireCardView from "@/components/ui/GrimoireCardView";
 import GrimoireViewToggle, { type ViewMode } from "@/components/ui/GrimoireViewToggle";
 import GrimoireSpellCard from "@/components/features/GrimoireSpellCard";
 import GrimoireModal from "@/components/ui/GrimoireModal";
-import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
+import GrimoireModalFooter from "@/components/ui/GrimoireModalFooter";
+import GrimoireDivider from "@/components/ui/GrimoireDivider";
+import GrimoireText from "@/components/ui/GrimoireText";
+import GrimoireExternalLink from "@/components/ui/GrimoireExternalLink";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
@@ -39,7 +42,6 @@ import GrimoireSearchInput from "@/components/ui/GrimoireSearchInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
 import GrimoireSelectOrText from "@/components/ui/GrimoireSelectOrText";
 import GrimoireComponentsInput from "@/components/ui/GrimoireComponentsInput";
-import GrimoireAlert from "@/components/ui/GrimoireAlert";
 
 type SpellGroup = { id: string; nome: string };
 
@@ -351,7 +353,7 @@ export default function SpellsPage() {
   const extraColumns: Column<SpellRow>[] = [
     { key: "concentration", label: t("colConcentrazione"), render: (v) => v ? <GrimoireBadge variant="warning">{t("si")}</GrimoireBadge> : null },
     { key: "ritual", label: t("colRituale"), render: (v) => v ? <GrimoireBadge variant="secondary">{t("si")}</GrimoireBadge> : null },
-    { key: "classi", label: t("colClassi"), render: (v) => <span style={{ fontSize: "0.8rem", color: "var(--g-text-muted)" }}>{(v as SpellRow["classi"]).map((c) => c.nome).join(", ")}</span> },
+    { key: "classi", label: t("colClassi"), muted: true, render: (v) => (v as SpellRow["classi"]).map((c) => c.nome).join(", ") },
   ];
 
   // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
@@ -512,7 +514,7 @@ export default function SpellsPage() {
 
   const filters = (
     <GrimoireFilterPanel>
-      <GrimoireInlineGroup style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
+      <GrimoireInlineGroup wrap spaced>
         <GrimoireSearchInput id="spell-search" value={search} onSearch={(v) => setParam("search", v)} placeholder={t("searchPlaceholder")} />
         {tab === "miei" && (
           <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} style={{ minWidth: "150px" }} />
@@ -588,10 +590,10 @@ export default function SpellsPage() {
       {tab === "srd" && (
         <>
           {spellList(srdSpells, loadingSrd && !srdData, [...baseColumns, ...extraColumns], srdActions)}
-          <p style={{ marginTop: "1rem", fontSize: "0.75rem", color: "var(--g-text-muted)" }}>
+          <GrimoireText muted small>
             {t("srdAttribution")} —{" "}
-            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" style={{ color: "var(--g-text-muted)" }}>CC BY 4.0</a>
-          </p>
+            <GrimoireExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</GrimoireExternalLink>
+          </GrimoireText>
         </>
       )}
 
@@ -605,15 +607,10 @@ export default function SpellsPage() {
         size="lg"
         fullscreenOnMobile
         footer={
-          <div className="d-flex flex-column gap-2 w-100">
-            {(createFormError || createError?.message) && (
-              <GrimoireAlert>{createFormError ?? createError?.message}</GrimoireAlert>
-            )}
-            <div className="d-flex gap-2 justify-content-end">
-              <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); resetCreate(); }}>{t("cancelButton")}</GrimoireButton>
-              <GrimoireButton type="submit" form="create-spell-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
-            </div>
-          </div>
+          <GrimoireModalFooter error={createFormError ?? createError}>
+            <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); resetCreate(); }}>{t("cancelButton")}</GrimoireButton>
+            <GrimoireButton type="submit" form="create-spell-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
+          </GrimoireModalFooter>
         }
       >
         <form id="create-spell-form" onSubmit={handleCreateSubmit} noValidate>
@@ -668,7 +665,7 @@ export default function SpellsPage() {
             </>
           )}
 
-          <hr style={{ borderColor: "var(--g-card-border)", margin: "1.25rem 0" }} />
+          <GrimoireDivider />
 
           {/* Campi comuni: due colonne da tablet in su */}
           <GrimoireFieldGrid>
@@ -734,7 +731,19 @@ export default function SpellsPage() {
       </GrimoireModal>
 
       {/* Move to group modal */}
-      <GrimoireModal show={!!moveSpell} onClose={() => setMoveSpell(null)} title={t("moveModalTitle")}>
+      <GrimoireModal
+        show={!!moveSpell}
+        onClose={() => setMoveSpell(null)}
+        title={t("moveModalTitle")}
+        footer={
+          <GrimoireModalFooter>
+            <GrimoireButton variant="outline-secondary" onClick={() => setMoveSpell(null)}>{t("cancelButton")}</GrimoireButton>
+            <GrimoireButton onClick={() => moveSpell && moveGroupId && moveToGroup({ variables: { spellId: moveSpell.id, groupId: moveGroupId } })}>
+              {t("groupSave")}
+            </GrimoireButton>
+          </GrimoireModalFooter>
+        }
+      >
         <GrimoireSelect
           id="move-group"
           label={t("groupLabel")}
@@ -742,12 +751,6 @@ export default function SpellsPage() {
           onChange={(e) => setMoveGroupId(e.target.value)}
           options={groupSelectOptions}
         />
-        <GrimoireModalActions>
-          <GrimoireButton variant="outline-secondary" onClick={() => setMoveSpell(null)}>{t("cancelButton")}</GrimoireButton>
-          <GrimoireButton onClick={() => moveSpell && moveGroupId && moveToGroup({ variables: { spellId: moveSpell.id, groupId: moveGroupId } })}>
-            {t("groupSave")}
-          </GrimoireButton>
-        </GrimoireModalActions>
       </GrimoireModal>
 
       {/* Manage groups modal */}
@@ -757,24 +760,24 @@ export default function SpellsPage() {
         onClose={() => { setShowGroups(false); setRenameId(""); }}
         title={renameId ? t("groupRenameTitle") : t("groupsModalTitle")}
         footer={
-          renameId ? (
-            <>
-              <GrimoireButton variant="outline-secondary" onClick={() => setRenameId("")}>{t("cancelButton")}</GrimoireButton>
-              <GrimoireButton onClick={() => renameName.trim() && renameGroup({ variables: { id: renameId, nome: renameName } })}>{t("groupRenameSave")}</GrimoireButton>
-            </>
-          ) : (
-            <GrimoireButton variant="outline-secondary" onClick={() => setShowGroups(false)}>{tUi("close")}</GrimoireButton>
-          )
+          <GrimoireModalFooter>
+            {renameId ? (
+              <>
+                <GrimoireButton variant="outline-secondary" onClick={() => setRenameId("")}>{t("cancelButton")}</GrimoireButton>
+                <GrimoireButton onClick={() => renameName.trim() && renameGroup({ variables: { id: renameId, nome: renameName } })}>{t("groupRenameSave")}</GrimoireButton>
+              </>
+            ) : (
+              <GrimoireButton variant="outline-secondary" onClick={() => setShowGroups(false)}>{tUi("close")}</GrimoireButton>
+            )}
+          </GrimoireModalFooter>
         }
       >
         {renameId ? (
           <GrimoireInput id="rename-group" label={t("colNome")} type="text" value={renameName} onChange={(e) => setRenameName(e.target.value)} />
         ) : (
           <>
-            <GrimoireInlineGroup style={{ marginBottom: "1rem" }}>
-              <div style={{ flex: 1 }}>
-                <GrimoireInput id="new-group" type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder={t("groupNamePlaceholder")} />
-              </div>
+            <GrimoireInlineGroup spaced fillFirst>
+              <GrimoireInput id="new-group" type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder={t("groupNamePlaceholder")} />
               <GrimoireButton loading={creatingGroup} onClick={() => newGroupName.trim() && createGroup({ variables: { nome: newGroupName } })}>{t("groupCreate")}</GrimoireButton>
             </GrimoireInlineGroup>
             <GrimoireTable
@@ -823,12 +826,12 @@ export default function SpellsPage() {
         onClose={() => setBulkGroupMode(null)}
         title={bulkGroupMode === "add" ? t("bulkAddTitle") : t("moveModalTitle")}
         footer={
-          <>
+          <GrimoireModalFooter>
             <GrimoireButton variant="outline-secondary" onClick={() => setBulkGroupMode(null)}>{t("cancelButton")}</GrimoireButton>
             <GrimoireButton disabled={bulkGroupMode === "move" && !bulkGroupId} onClick={confirmBulkGroup}>
               {bulkGroupMode === "add" ? t("bulkAdd") : t("groupSave")}
             </GrimoireButton>
-          </>
+          </GrimoireModalFooter>
         }
       >
         <GrimoireSelect

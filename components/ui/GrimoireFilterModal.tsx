@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import GrimoireModal from "./GrimoireModal";
 import GrimoireButton from "./GrimoireButton";
+import GrimoireModalFooter from "./GrimoireModalFooter";
 
 type Props = {
   show: boolean;
@@ -22,10 +23,9 @@ export default function GrimoireFilterModal({ show, onClose, onReset, children }
       onClose={onClose}
       title={t("filters")}
       footer={
-        <>
-          <GrimoireButton variant="outline-secondary" onClick={onReset}>{t("clearSelection")}</GrimoireButton>
+        <GrimoireModalFooter start={<GrimoireButton variant="outline-secondary" onClick={onReset}>{t("clearSelection")}</GrimoireButton>}>
           <GrimoireButton onClick={onClose}>{t("showResults")}</GrimoireButton>
-        </>
+        </GrimoireModalFooter>
       }
     >
       <div className="d-flex flex-column gap-4">{children}</div>

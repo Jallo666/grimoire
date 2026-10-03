@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import GrimoireModal from "./GrimoireModal";
 import GrimoireButton from "./GrimoireButton";
+import GrimoireModalFooter from "./GrimoireModalFooter";
 
 export type ConfirmRequest = {
   title: string;
@@ -45,12 +46,12 @@ export default function GrimoireConfirm({ request, onClose }: Props) {
       size="sm"
       onTop
       footer={
-        <>
+        <GrimoireModalFooter>
           <GrimoireButton variant="outline-secondary" onClick={onClose}>{t("cancel")}</GrimoireButton>
           <GrimoireButton variant={request?.danger ? "danger" : "primary"} loading={busy} onClick={confirm}>
             {request?.confirmLabel}
           </GrimoireButton>
-        </>
+        </GrimoireModalFooter>
       }
     >
       <p className="mb-0" style={{ color: "var(--g-text)" }}>{request?.message}</p>

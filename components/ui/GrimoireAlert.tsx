@@ -27,7 +27,9 @@ export default function GrimoireAlert({ children, error, variant = "danger" }: P
       : undefined;
 
   let text = children;
-  if (error) {
+  if (typeof error === "string") {
+    text = error;
+  } else if (error) {
     const reason = errorReason(error);
     text = reason && t.has(reason as Parameters<typeof t>[0]) ? t(reason as Parameters<typeof t>[0]) : t("GENERIC");
   }

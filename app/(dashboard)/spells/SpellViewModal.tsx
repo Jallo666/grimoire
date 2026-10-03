@@ -11,6 +11,11 @@ import GrimoireModal from "@/components/ui/GrimoireModal";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
+import GrimoireField from "@/components/ui/GrimoireField";
+import GrimoireFieldGrid from "@/components/ui/GrimoireFieldGrid";
+import GrimoireDivider from "@/components/ui/GrimoireDivider";
+import GrimoirePager from "@/components/ui/GrimoirePager";
+import GrimoireModalFooter from "@/components/ui/GrimoireModalFooter";
 import styles from "./SpellViewModal.module.css";
 import { CASTING_TIME_MAP, DURATION_MAP, translateField } from "@/lib/formatSpellFields";
 
@@ -51,20 +56,6 @@ type Props = {
   // Posizione nella lista, mostrata come "3 / 42"
   position?: { current: number; total: number };
 };
-
-function Field({ label, value, multiline = false }: { label: string; value: string | null | undefined; multiline?: boolean }) {
-  if (!value) return null;
-  return (
-    <div className="mb-3">
-      <div style={{ fontSize: "0.75rem", color: "var(--g-text-muted)", fontWeight: 500, marginBottom: "0.2rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-        {label}
-      </div>
-      <div style={{ color: "var(--g-text)", fontSize: "0.925rem", whiteSpace: multiline ? "pre-wrap" : undefined, lineHeight: multiline ? 1.65 : undefined }}>
-        {value}
-      </div>
-    </div>
-  );
-}
 
 export default function SpellViewModal({ spellId, onClose, onPrev, onNext, position }: Props) {
   const t = useTranslations("spells");
@@ -180,29 +171,24 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
       size="lg"
       fullscreenOnMobile
       footer={
-        <div className="d-flex gap-2 justify-content-between align-items-center w-100">
-          <div>
-            {spell?.isOwner && (
-              <GrimoireButton
-                variant="outline-secondary"
-                mobileIcon="pencil"
-                onClick={() => { close(); router.push(`/spells/${spell.id}`); }}
-              >
-                {tDetail("editButton")}
-              </GrimoireButton>
-            )}
-          </div>
-          {position && (
-            <div className="d-flex align-items-center gap-2">
-              <GrimoireButton variant="outline-secondary" icon="chevron-left" tooltip={tUi("previous")} disabled={!onPrev} onClick={goPrev} />
-              <small style={{ color: "var(--g-text-muted)", whiteSpace: "nowrap" }}>{position.current} / {position.total}</small>
-              <GrimoireButton variant="outline-secondary" icon="chevron-right" tooltip={tUi("next")} disabled={!onNext} onClick={goNext} />
-            </div>
+        <GrimoireModalFooter
+          start={spell?.isOwner && (
+            <GrimoireButton
+              variant="outline-secondary"
+              mobileIcon="pencil"
+              onClick={() => { close(); router.push(`/spells/${spell.id}`); }}
+            >
+              {tDetail("editButton")}
+            </GrimoireButton>
           )}
+          center={position && (
+            <GrimoirePager current={position.current} total={position.total} onPrev={onPrev && goPrev} onNext={onNext && goNext} />
+          )}
+        >
           <GrimoireButton variant="outline-secondary" onClick={close}>
             {tUi("close")}
           </GrimoireButton>
-        </div>
+        </GrimoireModalFooter>
       }
     >
       {/* key: cambiando incantesimo il contenuto si ricrea e l'animazione di entrata riparte */}
@@ -236,48 +222,34 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             />
 
             {/* Language-specific fields */}
-            <Field label={t("fieldDescrizione")} value={langData?.descrizione} multiline />
-            <Field label={t("fieldHigherLevel")} value={langData?.highLevel} multiline />
-            <Field label={t("fieldMaterial")} value={langData?.material} multiline />
+            <GrimoireField label={t("fieldDescrizione")} value={langData?.descrizione} multiline />
+            <GrimoireField label={t("fieldHigherLevel")} value={langData?.highLevel} multiline />
+            <GrimoireField label={t("fieldMaterial")} value={langData?.material} multiline />
 
-            <hr style={{ borderColor: "var(--g-card-border)", margin: "1rem 0" }} />
+            <GrimoireDivider />
 
-            {/* Common metadata */}
-            <div className="row g-0 mb-1">
-              <div className="col-6">
-                <Field label={t("fieldScuola")} value={scuolaLabel(spell.scuola)} />
-              </div>
-              <div className="col-6">
-                <Field
-                  label={t("fieldLivello")}
-                  value={spell.livello === 0 ? t("trucchetto") : t("livelloShort", { n: spell.livello })}
-                />
-              </div>
-            </div>
-            <div className="row g-0 mb-1">
-              <div className="col-6">
-                <Field label={t("fieldTempoLancio")} value={spell.tempoLancio && translateField(spell.tempoLancio, CASTING_TIME_MAP, tKey)} />
-              </div>
-              <div className="col-6">
-                <Field label={t("fieldGittata")} value={formatRange(spell.gittata, unitSystem, tRange)} />
-              </div>
-            </div>
-            <Field label={t("fieldDurata")} value={spell.durata && translateField(spell.durata, DURATION_MAP, tKey)} />
-            <Field label={t("fieldComponenti")} value={spell.componenti} />
-            <div className="row g-0">
+            {/* Dati comuni: due colonne anche su telefono (valori brevi) */}
+            <GrimoireFieldGrid alwaysTwoColumns>
+              <GrimoireField label={t("fieldScuola")} value={scuolaLabel(spell.scuola)} />
+              <GrimoireField
+                label={t("fieldLivello")}
+                value={spell.livello === 0 ? t("trucchetto") : t("livelloShort", { n: spell.livello })}
+              />
+              <GrimoireField label={t("fieldTempoLancio")} value={spell.tempoLancio && translateField(spell.tempoLancio, CASTING_TIME_MAP, tKey)} />
+              <GrimoireField label={t("fieldGittata")} value={formatRange(spell.gittata, unitSystem, tRange)} />
+            </GrimoireFieldGrid>
+            <GrimoireField label={t("fieldDurata")} value={spell.durata && translateField(spell.durata, DURATION_MAP, tKey)} />
+            <GrimoireField label={t("fieldComponenti")} value={spell.componenti} />
+            <GrimoireFieldGrid alwaysTwoColumns>
               {spell.concentration !== null && (
-                <div className="col-6">
-                  <Field label={t("colConcentrazione")} value={spell.concentration ? t("si") : t("no")} />
-                </div>
+                <GrimoireField label={t("colConcentrazione")} value={spell.concentration ? t("si") : t("no")} />
               )}
               {spell.ritual !== null && (
-                <div className="col-6">
-                  <Field label={t("colRituale")} value={spell.ritual ? t("si") : t("no")} />
-                </div>
+                <GrimoireField label={t("colRituale")} value={spell.ritual ? t("si") : t("no")} />
               )}
-            </div>
-            <Field label={t("fieldDanno")} value={spell.tipiDanno.map((d) => d.nome).join(", ")} />
-            <Field label={t("colClassi")} value={spell.classi.map((c) => c.nome).join(", ")} />
+            </GrimoireFieldGrid>
+            <GrimoireField label={t("fieldDanno")} value={spell.tipiDanno.map((d) => d.nome).join(", ")} />
+            <GrimoireField label={t("colClassi")} value={spell.classi.map((c) => c.nome).join(", ")} />
           </>
         ) : null}
       </div>
