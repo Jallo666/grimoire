@@ -21,7 +21,7 @@ const db = drizzle(client);
 
 const INPUT = path.join(__dirname, "srd-translations-it.json");
 
-type TranslationEntry = { nome: string; descrizione?: string };
+type TranslationEntry = { nome: string; descrizione?: string; highLevel?: string; material?: string };
 type TranslationsFile = Record<string, TranslationEntry>;
 
 async function main() {
@@ -48,7 +48,8 @@ async function main() {
     }
 
     const existing = (spell.translations ?? {}) as Record<string, TranslationEntry>;
-    const merged = { ...existing, it: { nome: trans.nome, descrizione: trans.descrizione ?? undefined } };
+    // il materiale tradotto (se c'è) si conserva: i testi del file sostituiscono il resto
+    const merged = { ...existing, it: { ...existing.it, nome: trans.nome, descrizione: trans.descrizione ?? undefined, highLevel: trans.highLevel ?? undefined } };
     await db.update(spells).set({ translations: merged }).where(eq(spells.id, spell.id));
     updated++;
     process.stdout.write(`  ✓ ${nameEn} → ${trans.nome}\n`);
