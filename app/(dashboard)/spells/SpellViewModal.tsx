@@ -240,10 +240,15 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             </GrimoireFieldGrid>
             <GrimoireField label={t("fieldDurata")} value={spell.durata && translateField(spell.durata, DURATION_MAP, tKey)} />
             <GrimoireField label={t("fieldComponenti")} value={spell.componenti} />
-            {/* Materiale subito sotto V, S, M, nella lingua della tab scelta */}
+            {/* Materiale subito sotto V, S, M, nella lingua della tab scelta;
+                se in quella lingua manca, il testo originale con la sua lingua nell'etichetta */}
             <GrimoireField
-              label={spell.materiale?.perBersaglio ? `${t("fieldMaterial")} (${t("materialPerTargetShort")})` : t("fieldMaterial")}
-              value={langData?.material ?? (spell.materiale ? t("materialNotTranslated") : null)}
+              label={[
+                t("fieldMaterial"),
+                spell.materiale?.perBersaglio && `(${t("materialPerTargetShort")})`,
+                !langData?.material && spell.materiale && `(${t("materialOriginal", { lingua: t(`langName_${mainLang}` as Parameters<typeof t>[0]) })})`,
+              ].filter(Boolean).join(" ")}
+              value={langData?.material ?? spell.materiale?.testo}
               multiline
             />
             <GrimoireFieldGrid alwaysTwoColumns>

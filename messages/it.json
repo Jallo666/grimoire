@@ -235,9 +235,9 @@
     "materialPerTargetShort": "per bersaglio",
     "notTranslated": "Questo incantesimo non è ancora tradotto in {lingua}.",
     "translateButton": "Traduci",
-    "materialNotTranslated": "Non ancora tradotto",
     "langName_it": "italiano",
-    "langName_en": "inglese"
+    "langName_en": "inglese",
+    "materialOriginal": "non tradotto, in {lingua}"
   },
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",

@@ -235,9 +235,9 @@
     "materialPerTargetShort": "per target",
     "notTranslated": "This spell is not translated into {lingua} yet.",
     "translateButton": "Translate",
-    "materialNotTranslated": "Not translated yet",
     "langName_it": "Italian",
-    "langName_en": "English"
+    "langName_en": "English",
+    "materialOriginal": "not translated, in {lingua}"
   },
   "spellDetail": {
     "formTitle": "Spell details",
