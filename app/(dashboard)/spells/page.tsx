@@ -1,363 +1,113 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations, useLocale } from "next-intl";
-import { useAppSelector } from "@/store/hooks";
-import { formatRange, type UnitSystem } from "@/lib/formatRange";
-import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
-import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
-import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, SPELL_CLASSES, DAMAGE_TYPES, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
+import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
+import { MY_SPELL_GROUPS } from "@/lib/queries/spellGroups";
 import SpellViewModal from "./SpellViewModal";
-import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP, MOVE_SPELLS_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
-import GrimoireTable, { type Column, type TableAction } from "@/components/ui/GrimoireTable";
-import GrimoireCardView from "@/components/ui/GrimoireCardView";
-import GrimoireViewToggle, { type ViewMode } from "@/components/ui/GrimoireViewToggle";
-import GrimoireSpellCard from "@/components/features/GrimoireSpellCard";
-import GrimoireModal from "@/components/ui/GrimoireModal";
-import GrimoireModalFooter from "@/components/ui/GrimoireModalFooter";
-import GrimoireDivider from "@/components/ui/GrimoireDivider";
+import GrimoireTabs from "@/components/ui/GrimoireTabs";
+import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
+import GrimoireViewToggle from "@/components/ui/GrimoireViewToggle";
+import GrimoireFilterButton from "@/components/ui/GrimoireFilterButton";
 import GrimoireText from "@/components/ui/GrimoireText";
 import GrimoireExternalLink from "@/components/ui/GrimoireExternalLink";
-import GrimoireTabs from "@/components/ui/GrimoireTabs";
-import GrimoireBadge from "@/components/ui/GrimoireBadge";
-import GrimoireInlineGroup from "@/components/ui/GrimoireInlineGroup";
-import GrimoireSelect from "@/components/ui/GrimoireSelect";
-import GrimoireMultiSelect from "@/components/ui/GrimoireMultiSelect";
-import GrimoireFilterPanel from "@/components/ui/GrimoireFilterPanel";
-import GrimoireFilterButton from "@/components/ui/GrimoireFilterButton";
-import GrimoireFilterModal from "@/components/ui/GrimoireFilterModal";
-import GrimoireChips from "@/components/ui/GrimoireChips";
-import GrimoireFieldGrid from "@/components/ui/GrimoireFieldGrid";
-import GrimoireStack from "@/components/ui/GrimoireStack";
 import GrimoireConfirm, { type ConfirmRequest } from "@/components/ui/GrimoireConfirm";
-import GrimoireSelectionBar from "@/components/ui/GrimoireSelectionBar";
 import GrimoireToast from "@/components/ui/GrimoireToast";
-import GrimoireInput from "@/components/ui/GrimoireInput";
-import GrimoireSearchInput from "@/components/ui/GrimoireSearchInput";
-import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
-import GrimoireSelectOrText from "@/components/ui/GrimoireSelectOrText";
-import GrimoireComponentsInput from "@/components/ui/GrimoireComponentsInput";
+import type { TableAction } from "@/components/ui/GrimoireTable";
+import { useSpellFilters } from "@/components/features/spells/useSpellFilters";
+import { useSpellOptions } from "@/components/features/spells/useSpellOptions";
+import SpellFilters from "@/components/features/spells/SpellFilters";
+import SpellList from "@/components/features/spells/SpellList";
+import SpellBulkActions from "@/components/features/spells/SpellBulkActions";
+import CreateSpellModal from "@/components/features/spells/CreateSpellModal";
+import MoveSpellModal from "@/components/features/spells/MoveSpellModal";
+import SpellGroupsModal from "@/components/features/spells/SpellGroupsModal";
+import type { SpellGroup, SpellRow, SpellTab } from "@/components/features/spells/spellTypes";
 
-type SpellGroup = { id: string; nome: string };
-
-type SpellRow = {
-  id: string;
-  nome: string;
-  scuola: string | null;
-  livello: number;
-  gittata: string | null;
-  isOwner: boolean;
-  isSystem: boolean;
-  inLibrary: boolean;
-  concentration: boolean | null;
-  ritual: boolean | null;
-  classi: { id: string; nome: string }[];
-  tipiDanno: { id: string; nome: string }[];
-  groupId: string | null;
-  groupNome: string | null;
-};
-
-type TabKey = "miei" | "srd" | "tutti";
-
-const TAB_FROM_PARAM: Record<string, TabKey> = { mine: "miei", srd: "srd", all: "tutti" };
-const TAB_TO_PARAM: Record<TabKey, string> = { miei: "mine", srd: "srd", tutti: "all" };
-
+// Pagina incantesimi: collega i pezzi di components/features/spells/
+// (filtri, lista, selezione, modali) e tiene le liste, il dettaglio e le conferme.
 export default function SpellsPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const tab: TabKey = TAB_FROM_PARAM[searchParams.get("tab") ?? ""] ?? "miei";
-  const search = searchParams.get("search") ?? "";
-  // Filtri a scelta multipla: nell'URL i valori sono separati da virgola (es. ?livello=0,3)
-  const scuole = getListParam("scuola");
-  const livelli = getListParam("livello");
-  const classi = getListParam("classe");
-  const tipiDanno = getListParam("danno");
-  const concentration = searchParams.get("concentration") ?? "";
-  const ritual = searchParams.get("ritual") ?? "";
-  const groupFilter = getListParam("group");
-  // Vista della lista: tabella (predefinita) o card, salvata nell'URL (?view=cards)
-  const view: ViewMode = searchParams.get("view") === "cards" ? "cards" : "table";
-
   const t = useTranslations("spells");
   const tUi = useTranslations("ui");
   const locale = useLocale();
-  const secondaryLocale = locale === "it" ? "en" : "it";
-  const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
 
+  const filtersApi = useSpellFilters();
+  const { tab, view, filters, queryVars } = filtersApi;
+  const options = useSpellOptions();
+
+  // ── Liste (una per tab; si carica solo quella della tab aperta) ──
+  const { data: groupsData, refetch: refetchGroups } = useQuery<{ mySpellGroups: SpellGroup[] }>(MY_SPELL_GROUPS);
+  const groups = groupsData?.mySpellGroups ?? [];
+  const groupOptions = groups.map((g) => ({ value: g.id, label: g.nome }));
+
+  const { data: myData, loading: loadingMy, refetch: refetchMy } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS, {
+    variables: { ...queryVars, locale, groupIds: filters.groups.length ? filters.groups : undefined },
+    skip: tab !== "miei",
+  });
+  const { data: srdData, loading: loadingSrd, refetch: refetchSrd } = useQuery<{ srdSpells: SpellRow[] }>(SRD_SPELLS, {
+    variables: { ...queryVars, locale },
+    skip: tab !== "srd",
+  });
+  const { data: allData, loading: loadingAll, refetch: refetchAll } = useQuery<{ allSpells: SpellRow[] }>(ALL_SPELLS, {
+    variables: { ...queryVars, locale },
+    skip: tab !== "tutti",
+  });
+
+  function refetchEverything() {
+    refetchMy(); refetchSrd(); refetchAll(); refetchGroups();
+  }
+
+  // Skeleton solo finché non ci sono ancora dati da mostrare
+  // (dopo un'aggiunta o una cancellazione la lista resta visibile mentre si aggiorna)
+  const lists: Record<SpellTab, { spells: SpellRow[]; loading: boolean }> = {
+    miei: { spells: myData?.mySpells ?? [], loading: loadingMy && !myData },
+    srd: { spells: srdData?.srdSpells ?? [], loading: loadingSrd && !srdData },
+    tutti: { spells: allData?.allSpells ?? [], loading: loadingAll && !allData },
+  };
+
+  // ── Modali, conferme, messaggi ──
   const [viewSpellId, setViewSpellId] = useState<string | null>(null);
-  // id degli incantesimi nell'ordine in cui sono mostrati (tabella o card), per ‹ › nel dettaglio
+  const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showGroups, setShowGroups] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const hideToast = useCallback(() => setToast(null), []);
+
+  // ── Ordine mostrato (per ‹ › nel dettaglio e per "seleziona tutti") ──
   const [visibleIds, setVisibleIds] = useState<string[]>([]);
   const handleOrderChange = useCallback((rows: SpellRow[]) => {
     const ids = rows.map((r) => r.id);
     // stesso ordine di prima: nessun aggiornamento (evita di ridisegnare la pagina per niente)
     setVisibleIds((prev) => (prev.join() === ids.join() ? prev : ids));
   }, []);
-  const [showCreate, setShowCreate] = useState(false);
-  const [createFormError, setCreateFormError] = useState<string | null>(null);
-  const [createActiveLang, setCreateActiveLang] = useState<string>(locale);
-  const [createPrimary, setCreatePrimary] = useState({ nome: "", descrizione: "" });
-  const [createSecondary, setCreateSecondary] = useState({ nome: "", descrizione: "" });
-  const [createCommon, setCreateCommon] = useState({
-    scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "",
-  });
-  // Classi e tipi di danno scelti nella creazione (id)
-  const [createTags, setCreateTags] = useState<{ classIds: string[]; damageTypeIds: string[] }>({ classIds: [], damageTypeIds: [] });
-  const [showGroups, setShowGroups] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  // Conferma prima delle azioni distruttive (eliminare, togliere dalla libreria)
-  const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
-  // Modalità selezione e azioni in blocco
+
+  // ── Selezione ──
   const [selecting, setSelecting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [bulkGroupMode, setBulkGroupMode] = useState<"add" | "move" | null>(null);
-  const [bulkGroupId, setBulkGroupId] = useState("");
-  const [toast, setToast] = useState<string | null>(null);
-  const hideToast = useCallback(() => setToast(null), []);
-  const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
-  const [moveGroupId, setMoveGroupId] = useState("");
-  const [newGroupName, setNewGroupName] = useState("");
-  const [renameId, setRenameId] = useState("");
-  const [renameName, setRenameName] = useState("");
-  const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
+  // Contano solo i selezionati ancora visibili (cambiando i filtri alcuni possono sparire)
+  const selectedVisible = selectedIds.filter((id) => visibleIds.includes(id));
+  const allVisibleSelected = visibleIds.length > 0 && selectedVisible.length === visibleIds.length;
 
-  function getListParam(key: string) {
-    return (searchParams.get(key) ?? "").split(",").filter(Boolean);
+  function exitSelection() {
+    setSelecting(false);
+    setSelectedIds([]);
   }
 
-  // Cambia uno o più filtri nell'URL in un colpo solo (valore vuoto = filtro tolto).
-  // Legge l'URL attuale (non quello del render): la ricerca parte 300ms dopo
-  // e nel frattempo potrebbe essere cambiato un altro filtro
-  function setParams(updates: Record<string, string>) {
-    const params = new URLSearchParams(window.location.search);
-    for (const [key, value] of Object.entries(updates)) {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  }
-
-  function setParam(key: string, value: string) {
-    setParams({ [key]: value });
-  }
-
-  function resetFilters() {
-    setParams({ search: "", group: "", scuola: "", livello: "", classe: "", danno: "", concentration: "", ritual: "" }); // la vista resta
-  }
-
-  function handleTabChange(k: string) {
-    const next = k as TabKey;
+  function changeTab(key: string) {
     exitSelection();
-    // Cambiando tab i filtri si azzerano, la vista scelta resta
-    router.replace(`${pathname}?tab=${TAB_TO_PARAM[next]}${view === "cards" ? "&view=cards" : ""}`);
+    filtersApi.changeTab(key as SpellTab);
   }
 
-  const tabs = [
-    { key: "miei", label: t("tabMiei"), shortLabel: t("tabMieiShort") },
-    { key: "srd", label: t("tabSrd"), shortLabel: t("tabSrdShort") },
-    { key: "tutti", label: t("tabTutti"), shortLabel: t("tabTuttiShort") },
-  ];
-
-  const { data: groupsData, refetch: refetchGroups } = useQuery<{ mySpellGroups: SpellGroup[] }>(MY_SPELL_GROUPS);
-  const groups = groupsData?.mySpellGroups ?? [];
-
-  const scuolaOptions = [
-    { value: "Abiurazione", label: t("scuolaAbiurazione") },
-    { value: "Ammaliamento", label: t("scuolaAmmaliamento") },
-    { value: "Divinazione", label: t("scuolaDivinazione") },
-    { value: "Evocazione", label: t("scuolaEvocazione") },
-    { value: "Illusione", label: t("scuolaIllusione") },
-    { value: "Invocazione", label: t("scuolaInvocazione") },
-    { value: "Necromanzia", label: t("scuolaNecromanzia") },
-    { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
-  ];
-
-  // Classi dal database (id e nome già tradotto dal server)
-  const { data: classesData } = useQuery<{ spellClasses: { id: string; nome: string }[] }>(SPELL_CLASSES, { variables: { locale } });
-  const classOptions = (classesData?.spellClasses ?? []).map((c) => ({ value: c.id, label: c.nome }));
-
-  // Tipi di danno dal database (id e nome già tradotto dal server)
-  const { data: damageData } = useQuery<{ damageTypes: { id: string; nome: string }[] }>(DAMAGE_TYPES, { variables: { locale } });
-  const damageOptions = (damageData?.damageTypes ?? []).map((d) => ({ value: d.id, label: d.nome }));
-
-  const livelloOptions = [
-    { value: "0", label: t("livelloOption0") },
-    ...Array.from({ length: 9 }, (_, i) => ({
-      value: String(i + 1),
-      label: t("livelloOptionN", { n: i + 1 }),
-    })),
-  ];
-
-  const castingTimeOptions = Object.entries(CASTING_TIME_MAP).map(([value, key]) => ({
-    value, label: t(key as Parameters<typeof t>[0]),
-  }));
-  const durationOptions = Object.entries(DURATION_MAP).map(([value, key]) => ({
-    value, label: t(key as Parameters<typeof t>[0]),
-  }));
-
-  const boolOptions = (label: string) => [
-    { value: "", label },
-    { value: "true", label: t("si") },
-  ];
-
-  const groupOptions = groups.map((g) => ({ value: g.id, label: g.nome }));
-
-  const groupSelectOptions = [
-    { value: "", label: t("groupAutoLabel") },
-    ...groups.map((g) => ({ value: g.id, label: g.nome })),
-  ];
-
-  const createScuolaOptions = [
-    { value: "", label: t("scuolaEmpty") },
-    { value: "Abiurazione", label: t("scuolaAbiurazione") },
-    { value: "Ammaliamento", label: t("scuolaAmmaliamento") },
-    { value: "Divinazione", label: t("scuolaDivinazione") },
-    { value: "Evocazione", label: t("scuolaEvocazione") },
-    { value: "Illusione", label: t("scuolaIllusione") },
-    { value: "Invocazione", label: t("scuolaInvocazione") },
-    { value: "Necromanzia", label: t("scuolaNecromanzia") },
-    { value: "Trasmutazione", label: t("scuolaTrasmutazione") },
-  ];
-  const createLivelloOptions = Array.from({ length: 10 }, (_, i) => ({
-    value: String(i), label: i === 0 ? t("livelloOption0") : t("livelloOptionN", { n: i }),
-  }));
-
-  const vars = {
-    search: search || undefined,
-    scuole: scuole.length ? scuole : undefined,
-    livelli: livelli.length ? livelli.map(Number) : undefined,
-    classi: classi.length ? classi : undefined,
-    tipiDanno: tipiDanno.length ? tipiDanno : undefined,
-    concentration: concentration === "true" ? true : undefined,
-    ritual: ritual === "true" ? true : undefined,
-  };
-
-  const localeVar = { locale };
-
-  const { data: myData, loading: loadingMy, refetch: refetchMy } = useQuery<{ mySpells: SpellRow[] }>(MY_SPELLS, {
-    variables: { ...vars, ...localeVar, groupIds: groupFilter.length ? groupFilter : undefined },
-    skip: tab !== "miei",
-  });
-  const { data: srdData, loading: loadingSrd, refetch: refetchSrd } = useQuery<{ srdSpells: SpellRow[] }>(SRD_SPELLS, {
-    variables: { ...vars, ...localeVar },
-    skip: tab !== "srd",
-  });
-  const { data: allData, loading: loadingAll, refetch: refetchAll } = useQuery<{ allSpells: SpellRow[] }>(ALL_SPELLS, {
-    variables: { ...vars, ...localeVar },
-    skip: tab !== "tutti",
-  });
-
-  const mySpells = myData?.mySpells ?? [];
-  const srdSpells = srdData?.srdSpells ?? [];
-  const allSpells = allData?.allSpells ?? [];
-
-  // Skeleton nella tabella solo finché non ci sono ancora dati da mostrare
-  // (dopo un'aggiunta o una cancellazione la tabella resta visibile mentre si aggiorna)
-  const SKELETON_ROWS = 8;
-
-  function resetCreate() {
-    setCreatePrimary({ nome: "", descrizione: "" });
-    setCreateSecondary({ nome: "", descrizione: "" });
-    setCreateCommon({ scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "" });
-    setCreateTags({ classIds: [], damageTypeIds: [] });
-    setCreateActiveLang(locale);
-    setCreateFormError(null);
-  }
-
-  const [createSpell, { loading: creating, error: createError }] = useMutation(CREATE_SPELL, {
-    onCompleted: () => { refetchMy(); refetchAll(); refetchGroups(); setShowCreate(false); resetCreate(); },
-  });
-  const [deleteSpell] = useMutation(DELETE_SPELL, {
-    onCompleted: () => { refetchMy(); refetchAll(); },
-  });
-  const [addSrdSpell] = useMutation(ADD_SRD_SPELL, {
-    onCompleted: () => { refetchMy(); refetchSrd(); refetchAll(); refetchGroups(); },
-  });
-  const [removeSrdSpell] = useMutation(REMOVE_SRD_SPELL, {
-    onCompleted: () => { refetchMy(); refetchSrd(); refetchAll(); },
-  });
-  const [addSrdSpells] = useMutation<{ addSrdSpellsToLibrary: number }>(ADD_SRD_SPELLS);
-  const [removeSrdSpells] = useMutation<{ removeSrdSpellsFromLibrary: number }>(REMOVE_SRD_SPELLS);
-  const [deleteSpells] = useMutation<{ deleteSpells: number }>(DELETE_SPELLS);
-  const [moveSpellsToGroup] = useMutation<{ moveSpellsToGroup: number }>(MOVE_SPELLS_TO_GROUP);
-  const [moveToGroup] = useMutation(MOVE_SPELL_TO_GROUP, {
-    onCompleted: () => { refetchMy(); setMoveSpell(null); },
-  });
-  const [createGroup, { loading: creatingGroup }] = useMutation(CREATE_SPELL_GROUP, {
-    onCompleted: () => { refetchGroups(); setNewGroupName(""); },
-  });
-  const [renameGroup] = useMutation(RENAME_SPELL_GROUP, {
-    onCompleted: () => { refetchGroups(); setRenameId(""); setRenameName(""); },
-  });
-  const [deleteGroup] = useMutation(DELETE_SPELL_GROUP, {
-    onCompleted: () => { refetchGroups(); refetchMy(); },
-  });
-
-  async function handleCreateSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const missing: string[] = [];
-    if (!createPrimary.nome.trim()) missing.push(t("fieldNome"));
-    if (!createPrimary.descrizione.trim()) missing.push(t("fieldDescrizione"));
-    if (!createCommon.scuola) missing.push(t("fieldScuola"));
-    if (!createCommon.tempoLancio) missing.push(t("fieldTempoLancio"));
-    if (!createCommon.gittata) missing.push(t("fieldGittata"));
-    if (!createCommon.durata) missing.push(t("fieldDurata"));
-    if (missing.length > 0) {
-      // Switch to primary tab if required primary-lang fields are empty
-      if ((!createPrimary.nome.trim() || !createPrimary.descrizione.trim()) && createActiveLang !== locale) {
-        setCreateActiveLang(locale);
-      }
-      setCreateFormError(tUi("requiredFields", { fields: missing.join(", ") }));
-      return;
-    }
-    setCreateFormError(null);
-    await createSpell({
-      variables: {
-        nome: createPrimary.nome,
-        descrizione: createPrimary.descrizione || null,
-        scuola: createCommon.scuola || null,
-        livello: Number(createCommon.livello),
-        tempoLancio: createCommon.tempoLancio || null,
-        gittata: createCommon.gittata || null,
-        durata: createCommon.durata || null,
-        componenti: createCommon.componenti || null,
-        groupId: createCommon.groupId || null,
-        translationLocale: createSecondary.nome.trim() ? secondaryLocale : undefined,
-        translationNome: createSecondary.nome.trim() || undefined,
-        translationDescrizione: createSecondary.descrizione.trim() || undefined,
-        classIds: createTags.classIds,
-        damageTypeIds: createTags.damageTypeIds,
-      },
-    });
-  }
-
-  const baseColumns: Column<SpellRow>[] = [
-    { key: "nome", label: t("colNome"), sortable: true, leader: true },
-    { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: SCUOLA_BADGE_COLORS, badgeLabels: Object.fromEntries(scuolaOptions.map((o) => [o.value, o.label])) },
-    { key: "livello", label: t("colLivello"), sortable: true, render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
-    { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
-    { key: "tipiDanno", label: t("colDanno"), render: (v) => (v as SpellRow["tipiDanno"]).map((d) => d.nome).join(", ") },
-  ];
-
-  const meiColumns: Column<SpellRow>[] = [
-    ...baseColumns,
-    { key: "groupNome", label: t("colGruppo"), render: (v) => v ? <GrimoireBadge variant="primary">{String(v)}</GrimoireBadge> : null },
-  ];
-
-  const extraColumns: Column<SpellRow>[] = [
-    { key: "concentration", label: t("colConcentrazione"), render: (v) => v ? <GrimoireBadge variant="warning">{t("si")}</GrimoireBadge> : null },
-    { key: "ritual", label: t("colRituale"), render: (v) => v ? <GrimoireBadge variant="secondary">{t("si")}</GrimoireBadge> : null },
-    { key: "classi", label: t("colClassi"), muted: true, render: (v) => (v as SpellRow["classi"]).map((c) => c.nome).join(", ") },
-  ];
-
-  // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
-  const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, classi.length, tipiDanno.length, concentration, ritual].filter(Boolean).length;
+  // ── Azioni sulla singola riga ──
+  const [deleteSpell] = useMutation(DELETE_SPELL, { onCompleted: refetchEverything });
+  const [addSrdSpell] = useMutation(ADD_SRD_SPELL, { onCompleted: refetchEverything });
+  const [removeSrdSpell] = useMutation(REMOVE_SRD_SPELL, { onCompleted: refetchEverything });
 
   function askDeleteSpell(s: SpellRow) {
     setConfirm({
@@ -369,194 +119,34 @@ export default function SpellsPage() {
     });
   }
 
+  const toggleLibrary = (s: SpellRow) =>
+    s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } });
+
   // Azioni di ogni tab (bottoni della tabella su desktop, menu dal basso su mobile e nelle card)
-  const myActions = (s: SpellRow): TableAction[] => [
-    { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
-    { label: t("moveToGroup"), variant: "outline-secondary", onClick: () => { setMoveSpell(s); setMoveGroupId(s.groupId ?? ""); } },
-    { label: t("removeFromLibrary"), variant: "danger", onClick: () => removeSrdSpell({ variables: { spellId: s.id } }), hidden: !s.isSystem },
-    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => askDeleteSpell(s), hidden: !s.isOwner },
-  ];
-  const srdActions = (s: SpellRow): TableAction[] => [
-    { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
-    { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } }) },
-  ];
-  const allActions = (s: SpellRow): TableAction[] => [
-    { icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) },
-    { label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => s.isSystem ? (s.inLibrary ? removeSrdSpell({ variables: { spellId: s.id } }) : addSrdSpell({ variables: { spellId: s.id } })) : undefined, hidden: !s.isSystem },
-    { icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => askDeleteSpell(s), hidden: !s.isOwner },
-  ];
+  const detail = (s: SpellRow): TableAction => ({ icon: "eye", tooltip: t("tooltipDetail"), variant: "outline-secondary", onClick: () => setViewSpellId(s.id) });
+  const remove = (s: SpellRow): TableAction => ({ icon: "trash", tooltip: t("tooltipDelete"), variant: "danger", onClick: () => askDeleteSpell(s), hidden: !s.isOwner });
+  const library = (s: SpellRow): TableAction => ({ label: s.inLibrary ? t("removeFromLibrary") : t("addToLibrary"), variant: s.inLibrary ? "danger" : "outline-secondary", onClick: () => toggleLibrary(s), hidden: !s.isSystem });
+  const actions: Record<SpellTab, (s: SpellRow) => TableAction[]> = {
+    miei: (s) => [
+      detail(s),
+      { label: t("moveToGroup"), variant: "outline-secondary", onClick: () => setMoveSpell(s) },
+      { label: t("removeFromLibrary"), variant: "danger", onClick: () => removeSrdSpell({ variables: { spellId: s.id } }), hidden: !s.isSystem },
+      remove(s),
+    ],
+    srd: (s) => [detail(s), library(s)],
+    tutti: (s) => [detail(s), library(s), remove(s)],
+  };
 
-  // Disegna la lista nella vista scelta: tabella o card. Entrambe partono ordinate per livello, poi per nome
-  function spellList(list: SpellRow[], loading: boolean, columns: Column<SpellRow>[], actions: (s: SpellRow) => TableAction[]) {
-    if (view === "cards") {
-      return (
-        <GrimoireCardView
-          data={list}
-          renderCard={(s) => (
-            <GrimoireSpellCard
-              nome={s.nome}
-              scuola={s.scuola}
-              livello={s.livello}
-              gittata={s.gittata}
-              concentration={s.concentration}
-              ritual={s.ritual}
-              tipiDanno={s.tipiDanno.map((d) => d.nome)}
-              groupNome={tab === "miei" ? s.groupNome : null}
-            />
-          )}
-          title={(s) => s.nome}
-          actions={actions}
-          selectable={selecting}
-          selectedIds={selectedIds}
-          onSelectionChange={(ids) => setSelectedIds(ids.map(String))}
-          sort={{ key: "livello", dir: "asc", thenBy: "nome" }}
-          skeleton={loading}
-          emptyMessage={t("tableEmpty")}
-          fillHeight
-          onOrderChange={handleOrderChange}
-        />
-      );
-    }
-    return (
-      <GrimoireTable
-        columns={columns}
-        data={list}
-        skeleton={loading}
-        skeletonRows={SKELETON_ROWS}
-        fillHeight
-        defaultSort={{ key: "livello", dir: "asc" }}
-        emptyMessage={t("tableEmpty")}
-        actions={actions}
-        onOrderChange={handleOrderChange}
-        selectable={selecting}
-        selectedIds={selectedIds}
-        onSelectionChange={(ids) => setSelectedIds(ids.map(String))}
-      />
-    );
-  }
-
-  // ── Selezione e azioni in blocco ──
-  // Contano solo i selezionati ancora visibili (cambiando i filtri alcuni possono sparire)
-  const selectedVisible = selectedIds.filter((id) => visibleIds.includes(id));
-  const allVisibleSelected = visibleIds.length > 0 && selectedVisible.length === visibleIds.length;
-
-  function exitSelection() {
-    setSelecting(false);
-    setSelectedIds([]);
-  }
-
-  // Dopo un'azione in blocco: messaggio col risultato, liste aggiornate, fine selezione
-  function finishBulk(done: number, resultKey: "resultAdded" | "resultRemoved" | "resultMoved" | "resultDeleted") {
-    const ignored = selectedVisible.length - done;
-    setToast(t(resultKey, { count: done }) + (ignored > 0 ? t("resultIgnored", { count: ignored }) : ""));
-    exitSelection();
-    refetchMy(); refetchSrd(); refetchAll(); refetchGroups();
-  }
-
-  function openBulkGroup(mode: "add" | "move") {
-    setBulkGroupMode(mode);
-    // aggiunta: gruppo facoltativo ("automatico"); spostamento: serve un gruppo, si parte dal primo
-    setBulkGroupId(mode === "move" ? groups[0]?.id ?? "" : "");
-  }
-
-  async function confirmBulkGroup() {
-    if (bulkGroupMode === "add") {
-      const { data } = await addSrdSpells({ variables: { spellIds: selectedVisible, groupId: bulkGroupId || undefined } });
-      finishBulk(data?.addSrdSpellsToLibrary ?? 0, "resultAdded");
-    } else if (bulkGroupMode === "move" && bulkGroupId) {
-      const { data } = await moveSpellsToGroup({ variables: { spellIds: selectedVisible, groupId: bulkGroupId } });
-      finishBulk(data?.moveSpellsToGroup ?? 0, "resultMoved");
-    }
-    setBulkGroupMode(null);
-  }
-
-  function askBulkRemove() {
-    setConfirm({
-      title: t("confirmRemoveManyTitle", { count: selectedVisible.length }),
-      message: t("confirmRemoveManyMessage"),
-      confirmLabel: tUi("remove"),
-      danger: true,
-      onConfirm: async () => {
-        const { data } = await removeSrdSpells({ variables: { spellIds: selectedVisible } });
-        finishBulk(data?.removeSrdSpellsFromLibrary ?? 0, "resultRemoved");
-      },
-    });
-  }
-
-  function askBulkDelete() {
-    setConfirm({
-      title: t("confirmDeleteManyTitle", { count: selectedVisible.length }),
-      message: t("confirmDeleteManyMessage"),
-      confirmLabel: tUi("delete"),
-      danger: true,
-      onConfirm: async () => {
-        const { data } = await deleteSpells({ variables: { ids: selectedVisible } });
-        finishBulk(data?.deleteSpells ?? 0, "resultDeleted");
-      },
-    });
-  }
-
-  // Azioni della barra, in base alla tab
-  const none = selectedVisible.length === 0;
-  const bulkActions = (
-    <>
-      {tab !== "miei" && <GrimoireButton size="sm" icon="plus-lg" disabled={none} onClick={() => openBulkGroup("add")}>{t("bulkAdd")}</GrimoireButton>}
-      {tab === "miei" && <GrimoireButton size="sm" variant="outline-secondary" icon="collection" disabled={none || groups.length === 0} onClick={() => openBulkGroup("move")}>{t("bulkMove")}</GrimoireButton>}
-      <GrimoireButton size="sm" variant="outline-secondary" icon="dash-circle" disabled={none} onClick={askBulkRemove}>{t("bulkRemove")}</GrimoireButton>
-      {tab !== "srd" && <GrimoireButton size="sm" variant="danger" icon="trash" disabled={none} onClick={askBulkDelete}>{tUi("delete")}</GrimoireButton>}
-    </>
-  );
-
-  // Precedente / successivo nel dettaglio, nell'ordine mostrato
+  // ── Dettaglio: precedente / successivo nell'ordine mostrato ──
   const viewIndex = viewSpellId ? visibleIds.indexOf(viewSpellId) : -1;
   const prevSpellId = viewIndex > 0 ? visibleIds[viewIndex - 1] : null;
   const nextSpellId = viewIndex >= 0 && viewIndex < visibleIds.length - 1 ? visibleIds[viewIndex + 1] : null;
 
-  const filters = (
-    <GrimoireFilterPanel>
-      <GrimoireInlineGroup wrap spaced>
-        <GrimoireSearchInput id="spell-search" value={search} onSearch={(v) => setParam("search", v)} placeholder={t("searchPlaceholder")} />
-        {tab === "miei" && (
-          <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} minWidth={150} />
-        )}
-        <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} minWidth={160} />
-        <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} minWidth={130} />
-        <GrimoireMultiSelect id="spell-classe" placeholder={t("filterAllClasses")} value={classi} onChange={(v) => setParam("classe", v.join(","))} options={classOptions} minWidth={150} />
-        <GrimoireMultiSelect id="spell-danno" placeholder={t("filterAllDamage")} value={tipiDanno} onChange={(v) => setParam("danno", v.join(","))} options={damageOptions} minWidth={150} />
-        <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} minWidth={155} />
-        <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} minWidth={120} />
-      </GrimoireInlineGroup>
-    </GrimoireFilterPanel>
-  );
-
-  // Concentrazione e Rituale nella modale: un gruppo di pillole "Altro"
-  const otherValues = [concentration === "true" ? "concentration" : "", ritual === "true" ? "ritual" : ""].filter(Boolean);
-
-  // Filtri su tablet e telefono: modale con pillole, aperta dall'icona accanto alle tab
-  const filtersModal = (
-    <GrimoireFilterModal show={showFilters} onClose={() => setShowFilters(false)} onReset={resetFilters}>
-      <GrimoireSearchInput id="spell-search-mobile" value={search} onSearch={(v) => setParam("search", v)} placeholder={t("searchPlaceholder")} />
-      {tab === "miei" && groupOptions.length > 0 && (
-        <GrimoireChips label={t("colGruppo")} options={groupOptions} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} />
-      )}
-      <GrimoireChips label={t("colLivello")} options={livelloOptions} value={livelli} onChange={(v) => setParam("livello", v.join(","))} />
-      <GrimoireChips label={t("colScuola")} options={scuolaOptions} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} />
-      <GrimoireChips label={t("colClassi")} options={classOptions} value={classi} onChange={(v) => setParam("classe", v.join(","))} />
-      <GrimoireChips label={t("fieldDanno")} options={damageOptions} value={tipiDanno} onChange={(v) => setParam("danno", v.join(","))} />
-      <GrimoireChips
-        label={t("filterOther")}
-        options={[
-          { value: "concentration", label: t("colConcentrazione") },
-          { value: "ritual", label: t("colRituale") },
-        ]}
-        value={otherValues}
-        onChange={(v) => setParams({
-          concentration: v.includes("concentration") ? "true" : "",
-          ritual: v.includes("ritual") ? "true" : "",
-        })}
-      />
-    </GrimoireFilterModal>
-  );
+  const tabs = [
+    { key: "miei", label: t("tabMiei"), shortLabel: t("tabMieiShort") },
+    { key: "srd", label: t("tabSrd"), shortLabel: t("tabSrdShort") },
+    { key: "tutti", label: t("tabTutti"), shortLabel: t("tabTuttiShort") },
+  ];
 
   return (
     <GrimoirePage fillHeight>
@@ -573,232 +163,60 @@ export default function SpellsPage() {
       <GrimoireTabs
         tabs={tabs}
         active={tab}
-        onChange={handleTabChange}
+        onChange={changeTab}
         action={
           <GrimoireInlineGroup>
-            <GrimoireViewToggle value={view} onChange={(v) => setParam("view", v === "cards" ? "cards" : "")} />
-            <GrimoireFilterButton activeCount={activeFilterCount} onClick={() => setShowFilters(true)} />
+            <GrimoireViewToggle value={view} onChange={filtersApi.setView} />
+            <GrimoireFilterButton activeCount={filtersApi.activeCount} onClick={() => setShowFilters(true)} />
           </GrimoireInlineGroup>
         }
       />
 
-      {filters}
-      {filtersModal}
+      <SpellFilters
+        tab={tab}
+        api={filtersApi}
+        options={options}
+        groupOptions={groupOptions}
+        showModal={showFilters}
+        onCloseModal={() => setShowFilters(false)}
+      />
 
-      {tab === "miei" && spellList(mySpells, loadingMy && !myData, meiColumns, myActions)}
+      <SpellList
+        tab={tab}
+        view={view}
+        spells={lists[tab].spells}
+        loading={lists[tab].loading}
+        actions={actions[tab]}
+        onOrderChange={handleOrderChange}
+        selectable={selecting}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+      />
 
       {tab === "srd" && (
-        <>
-          {spellList(srdSpells, loadingSrd && !srdData, [...baseColumns, ...extraColumns], srdActions)}
-          <GrimoireText muted small>
-            {t("srdAttribution")} —{" "}
-            <GrimoireExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</GrimoireExternalLink>
-          </GrimoireText>
-        </>
+        <GrimoireText muted small>
+          {t("srdAttribution")} —{" "}
+          <GrimoireExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</GrimoireExternalLink>
+        </GrimoireText>
       )}
 
-      {tab === "tutti" && spellList(allSpells, loadingAll && !allData, [...baseColumns, ...extraColumns], allActions)}
-
-      {/* Create spell modal */}
-      <GrimoireModal
-        show={showCreate}
-        onClose={() => { setShowCreate(false); resetCreate(); }}
-        title={t("createModalTitle")}
-        size="lg"
-        fullscreenOnMobile
-        footer={
-          <GrimoireModalFooter error={createFormError ?? createError}>
-            <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); resetCreate(); }}>{t("cancelButton")}</GrimoireButton>
-            <GrimoireButton type="submit" form="create-spell-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
-          </GrimoireModalFooter>
-        }
-      >
-        <form id="create-spell-form" onSubmit={handleCreateSubmit} noValidate>
-          {/* Tab della lingua: la seconda lingua è facoltativa */}
-          <GrimoireTabs
-            tabs={[
-              { key: locale, label: locale.toUpperCase() },
-              { key: secondaryLocale, label: `${secondaryLocale.toUpperCase()} ${t("langTabOptional")}` },
-            ]}
-            active={createActiveLang}
-            onChange={setCreateActiveLang}
-          />
-
-          {/* Language-specific fields */}
-          {createActiveLang === locale ? (
-            <>
-              <GrimoireInput
-                id="create-nome"
-                label={t("fieldNome")}
-                type="text"
-                required
-                value={createPrimary.nome}
-                onChange={(e) => setCreatePrimary((v) => ({ ...v, nome: e.target.value }))}
-              />
-              <GrimoireInput
-                id="create-desc"
-                label={t("fieldDescrizione")}
-                type="textarea"
-                required
-                rows={5}
-                value={createPrimary.descrizione}
-                onChange={(e) => setCreatePrimary((v) => ({ ...v, descrizione: e.target.value }))}
-              />
-            </>
-          ) : (
-            <>
-              <GrimoireInput
-                id="create-nome-alt"
-                label={`${t("fieldNome")} (${secondaryLocale.toUpperCase()})`}
-                type="text"
-                value={createSecondary.nome}
-                onChange={(e) => setCreateSecondary((v) => ({ ...v, nome: e.target.value }))}
-              />
-              <GrimoireInput
-                id="create-desc-alt"
-                label={`${t("fieldDescrizione")} (${secondaryLocale.toUpperCase()})`}
-                type="textarea"
-                rows={5}
-                value={createSecondary.descrizione}
-                onChange={(e) => setCreateSecondary((v) => ({ ...v, descrizione: e.target.value }))}
-              />
-            </>
-          )}
-
-          <GrimoireDivider />
-
-          {/* Campi comuni: due colonne da tablet in su */}
-          <GrimoireFieldGrid>
-            <GrimoireInput
-              id="create-scuola"
-              label={t("fieldScuola")}
-              type="select"
-              required
-              value={createCommon.scuola}
-              onChange={(e) => setCreateCommon((v) => ({ ...v, scuola: e.target.value }))}
-              options={createScuolaOptions}
-            />
-            <GrimoireInput
-              id="create-livello"
-              label={t("fieldLivello")}
-              type="select"
-              value={createCommon.livello}
-              onChange={(e) => setCreateCommon((v) => ({ ...v, livello: e.target.value }))}
-              options={createLivelloOptions}
-            />
-            <GrimoireSelectOrText
-              id="create-tempo"
-              label={t("fieldTempoLancio")}
-              value={createCommon.tempoLancio}
-              onChange={(val) => setCreateCommon((v) => ({ ...v, tempoLancio: val }))}
-              options={castingTimeOptions}
-              customLabel={t("ctCustom")}
-            />
-            <GrimoireRangeInput
-              id="create-gittata"
-              label={t("fieldGittata")}
-              value={createCommon.gittata}
-              onChange={(val) => setCreateCommon((v) => ({ ...v, gittata: val }))}
-            />
-            <GrimoireSelectOrText
-              id="create-durata"
-              label={t("fieldDurata")}
-              value={createCommon.durata}
-              onChange={(val) => setCreateCommon((v) => ({ ...v, durata: val }))}
-              options={durationOptions}
-              customLabel={t("durCustom")}
-            />
-            <GrimoireInput
-              id="create-group"
-              label={t("groupLabel")}
-              type="select"
-              value={createCommon.groupId}
-              onChange={(e) => setCreateCommon((v) => ({ ...v, groupId: e.target.value }))}
-              options={groupSelectOptions}
-            />
-          </GrimoireFieldGrid>
-          <GrimoireComponentsInput
-            id="create-componenti"
-            label={t("fieldComponenti")}
-            value={createCommon.componenti}
-            onChange={(val) => setCreateCommon((v) => ({ ...v, componenti: val }))}
-          />
-          <GrimoireStack>
-            <GrimoireChips label={t("colClassi")} options={classOptions} value={createTags.classIds} onChange={(ids) => setCreateTags((v) => ({ ...v, classIds: ids }))} />
-            <GrimoireChips label={t("fieldDanno")} options={damageOptions} value={createTags.damageTypeIds} onChange={(ids) => setCreateTags((v) => ({ ...v, damageTypeIds: ids }))} />
-          </GrimoireStack>
-        </form>
-      </GrimoireModal>
-
-      {/* Move to group modal */}
-      <GrimoireModal
-        show={!!moveSpell}
-        onClose={() => setMoveSpell(null)}
-        title={t("moveModalTitle")}
-        footer={
-          <GrimoireModalFooter>
-            <GrimoireButton variant="outline-secondary" onClick={() => setMoveSpell(null)}>{t("cancelButton")}</GrimoireButton>
-            <GrimoireButton onClick={() => moveSpell && moveGroupId && moveToGroup({ variables: { spellId: moveSpell.id, groupId: moveGroupId } })}>
-              {t("groupSave")}
-            </GrimoireButton>
-          </GrimoireModalFooter>
-        }
-      >
-        <GrimoireSelect
-          id="move-group"
-          label={t("groupLabel")}
-          value={moveGroupId}
-          onChange={(e) => setMoveGroupId(e.target.value)}
-          options={groupSelectOptions}
+      {selecting && (
+        <SpellBulkActions
+          tab={tab}
+          selectedIds={selectedVisible}
+          allSelected={allVisibleSelected}
+          onToggleAll={() => setSelectedIds(allVisibleSelected ? [] : visibleIds)}
+          onExit={exitSelection}
+          groups={groups}
+          onAskConfirm={setConfirm}
+          onDone={(message) => { setToast(message); exitSelection(); refetchEverything(); }}
         />
-      </GrimoireModal>
+      )}
 
-      {/* Manage groups modal */}
-      {/* Gruppi: elenco con "Nuovo gruppo" in alto; "Rinomina" cambia il contenuto della modale */}
-      <GrimoireModal
-        show={showGroups}
-        onClose={() => { setShowGroups(false); setRenameId(""); }}
-        title={renameId ? t("groupRenameTitle") : t("groupsModalTitle")}
-        footer={
-          <GrimoireModalFooter>
-            {renameId ? (
-              <>
-                <GrimoireButton variant="outline-secondary" onClick={() => setRenameId("")}>{t("cancelButton")}</GrimoireButton>
-                <GrimoireButton onClick={() => renameName.trim() && renameGroup({ variables: { id: renameId, nome: renameName } })}>{t("groupRenameSave")}</GrimoireButton>
-              </>
-            ) : (
-              <GrimoireButton variant="outline-secondary" onClick={() => setShowGroups(false)}>{tUi("close")}</GrimoireButton>
-            )}
-          </GrimoireModalFooter>
-        }
-      >
-        {renameId ? (
-          <GrimoireInput id="rename-group" label={t("colNome")} type="text" value={renameName} onChange={(e) => setRenameName(e.target.value)} />
-        ) : (
-          <>
-            <GrimoireInlineGroup spaced fillFirst>
-              <GrimoireInput id="new-group" type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder={t("groupNamePlaceholder")} />
-              <GrimoireButton loading={creatingGroup} onClick={() => newGroupName.trim() && createGroup({ variables: { nome: newGroupName } })}>{t("groupCreate")}</GrimoireButton>
-            </GrimoireInlineGroup>
-            <GrimoireTable
-              columns={[{ key: "nome", label: t("colNome"), sortable: true, leader: true }]}
-              data={groups}
-              defaultSort={{ key: "nome", dir: "asc" }}
-              emptyMessage={t("groupsEmpty")}
-              actions={(g) => [
-                { icon: "pencil", tooltip: t("groupRename"), variant: "outline-secondary", onClick: () => { setRenameId(g.id); setRenameName(g.nome); } },
-                { icon: "trash", tooltip: t("groupDelete"), variant: "danger", onClick: () => setConfirm({
-                  title: t("confirmDeleteGroupTitle"),
-                  message: t("confirmDeleteGroupMessage", { name: g.nome }),
-                  confirmLabel: tUi("delete"),
-                  danger: true,
-                  onConfirm: async () => { await deleteGroup({ variables: { id: g.id } }); },
-                }) },
-              ]}
-            />
-          </>
-        )}
-      </GrimoireModal>
+      <CreateSpellModal show={showCreate} onClose={() => setShowCreate(false)} onCreated={refetchEverything} groups={groups} options={options} />
+      <MoveSpellModal spell={moveSpell} groups={groups} onClose={() => setMoveSpell(null)} onMoved={refetchMy} />
+      <SpellGroupsModal show={showGroups} onClose={() => setShowGroups(false)} groups={groups} onChanged={refetchEverything} onAskConfirm={setConfirm} />
+
       <SpellViewModal
         spellId={viewSpellId}
         onClose={() => setViewSpellId(null)}
@@ -808,41 +226,6 @@ export default function SpellsPage() {
       />
 
       <GrimoireConfirm request={confirm} onClose={() => setConfirm(null)} />
-
-      {selecting && (
-        <GrimoireSelectionBar
-          count={selectedVisible.length}
-          allSelected={allVisibleSelected}
-          onToggleAll={() => setSelectedIds(allVisibleSelected ? [] : visibleIds)}
-          onExit={exitSelection}
-        >
-          {bulkActions}
-        </GrimoireSelectionBar>
-      )}
-
-      {/* Scelta del gruppo per le azioni in blocco: aggiungi alla libreria / sposta */}
-      <GrimoireModal
-        show={!!bulkGroupMode}
-        onClose={() => setBulkGroupMode(null)}
-        title={bulkGroupMode === "add" ? t("bulkAddTitle") : t("moveModalTitle")}
-        footer={
-          <GrimoireModalFooter>
-            <GrimoireButton variant="outline-secondary" onClick={() => setBulkGroupMode(null)}>{t("cancelButton")}</GrimoireButton>
-            <GrimoireButton disabled={bulkGroupMode === "move" && !bulkGroupId} onClick={confirmBulkGroup}>
-              {bulkGroupMode === "add" ? t("bulkAdd") : t("groupSave")}
-            </GrimoireButton>
-          </GrimoireModalFooter>
-        }
-      >
-        <GrimoireSelect
-          id="bulk-group"
-          label={t("groupLabel")}
-          value={bulkGroupId}
-          onChange={(e) => setBulkGroupId(e.target.value)}
-          options={bulkGroupMode === "add" ? groupSelectOptions : groupOptions}
-        />
-      </GrimoireModal>
-
       <GrimoireToast message={toast} onHide={hideToast} />
     </GrimoirePage>
   );
