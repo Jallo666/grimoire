@@ -3,6 +3,14 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.17.0] - 2026-10-03
+
+### Aggiunto
+- Classi e tipo di danno negli incantesimi creati dall'utente: pillole "Classi" e "Tipo di danno" nella creazione e nella modifica (`createSpell` / `updateSpell` accettano `classIds` e `damageTypeIds`). Nuovo tipo di campo "chips" in `GrimoireForm`, prop `disabled` di `GrimoireChips`, nuovo componente `GrimoireStack`.
+
+### Database
+- Cancellata la vecchia colonna `spells.classi` (migrazione temporanea `scripts/migrate-0.17.ts` nel build; tolta la 0.16). Pulizia del database completata.
+
 ## [0.16.0] - 2026-10-03
 
 ### Corretto
