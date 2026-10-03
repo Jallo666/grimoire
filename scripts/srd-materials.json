@@ -1,7 +1,7 @@
 {
   "_attribution": "D&D 5e SRD (c) Wizards of the Coast LLC, licensed under CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
   "_source": "Inglese: srd-spells.json (campo material). Italiano: SRD 5.1 in italiano, https://media.wizards.com/2023/downloads/dnd/SRD_CC_v5.1_IT.pdf",
-  "_note": "Componenti materiali degli incantesimi SRD, uno per incantesimo. \"index\" è lo stesso di srd-spells.json. \"perBersaglio\": la quantità si moltiplica (per creatura, cadavere, Dado Vita…), i dettagli sono nel testo. Gli ingredienti arriveranno in un passo successivo. Correzioni rispetto a srd-spells.json: magic-mouth (\"10 inches\" → \"10 gp\", refuso della fonte).",
+  "_note": "Componenti materiali degli incantesimi SRD, uno per incantesimo. \"index\" è lo stesso di srd-spells.json. \"perBersaglio\": la quantità si moltiplica (per creatura, cadavere, Dado Vita…), i dettagli sono nel testo. Gli ingredienti arriveranno in un passo successivo. Correzioni rispetto a srd-spells.json: magic-mouth (\"10 inches\" → \"10 gp\", refuso della fonte). \"opzioni\" (solo materiali con costo o consumati): alternative tra cui sceglierne una; ogni opzione ha gli \"ingredienti\" richiesti insieme (oggetto da srd-items.json, quantità, valore minimo per pezzo in mo, consumato) e un eventuale \"valoreTotaleMinimo\" in mo sul totale.",
   "materials": [
     {
       "index": "acid-arrow",
@@ -133,7 +133,19 @@
         "it": {
           "testo": "Polvere d'oro del valore di almeno 25 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "gold-dust",
+              "quantita": 1,
+              "valoreMinimo": 25,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "arcane-sword",
@@ -145,7 +157,19 @@
         "it": {
           "testo": "Una spada di platino in miniatura dall'impugnatura e dal pomolo di rame e zinco, del valore di 250 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "platinum-sword",
+              "quantita": 1,
+              "valoreMinimo": 250,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "arcanists-magic-aura",
@@ -169,7 +193,25 @@
         "it": {
           "testo": "Per ogni creatura influenzata da questo incantesimo, l'incantatore deve fornire un giacinto del valore di almeno 1.000 mo e un lingotto d'argento finemente decorato del valore di almeno 100 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "jacinth",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": true
+            },
+            {
+              "item": "carved-silver-bar",
+              "quantita": 1,
+              "valoreMinimo": 100,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "augury",
@@ -181,7 +223,19 @@
         "it": {
           "testo": "Bastoncini, ossa o oggetti simili dotati di contrassegni speciali, del valore di almeno 25 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "divination-tools",
+              "quantita": 1,
+              "valoreMinimo": 25,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "awaken",
@@ -193,7 +247,19 @@
         "it": {
           "testo": "Un'agata del valore di almeno 1.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "agate",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "bane",
@@ -277,7 +343,19 @@
         "it": {
           "testo": "Polvere ricavata da una perla nera, del valore di almeno 500 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "black-pearl",
+              "quantita": 1,
+              "valoreMinimo": 500,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "clairvoyance",
@@ -289,7 +367,29 @@
         "it": {
           "testo": "Un focus del valore di almeno 100 mo, a scelta tra un cornetto acustico incastonato di gemme o un occhio di vetro per la vista."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "jeweled-horn",
+              "quantita": 1,
+              "valoreMinimo": 100,
+              "consumato": false
+            }
+          ]
+        },
+        {
+          "ingredienti": [
+            {
+              "item": "glass-eye",
+              "quantita": 1,
+              "valoreMinimo": 100,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "clone",
@@ -301,7 +401,25 @@
         "it": {
           "testo": "Un diamante del valore di almeno 1.000 mo, un cubo di carne della creatura da clonare di almeno 2,5 cm per lato, che l'incantesimo consuma, e un contenitore del valore di almeno 2.000 mo che abbia un coperchio sigillabile e sia abbastanza grande da contenere una creatura di taglia Media, come un'urna enorme, una bara, una ciste piena di fango nel terreno o un contenitore di cristallo riempito con acqua salata."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": true
+            },
+            {
+              "item": "clone-vessel",
+              "quantita": 1,
+              "valoreMinimo": 2000,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "color-spray",
@@ -397,7 +515,19 @@
         "it": {
           "testo": "Una statuetta dell'incantatore scolpita in avorio e decorata con gemme del valore di almeno 1.500 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "ivory-statuette",
+              "quantita": 1,
+              "valoreMinimo": 1500,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "continual-flame",
@@ -409,7 +539,19 @@
         "it": {
           "testo": "Polvere di rubino del valore di 50 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "ruby-dust",
+              "quantita": 1,
+              "valoreMinimo": 50,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "control-water",
@@ -457,7 +599,19 @@
         "it": {
           "testo": "Un vaso d'argilla colmo di terra raccolta in un cimitero, un vaso d'argilla colmo d'acqua salmastra e una pietra onice nera del valore di 150 mo per ogni cadavere."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "black-onyx",
+              "quantita": 1,
+              "valoreMinimo": 150,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "creation",
@@ -577,7 +731,24 @@
         "it": {
           "testo": "Incenso e un'offerta sacrificale appropriata alla religione dell'incantatore del valore complessivo di almeno 25 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 25,
+          "ingredienti": [
+            {
+              "item": "incense",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "sacrificial-offering",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "dream",
@@ -697,7 +868,29 @@
         "it": {
           "testo": "Carbone, incenso ed erbe del valore di 10 mo da bruciare in un braciere d'ottone."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 10,
+          "ingredienti": [
+            {
+              "item": "charcoal",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "incense",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "herbs",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "find-the-path",
@@ -709,7 +902,19 @@
         "it": {
           "testo": "Una serie di strumenti da divinazione, come ossa, bastoncini d'avorio, carte, denti o incisioni runiche, del valore di 100 mo e un oggetto proveniente dal luogo che si desidera trovare."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "divination-tools",
+              "quantita": 1,
+              "valoreMinimo": 100,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "fire-shield",
@@ -817,7 +1022,19 @@
         "it": {
           "testo": "Uno spruzzo di acqua santa, incenso raro e polvere di rubino del valore di almeno 1.000 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "ruby-dust",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "forcecage",
@@ -829,7 +1046,19 @@
         "it": {
           "testo": "Polvere di rubino del valore di 1.500 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "ruby-dust",
+              "quantita": 1,
+              "valoreMinimo": 1500,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "foresight",
@@ -889,7 +1118,19 @@
         "it": {
           "testo": "Un diamante del valore di almeno 5.000 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond",
+              "quantita": 1,
+              "valoreMinimo": 5000,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "gentle-repose",
@@ -925,7 +1166,19 @@
         "it": {
           "testo": "Incenso e polvere di diamante del valore di almeno 200 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond-dust",
+              "quantita": 1,
+              "valoreMinimo": 200,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "goodberry",
@@ -961,7 +1214,19 @@
         "it": {
           "testo": "Polvere di diamante del valore di almeno 100 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond-dust",
+              "quantita": 1,
+              "valoreMinimo": 100,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "guards-and-wards",
@@ -973,7 +1238,19 @@
         "it": {
           "testo": "Incenso bruciato, una piccola dose di zolfo e olio, uno spago annodato, una piccola quantità di sangue di umber hulk e una piccola verga d'argento del valore di almeno 10 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "silver-rod",
+              "quantita": 1,
+              "valoreMinimo": 10,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "gust-of-wind",
@@ -997,7 +1274,29 @@
         "it": {
           "testo": "Erbe, oli e incenso del valore di almeno 1.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 1000,
+          "ingredienti": [
+            {
+              "item": "herbs",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "oils",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "incense",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "hallucinatory-terrain",
@@ -1045,7 +1344,19 @@
         "it": {
           "testo": "Una ciotola tempestata di gemme del valore di almeno 1.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "gem-encrusted-bowl",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "hideous-laughter",
@@ -1093,7 +1404,19 @@
         "it": {
           "testo": "Un minuscolo reliquiario del valore di almeno 1.000 mo contenente una reliquia sacra, come un brandello della tunica di un santo o un frammento di pergamena di un testo religioso."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "reliquary",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "hypnotic-pattern",
@@ -1129,7 +1452,19 @@
         "it": {
           "testo": "Una perla del valore di almeno 100 mo e una piuma di gufo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "pearl",
+              "quantita": 1,
+              "valoreMinimo": 100,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "illusory-script",
@@ -1141,7 +1476,19 @@
         "it": {
           "testo": "Inchiostro a base di piombo del valore di almeno 10 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "lead-ink",
+              "quantita": 1,
+              "valoreMinimo": 10,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "imprisonment",
@@ -1153,7 +1500,19 @@
         "it": {
           "testo": "Un ritratto su pergamena o una statuetta intagliata con le fattezze del bersaglio e una componente speciale che varia in base alla versione dell'incantesimo scelta, del valore di almeno 500 mo per ogni Dado Vita del bersaglio."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "imprisonment-component",
+              "quantita": 1,
+              "valoreMinimo": 500,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "insect-plague",
@@ -1177,7 +1536,19 @@
         "it": {
           "testo": "Uno zaffiro del valore di 1.000 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "sapphire",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "invisibility",
@@ -1213,7 +1584,25 @@
         "it": {
           "testo": "Incenso del valore di almeno 250 mo, che l'incantesimo consuma e quattro lamine di avorio del valore di almeno 50 mo ciascuna."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "incense",
+              "quantita": 1,
+              "valoreMinimo": 250,
+              "consumato": true
+            },
+            {
+              "item": "ivory-strip",
+              "quantita": 4,
+              "valoreMinimo": 50,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "levitate",
@@ -1321,7 +1710,34 @@
         "it": {
           "testo": "Acqua santa o polvere d'argento e di ferro del valore di almeno 100 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 100,
+          "ingredienti": [
+            {
+              "item": "holy-water",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        },
+        {
+          "valoreTotaleMinimo": 100,
+          "ingredienti": [
+            {
+              "item": "silver-powder",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "iron-powder",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "magic-jar",
@@ -1333,7 +1749,49 @@
         "it": {
           "testo": "Una gemma, un cristallo, un reliquiario o un altro contenitore ornamentale del valore di almeno 500 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "gem",
+              "quantita": 1,
+              "valoreMinimo": 500,
+              "consumato": false
+            }
+          ]
+        },
+        {
+          "ingredienti": [
+            {
+              "item": "crystal",
+              "quantita": 1,
+              "valoreMinimo": 500,
+              "consumato": false
+            }
+          ]
+        },
+        {
+          "ingredienti": [
+            {
+              "item": "reliquary",
+              "quantita": 1,
+              "valoreMinimo": 500,
+              "consumato": false
+            }
+          ]
+        },
+        {
+          "ingredienti": [
+            {
+              "item": "ornamental-container",
+              "quantita": 1,
+              "valoreMinimo": 500,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "magic-mouth",
@@ -1345,7 +1803,19 @@
         "it": {
           "testo": "Un frammento di favo e polvere di giada del valore di almeno 10 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "jade-dust",
+              "quantita": 1,
+              "valoreMinimo": 10,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "magnificent-mansion",
@@ -1357,7 +1827,31 @@
         "it": {
           "testo": "Un portale in miniatura scolpito in avorio, un frammento di marmo lucido, un cucchiaino d'argento, del valore di almeno 5 mo ciascuno."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "ivory-portal",
+              "quantita": 1,
+              "valoreMinimo": 5,
+              "consumato": false
+            },
+            {
+              "item": "polished-marble",
+              "quantita": 1,
+              "valoreMinimo": 5,
+              "consumato": false
+            },
+            {
+              "item": "silver-spoon",
+              "quantita": 1,
+              "valoreMinimo": 5,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "major-image",
@@ -1453,7 +1947,19 @@
         "it": {
           "testo": "Un pizzico di polvere di diamante del valore di 25 mo da spargere sul bersaglio, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond-dust",
+              "quantita": 1,
+              "valoreMinimo": 25,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "pass-without-trace",
@@ -1489,7 +1995,19 @@
         "it": {
           "testo": "Una gemma del valore di almeno 1.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "gem",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "plane-shift",
@@ -1501,7 +2019,19 @@
         "it": {
           "testo": "Una verga di metallo biforcuta del valore di almeno 250 mo, in sintonia con un particolare piano di esistenza."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "forked-metal-rod",
+              "quantita": 1,
+              "valoreMinimo": 250,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "polymorph",
@@ -1537,7 +2067,19 @@
         "it": {
           "testo": "Un ciuffo di lana e polvere di giada del valore di almeno 25 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "jade-dust",
+              "quantita": 1,
+              "valoreMinimo": 25,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "project-image",
@@ -1549,7 +2091,19 @@
         "it": {
           "testo": "Una piccola replica dell'incantatore realizzata con materiali del valore di almeno 5 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "caster-replica",
+              "quantita": 1,
+              "valoreMinimo": 5,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "protection-from-evil-and-good",
@@ -1561,7 +2115,32 @@
         "it": {
           "testo": "Acqua santa o polvere d'argento e ferro, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "holy-water",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        },
+        {
+          "ingredienti": [
+            {
+              "item": "silver-powder",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "iron-powder",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "raise-dead",
@@ -1573,7 +2152,19 @@
         "it": {
           "testo": "Un diamante del valore di almeno 500 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond",
+              "quantita": 1,
+              "valoreMinimo": 500,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "regenerate",
@@ -1597,7 +2188,19 @@
         "it": {
           "testo": "Oli e unguenti rari del valore di almeno 1.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "rare-oils-unguents",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "resilient-sphere",
@@ -1633,7 +2236,19 @@
         "it": {
           "testo": "Un diamante del valore di almeno 1.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "reverse-gravity",
@@ -1657,7 +2272,19 @@
         "it": {
           "testo": "Diamanti del valore di 300 mo, che vengono consumati dall'incantesimo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 300,
+          "ingredienti": [
+            {
+              "item": "diamond",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "rope-trick",
@@ -1693,7 +2320,19 @@
         "it": {
           "testo": "Un focus del valore di almeno 1.000 mo, come una sfera di cristallo, uno specchio d'argento o un bacile pieno di acqua santa."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "scrying-focus",
+              "quantita": 1,
+              "valoreMinimo": 1000,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "secret-chest",
@@ -1705,7 +2344,25 @@
         "it": {
           "testo": "Un forziere di fattura pregiata che misura 90 × 60 × 60 cm, realizzato con materiali rari del valore di almeno 5.000 mo e una riproduzione minuscola fatta degli stessi materiali del valore di 50 mo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "exquisite-chest",
+              "quantita": 1,
+              "valoreMinimo": 5000,
+              "consumato": false
+            },
+            {
+              "item": "chest-replica",
+              "quantita": 1,
+              "valoreMinimo": 50,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "see-invisibility",
@@ -1741,7 +2398,34 @@
         "it": {
           "testo": "Un composto di polvere di diamante, smeraldo, rubino e zaffiro del valore di almeno 5.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 5000,
+          "ingredienti": [
+            {
+              "item": "diamond-dust",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "emerald-dust",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "ruby-dust",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "sapphire-dust",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "shapechange",
@@ -1753,7 +2437,19 @@
         "it": {
           "testo": "Un diadema di giada del valore di almeno 1.500 mo, che l'incantatore deve indossare prima di lanciare l'incantesimo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "jade-circlet",
+              "quantita": 1,
+              "valoreMinimo": 1500,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "shatter",
@@ -1813,7 +2509,19 @@
         "it": {
           "testo": "Una quantità di neve o ghiaccio sufficiente per realizzare una copia a grandezza naturale della creatura da duplicare; una ciocca di capelli, un'unghia tagliata o un altro pezzo del corpo di quella creatura da collocare in mezzo alla neve o al ghiaccio; polvere di rubino del valore di 1.500 mo da cospargere sul duplicato, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "ruby-dust",
+              "quantita": 1,
+              "valoreMinimo": 1500,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "sleep",
@@ -1933,7 +2641,19 @@
         "it": {
           "testo": "Polvere di diamante del valore di 100 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "diamond-dust",
+              "quantita": 1,
+              "valoreMinimo": 100,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "suggestion",
@@ -1981,7 +2701,34 @@
         "it": {
           "testo": "Mercurio, fosforo e polvere di diamante e opale del valore totale di almeno 1.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 1000,
+          "ingredienti": [
+            {
+              "item": "mercury",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "phosphorus",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "diamond-dust",
+              "quantita": 1,
+              "consumato": true
+            },
+            {
+              "item": "opal-dust",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "telepathic-bond",
@@ -2005,7 +2752,19 @@
         "it": {
           "testo": "Gessetti e inchiostri rari infusi di gemme preziose del valore di 50 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "rare-chalks-inks",
+              "quantita": 1,
+              "valoreMinimo": 50,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "tiny-hut",
@@ -2053,7 +2812,19 @@
         "it": {
           "testo": "Uno spruzzo di acqua santa e diamanti del valore di almeno 25.000 mo, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "valoreTotaleMinimo": 25000,
+          "ingredienti": [
+            {
+              "item": "diamond",
+              "quantita": 1,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "true-seeing",
@@ -2065,7 +2836,19 @@
         "it": {
           "testo": "Un unguento per gli occhi del costo di 25 mo, realizzato con polvere di funghi, zafferano e grasso, che l'incantesimo consuma."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "eye-ointment",
+              "quantita": 1,
+              "valoreMinimo": 25,
+              "consumato": true
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "unseen-servant",
@@ -2149,7 +2932,19 @@
         "it": {
           "testo": "Un paio di anelli di platino del valore di almeno 50 mo, che l'incantatore e il bersaglio devono indossare per la durata dell'incantesimo."
         }
-      }
+      },
+      "opzioni": [
+        {
+          "ingredienti": [
+            {
+              "item": "platinum-ring",
+              "quantita": 2,
+              "valoreMinimo": 50,
+              "consumato": false
+            }
+          ]
+        }
+      ]
     },
     {
       "index": "water-breathing",

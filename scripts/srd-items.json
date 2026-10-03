@@ -1,0 +1,695 @@
+{
+  "_attribution": "D&D 5e SRD (c) Wizards of the Coast LLC, licensed under CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+  "_note": "Oggetti di base usati come ingredienti dei componenti materiali SRD (scripts/srd-materials.json, campo \"opzioni\"). \"name\" è il nome inglese, le traduzioni vanno nel database. \"categoria\": gemma, polvere, sostanza, focus, strumento, oggetto.",
+  "items": [
+    {
+      "index": "agate",
+      "name": "Agate",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Agata"
+        },
+        "en": {
+          "nome": "Agate"
+        }
+      }
+    },
+    {
+      "index": "black-onyx",
+      "name": "Black onyx",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Onice nera"
+        },
+        "en": {
+          "nome": "Black onyx"
+        }
+      }
+    },
+    {
+      "index": "black-pearl",
+      "name": "Black pearl",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Perla nera"
+        },
+        "en": {
+          "nome": "Black pearl"
+        }
+      }
+    },
+    {
+      "index": "carved-silver-bar",
+      "name": "Ornately carved silver bar",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Lingotto d'argento decorato"
+        },
+        "en": {
+          "nome": "Ornately carved silver bar"
+        }
+      }
+    },
+    {
+      "index": "caster-replica",
+      "name": "Small replica of the caster",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Piccola replica dell'incantatore"
+        },
+        "en": {
+          "nome": "Small replica of the caster"
+        }
+      }
+    },
+    {
+      "index": "charcoal",
+      "name": "Charcoal",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Carbone"
+        },
+        "en": {
+          "nome": "Charcoal"
+        }
+      }
+    },
+    {
+      "index": "chest-replica",
+      "name": "Tiny chest replica",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Riproduzione minuscola del forziere"
+        },
+        "en": {
+          "nome": "Tiny chest replica"
+        }
+      }
+    },
+    {
+      "index": "clone-vessel",
+      "name": "Clone vessel",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Contenitore per clone"
+        },
+        "en": {
+          "nome": "Clone vessel"
+        }
+      }
+    },
+    {
+      "index": "crystal",
+      "name": "Crystal",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Cristallo"
+        },
+        "en": {
+          "nome": "Crystal"
+        }
+      }
+    },
+    {
+      "index": "diamond",
+      "name": "Diamond",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Diamante"
+        },
+        "en": {
+          "nome": "Diamond"
+        }
+      }
+    },
+    {
+      "index": "diamond-dust",
+      "name": "Diamond dust",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere di diamante"
+        },
+        "en": {
+          "nome": "Diamond dust"
+        }
+      }
+    },
+    {
+      "index": "divination-tools",
+      "name": "Divination tools",
+      "categoria": "strumento",
+      "translations": {
+        "it": {
+          "nome": "Strumenti da divinazione"
+        },
+        "en": {
+          "nome": "Divination tools"
+        }
+      }
+    },
+    {
+      "index": "emerald-dust",
+      "name": "Emerald dust",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere di smeraldo"
+        },
+        "en": {
+          "nome": "Emerald dust"
+        }
+      }
+    },
+    {
+      "index": "exquisite-chest",
+      "name": "Exquisite chest",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Forziere pregiato"
+        },
+        "en": {
+          "nome": "Exquisite chest"
+        }
+      }
+    },
+    {
+      "index": "eye-ointment",
+      "name": "Eye ointment",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Unguento per gli occhi"
+        },
+        "en": {
+          "nome": "Eye ointment"
+        }
+      }
+    },
+    {
+      "index": "forked-metal-rod",
+      "name": "Forked metal rod",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Verga di metallo biforcuta"
+        },
+        "en": {
+          "nome": "Forked metal rod"
+        }
+      }
+    },
+    {
+      "index": "gem",
+      "name": "Gem",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Gemma"
+        },
+        "en": {
+          "nome": "Gem"
+        }
+      }
+    },
+    {
+      "index": "gem-encrusted-bowl",
+      "name": "Gem-encrusted bowl",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Ciotola tempestata di gemme"
+        },
+        "en": {
+          "nome": "Gem-encrusted bowl"
+        }
+      }
+    },
+    {
+      "index": "glass-eye",
+      "name": "Glass eye",
+      "categoria": "focus",
+      "translations": {
+        "it": {
+          "nome": "Occhio di vetro"
+        },
+        "en": {
+          "nome": "Glass eye"
+        }
+      }
+    },
+    {
+      "index": "gold-dust",
+      "name": "Gold dust",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere d'oro"
+        },
+        "en": {
+          "nome": "Gold dust"
+        }
+      }
+    },
+    {
+      "index": "herbs",
+      "name": "Herbs",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Erbe"
+        },
+        "en": {
+          "nome": "Herbs"
+        }
+      }
+    },
+    {
+      "index": "holy-water",
+      "name": "Holy water",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Acqua santa"
+        },
+        "en": {
+          "nome": "Holy water"
+        }
+      }
+    },
+    {
+      "index": "imprisonment-component",
+      "name": "Special component (Imprisonment)",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Componente speciale (Imprigionare)"
+        },
+        "en": {
+          "nome": "Special component (Imprisonment)"
+        }
+      }
+    },
+    {
+      "index": "incense",
+      "name": "Incense",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Incenso"
+        },
+        "en": {
+          "nome": "Incense"
+        }
+      }
+    },
+    {
+      "index": "iron-powder",
+      "name": "Powdered iron",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere di ferro"
+        },
+        "en": {
+          "nome": "Powdered iron"
+        }
+      }
+    },
+    {
+      "index": "ivory-portal",
+      "name": "Miniature ivory portal",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Portale d'avorio in miniatura"
+        },
+        "en": {
+          "nome": "Miniature ivory portal"
+        }
+      }
+    },
+    {
+      "index": "ivory-statuette",
+      "name": "Jeweled ivory statuette of the caster",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Statuetta d'avorio ingioiellata dell'incantatore"
+        },
+        "en": {
+          "nome": "Jeweled ivory statuette of the caster"
+        }
+      }
+    },
+    {
+      "index": "ivory-strip",
+      "name": "Ivory strip",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Lamina d'avorio"
+        },
+        "en": {
+          "nome": "Ivory strip"
+        }
+      }
+    },
+    {
+      "index": "jacinth",
+      "name": "Jacinth",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Giacinto"
+        },
+        "en": {
+          "nome": "Jacinth"
+        }
+      }
+    },
+    {
+      "index": "jade-circlet",
+      "name": "Jade circlet",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Diadema di giada"
+        },
+        "en": {
+          "nome": "Jade circlet"
+        }
+      }
+    },
+    {
+      "index": "jade-dust",
+      "name": "Jade dust",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere di giada"
+        },
+        "en": {
+          "nome": "Jade dust"
+        }
+      }
+    },
+    {
+      "index": "jeweled-horn",
+      "name": "Jeweled horn",
+      "categoria": "focus",
+      "translations": {
+        "it": {
+          "nome": "Cornetto acustico ingioiellato"
+        },
+        "en": {
+          "nome": "Jeweled horn"
+        }
+      }
+    },
+    {
+      "index": "lead-ink",
+      "name": "Lead-based ink",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Inchiostro a base di piombo"
+        },
+        "en": {
+          "nome": "Lead-based ink"
+        }
+      }
+    },
+    {
+      "index": "mercury",
+      "name": "Mercury",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Mercurio"
+        },
+        "en": {
+          "nome": "Mercury"
+        }
+      }
+    },
+    {
+      "index": "oils",
+      "name": "Oils",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Oli"
+        },
+        "en": {
+          "nome": "Oils"
+        }
+      }
+    },
+    {
+      "index": "opal-dust",
+      "name": "Powdered opal",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere di opale"
+        },
+        "en": {
+          "nome": "Powdered opal"
+        }
+      }
+    },
+    {
+      "index": "ornamental-container",
+      "name": "Ornamental container",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Contenitore ornamentale"
+        },
+        "en": {
+          "nome": "Ornamental container"
+        }
+      }
+    },
+    {
+      "index": "pearl",
+      "name": "Pearl",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Perla"
+        },
+        "en": {
+          "nome": "Pearl"
+        }
+      }
+    },
+    {
+      "index": "phosphorus",
+      "name": "Phosphorus",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Fosforo"
+        },
+        "en": {
+          "nome": "Phosphorus"
+        }
+      }
+    },
+    {
+      "index": "platinum-ring",
+      "name": "Platinum ring",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Anello di platino"
+        },
+        "en": {
+          "nome": "Platinum ring"
+        }
+      }
+    },
+    {
+      "index": "platinum-sword",
+      "name": "Miniature platinum sword",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Spada di platino in miniatura"
+        },
+        "en": {
+          "nome": "Miniature platinum sword"
+        }
+      }
+    },
+    {
+      "index": "polished-marble",
+      "name": "Polished marble",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Marmo lucido"
+        },
+        "en": {
+          "nome": "Polished marble"
+        }
+      }
+    },
+    {
+      "index": "rare-chalks-inks",
+      "name": "Rare chalks and inks",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Gessetti e inchiostri rari"
+        },
+        "en": {
+          "nome": "Rare chalks and inks"
+        }
+      }
+    },
+    {
+      "index": "rare-oils-unguents",
+      "name": "Rare oils and unguents",
+      "categoria": "sostanza",
+      "translations": {
+        "it": {
+          "nome": "Oli e unguenti rari"
+        },
+        "en": {
+          "nome": "Rare oils and unguents"
+        }
+      }
+    },
+    {
+      "index": "reliquary",
+      "name": "Reliquary",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Reliquiario"
+        },
+        "en": {
+          "nome": "Reliquary"
+        }
+      }
+    },
+    {
+      "index": "ruby-dust",
+      "name": "Ruby dust",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere di rubino"
+        },
+        "en": {
+          "nome": "Ruby dust"
+        }
+      }
+    },
+    {
+      "index": "sacrificial-offering",
+      "name": "Sacrificial offering",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Offerta sacrificale"
+        },
+        "en": {
+          "nome": "Sacrificial offering"
+        }
+      }
+    },
+    {
+      "index": "sapphire",
+      "name": "Sapphire",
+      "categoria": "gemma",
+      "translations": {
+        "it": {
+          "nome": "Zaffiro"
+        },
+        "en": {
+          "nome": "Sapphire"
+        }
+      }
+    },
+    {
+      "index": "sapphire-dust",
+      "name": "Sapphire dust",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere di zaffiro"
+        },
+        "en": {
+          "nome": "Sapphire dust"
+        }
+      }
+    },
+    {
+      "index": "scrying-focus",
+      "name": "Scrying focus",
+      "categoria": "focus",
+      "translations": {
+        "it": {
+          "nome": "Focus per scrutare"
+        },
+        "en": {
+          "nome": "Scrying focus"
+        }
+      }
+    },
+    {
+      "index": "silver-powder",
+      "name": "Powdered silver",
+      "categoria": "polvere",
+      "translations": {
+        "it": {
+          "nome": "Polvere d'argento"
+        },
+        "en": {
+          "nome": "Powdered silver"
+        }
+      }
+    },
+    {
+      "index": "silver-rod",
+      "name": "Silver rod",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Verga d'argento"
+        },
+        "en": {
+          "nome": "Silver rod"
+        }
+      }
+    },
+    {
+      "index": "silver-spoon",
+      "name": "Tiny silver spoon",
+      "categoria": "oggetto",
+      "translations": {
+        "it": {
+          "nome": "Cucchiaino d'argento"
+        },
+        "en": {
+          "nome": "Tiny silver spoon"
+        }
+      }
+    }
+  ]
+}
