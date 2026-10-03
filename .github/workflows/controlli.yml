@@ -1,0 +1,35 @@
+# Controlli automatici a ogni push (main e branch di lavoro) e a ogni pull request:
+# lint (ESLint) e build di Next.js, che controlla anche i tipi TypeScript.
+# Non blocca il deploy di Vercel: serve a vedere subito se qualcosa è rotto.
+name: Controlli
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+jobs:
+  controlli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Installa Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build e controllo dei tipi
+        run: npm run build
+        env:
+          # Il build non si collega al database: bastano valori finti
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+          JWT_SECRET: ci
