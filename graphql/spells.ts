@@ -1,5 +1,5 @@
 import { gql } from "graphql-tag";
-import { eq, and, or, ilike, isNull, inArray } from "drizzle-orm";
+import { eq, and, or, ilike, isNull, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups, classes, spellClasses, damageTypes, spellDamageTypes, spellMaterials, items, materialOptions, materialIngredients } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
@@ -102,10 +102,10 @@ export const spellTypeDefs = gql`
   type Query {
     spellClasses(locale: String): [SpellClass!]!
     damageTypes(locale: String): [DamageType!]!
-    mySpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
+    mySpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], ingredienti: [ID!], componenti: [String!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
     spell(id: ID!, locale: String): Spell
-    srdSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
-    allSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    srdSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], ingredienti: [ID!], componenti: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    allSpells(search: String, scuole: [String!], livelli: [Int!], classi: [ID!], tipiDanno: [ID!], ingredienti: [ID!], componenti: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
     campaignSpells(campaignId: ID!): [Spell!]!
   }
 
@@ -234,6 +234,25 @@ function tipiDannoCondition(damageTypeIds: string[]) {
     spells.id,
     db.select({ id: spellDamageTypes.spellId }).from(spellDamageTypes).where(inArray(spellDamageTypes.damageTypeId, damageTypeIds.map(Number)))
   );
+}
+
+// Filtro per ingrediente: il materiale dell'incantesimo usa almeno uno degli oggetti scelti
+function ingredientiCondition(itemIds: string[]) {
+  return inArray(
+    spells.id,
+    db.select({ id: spellMaterials.spellId }).from(spellMaterials)
+      .innerJoin(materialOptions, eq(materialOptions.materialId, spellMaterials.id))
+      .innerJoin(materialIngredients, eq(materialIngredients.optionId, materialOptions.id))
+      .where(inArray(materialIngredients.itemId, itemIds.map(Number)))
+  );
+}
+
+// Filtro per componenti: l'incantesimo ha tutte le lettere scelte (es. V e M).
+// "componenti" è "V, S, M": tolti gli spazi e divisa alle virgole diventa la lista {V,S,M}.
+function componentiCondition(letters: string[]) {
+  const valid = letters.filter((l) => ["V", "S", "M"].includes(l));
+  if (valid.length === 0) return sql`true`;
+  return sql.join(valid.map((l) => sql`${l} = ANY(string_to_array(replace(coalesce(${spells.componenti}, ''), ' ', ''), ','))`), sql` AND `);
 }
 
 // Collega un incantesimo alle classi e ai tipi di danno scelti, sostituendo quelli di prima.
@@ -468,13 +487,15 @@ export const spellResolvers = {
         .sort((a, b) => a.nome.localeCompare(b.nome));
     },
 
-    mySpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; concentration?: boolean; ritual?: boolean; groupIds?: string[]; locale?: string }, context: Context) => {
+    mySpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; ingredienti?: string[]; componenti?: string[]; concentration?: boolean; ritual?: boolean; groupIds?: string[]; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const conditions = [eq(userSpellLibrary.userId, user.id)];
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
       if (args.tipiDanno?.length) conditions.push(tipiDannoCondition(args.tipiDanno));
+      if (args.ingredienti?.length) conditions.push(ingredientiCondition(args.ingredienti));
+      if (args.componenti?.length) conditions.push(componentiCondition(args.componenti));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -498,7 +519,7 @@ export const spellResolvers = {
       return toGql(spell, user.id, true, null, null, args.locale);
     },
 
-    srdSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    srdSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; ingredienti?: string[]; componenti?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       assertAuthenticated(context);
       const user = context.user!;
 
@@ -507,6 +528,8 @@ export const spellResolvers = {
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
       if (args.tipiDanno?.length) conditions.push(tipiDannoCondition(args.tipiDanno));
+      if (args.ingredienti?.length) conditions.push(ingredientiCondition(args.ingredienti));
+      if (args.componenti?.length) conditions.push(componentiCondition(args.componenti));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -520,7 +543,7 @@ export const spellResolvers = {
       return withTags(rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale)), args.locale);
     },
 
-    allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; ingredienti?: string[]; componenti?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
 
       const conditions = [];
@@ -528,6 +551,8 @@ export const spellResolvers = {
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
       if (args.tipiDanno?.length) conditions.push(tipiDannoCondition(args.tipiDanno));
+      if (args.ingredienti?.length) conditions.push(ingredientiCondition(args.ingredienti));
+      if (args.componenti?.length) conditions.push(componentiCondition(args.componenti));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));

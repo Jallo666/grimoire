@@ -10,7 +10,7 @@ const TAB_TO_PARAM: Record<SpellTab, string> = { miei: "mine", srd: "srd", tutti
 
 // Parametri dei filtri nell'URL. I filtri a scelta multipla hanno i valori separati da virgola,
 // es. ?level=0,3&school=Evocazione&class=12,14
-const FILTER_PARAMS = ["search", "group", "school", "level", "class", "damage", "concentration", "ritual"];
+const FILTER_PARAMS = ["search", "group", "school", "level", "class", "damage", "ingredient", "components", "concentration", "ritual"];
 
 // Filtri, tab e vista della pagina incantesimi, letti e scritti nell'URL
 // (così un link condiviso o una pagina ricaricata mantengono tutto).
@@ -31,6 +31,10 @@ export function useSpellFilters() {
     levels: list("level"),
     classes: list("class"),
     damageTypes: list("damage"),
+    // id degli oggetti usati come ingredienti
+    ingredients: list("ingredient"),
+    // lettere V, S, M: l'incantesimo deve averle tutte
+    components: list("components"),
     concentration: searchParams.get("concentration") === "true",
     ritual: searchParams.get("ritual") === "true",
   };
@@ -77,7 +81,8 @@ export function useSpellFilters() {
   // Quanti filtri sono attivi (numero sull'icona dei filtri su mobile)
   const activeCount = [
     filters.search, filters.groups.length, filters.schools.length, filters.levels.length,
-    filters.classes.length, filters.damageTypes.length, filters.concentration, filters.ritual,
+    filters.classes.length, filters.damageTypes.length, filters.ingredients.length, filters.components.length,
+    filters.concentration, filters.ritual,
   ].filter(Boolean).length;
 
   // Variabili per le query GraphQL delle liste
@@ -87,6 +92,8 @@ export function useSpellFilters() {
     livelli: filters.levels.length ? filters.levels.map(Number) : undefined,
     classi: filters.classes.length ? filters.classes : undefined,
     tipiDanno: filters.damageTypes.length ? filters.damageTypes : undefined,
+    ingredienti: filters.ingredients.length ? filters.ingredients : undefined,
+    componenti: filters.components.length ? filters.components : undefined,
     concentration: filters.concentration || undefined,
     ritual: filters.ritual || undefined,
   };

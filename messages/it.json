@@ -257,7 +257,9 @@
     "newItemLabel": "Nuovo oggetto",
     "newItemPlaceholder": "Es. Polvere di smeraldo",
     "createItem": "Crea",
-    "ingredientsHint": "Solo gli ingredienti con un costo o che vengono consumati."
+    "ingredientsHint": "Solo gli ingredienti con un costo o che vengono consumati.",
+    "filterAllComponents": "Tutti i componenti",
+    "filterAllIngredients": "Tutti gli ingredienti"
   },
   "spellDetail": {
     "formTitle": "Dettagli incantesimo",

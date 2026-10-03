@@ -51,6 +51,8 @@ export default function SpellFilters({ tab, api, options, groupOptions, showModa
           <GrimoireMultiSelect id="spell-level" placeholder={t("filterAllLevels")} value={filters.levels} onChange={(v) => setList("level", v)} options={options.levelOptions} minWidth={130} />
           <GrimoireMultiSelect id="spell-class" placeholder={t("filterAllClasses")} value={filters.classes} onChange={(v) => setList("class", v)} options={options.classOptions} minWidth={150} />
           <GrimoireMultiSelect id="spell-damage" placeholder={t("filterAllDamage")} value={filters.damageTypes} onChange={(v) => setList("damage", v)} options={options.damageOptions} minWidth={150} />
+          <GrimoireMultiSelect id="spell-components" placeholder={t("filterAllComponents")} value={filters.components} onChange={(v) => setList("components", v)} options={options.componentOptions} minWidth={150} />
+          <GrimoireMultiSelect id="spell-ingredient" placeholder={t("filterAllIngredients")} value={filters.ingredients} onChange={(v) => setList("ingredient", v)} options={options.ingredientOptions} minWidth={160} />
           <GrimoireSelect id="spell-concentration" value={filters.concentration ? "true" : ""} onChange={(e) => setFlag("concentration", e.target.value === "true")} options={yesOrAll(t("filterConcentrazione"))} minWidth={155} />
           <GrimoireSelect id="spell-ritual" value={filters.ritual ? "true" : ""} onChange={(e) => setFlag("ritual", e.target.value === "true")} options={yesOrAll(t("filterRituale"))} minWidth={120} />
         </GrimoireInlineGroup>
@@ -65,6 +67,8 @@ export default function SpellFilters({ tab, api, options, groupOptions, showModa
         <GrimoireChips label={t("colScuola")} options={options.schoolOptions} value={filters.schools} onChange={(v) => setList("school", v)} />
         <GrimoireChips label={t("colClassi")} options={options.classOptions} value={filters.classes} onChange={(v) => setList("class", v)} />
         <GrimoireChips label={t("fieldDanno")} options={options.damageOptions} value={filters.damageTypes} onChange={(v) => setList("damage", v)} />
+        <GrimoireChips label={t("fieldComponenti")} options={options.componentOptions} value={filters.components} onChange={(v) => setList("components", v)} />
+        <GrimoireChips label={t("ingredients")} options={options.ingredientOptions} value={filters.ingredients} onChange={(v) => setList("ingredient", v)} />
         {/* Concentrazione e Rituale cambiano insieme: due modifiche separate di fila si sovrascriverebbero */}
         <GrimoireChips
           label={t("filterOther")}

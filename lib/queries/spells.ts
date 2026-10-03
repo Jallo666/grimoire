@@ -4,20 +4,20 @@ const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary 
 const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi(locale: $tagsLocale) { id nome } sottoclassi tipiDanno(locale: $tagsLocale) { id nome } creatorId isOwner isSystem inLibrary groupId groupNome createdAt lingua translations { locale nome descrizione highLevel } materiale { testo perBersaglio translations { locale testo } opzioni { valoreTotaleMinimo ingredienti { quantita valoreMinimo consumato item { id nome(locale: $tagsLocale) } } } }`;
 
 export const MY_SPELLS = gql`
-  query MySpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $concentration: Boolean, $ritual: Boolean, $groupIds: [ID!], $locale: String) {
-    mySpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, concentration: $concentration, ritual: $ritual, groupIds: $groupIds, locale: $locale) { ${SPELL_FIELDS} }
+  query MySpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $ingredienti: [ID!], $componenti: [String!], $concentration: Boolean, $ritual: Boolean, $groupIds: [ID!], $locale: String) {
+    mySpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, ingredienti: $ingredienti, componenti: $componenti, concentration: $concentration, ritual: $ritual, groupIds: $groupIds, locale: $locale) { ${SPELL_FIELDS} }
   }
 `;
 
 export const SRD_SPELLS = gql`
-  query SrdSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
-    srdSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
+  query SrdSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $ingredienti: [ID!], $componenti: [String!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
+    srdSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, ingredienti: $ingredienti, componenti: $componenti, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
   }
 `;
 
 export const ALL_SPELLS = gql`
-  query AllSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
-    allSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
+  query AllSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [ID!], $tipiDanno: [ID!], $ingredienti: [ID!], $componenti: [String!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
+    allSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, ingredienti: $ingredienti, componenti: $componenti, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
   }
 `;
 

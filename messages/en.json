@@ -257,7 +257,9 @@
     "newItemLabel": "New item",
     "newItemPlaceholder": "E.g. Emerald dust",
     "createItem": "Create",
-    "ingredientsHint": "Only ingredients with a cost or that are consumed."
+    "ingredientsHint": "Only ingredients with a cost or that are consumed.",
+    "filterAllComponents": "All components",
+    "filterAllIngredients": "All ingredients"
   },
   "spellDetail": {
     "formTitle": "Spell details",

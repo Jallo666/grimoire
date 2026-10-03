@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
 import { SPELL_CLASSES, DAMAGE_TYPES } from "@/lib/queries/spells";
+import { ITEMS } from "@/lib/queries/items";
 import type { Option } from "./spellTypes";
 
 type Tag = { id: string; nome: string };
@@ -17,6 +18,7 @@ export function useSpellOptions() {
 
   const { data: classesData } = useQuery<{ spellClasses: Tag[] }>(SPELL_CLASSES, { variables: { locale } });
   const { data: damageData } = useQuery<{ damageTypes: Tag[] }>(DAMAGE_TYPES, { variables: { locale } });
+  const { data: itemsData } = useQuery<{ items: Tag[] }>(ITEMS, { variables: { locale } });
 
   // Scuole: valori in italiano come nel database, etichette tradotte (chiavi scuola<Nome>)
   const schoolOptions: Option[] = Object.keys(SCUOLA_BADGE_COLORS).map((s) => ({
@@ -41,7 +43,19 @@ export function useSpellOptions() {
   const classOptions: Option[] = (classesData?.spellClasses ?? []).map((c) => ({ value: c.id, label: c.nome }));
   const damageOptions: Option[] = (damageData?.damageTypes ?? []).map((d) => ({ value: d.id, label: d.nome }));
 
-  return { schoolOptions, levelOptions, castingTimeOptions, durationOptions, classOptions, damageOptions };
+  // Ingredienti: oggetti di base e dell'utente, in ordine alfabetico nella lingua dell'interfaccia
+  const ingredientOptions: Option[] = (itemsData?.items ?? [])
+    .map((i) => ({ value: i.id, label: i.nome }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  // Componenti: le lettere V, S, M con il loro nome
+  const componentOptions: Option[] = [
+    { value: "V", label: t("compV") },
+    { value: "S", label: t("compS") },
+    { value: "M", label: t("compM") },
+  ];
+
+  return { schoolOptions, levelOptions, castingTimeOptions, durationOptions, classOptions, damageOptions, ingredientOptions, componentOptions };
 }
 
 export type SpellOptions = ReturnType<typeof useSpellOptions>;
