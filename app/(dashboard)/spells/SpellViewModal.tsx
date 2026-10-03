@@ -13,6 +13,7 @@ import GrimoireSkeletonText from "@/components/ui/GrimoireSkeletonText";
 import GrimoireTabs from "@/components/ui/GrimoireTabs";
 import styles from "./SpellViewModal.module.css";
 import { translateClassi } from "@/lib/spellClasses";
+import { damageKey } from "@/lib/damageTypes";
 
 type Translation = {
   locale: string;
@@ -36,6 +37,7 @@ type SpellFull = {
   concentration: boolean | null;
   ritual: boolean | null;
   classi: string | null;
+  tipiDanno: string[] | null;
   isOwner: boolean;
   isSystem: boolean;
   translations: Translation[];
@@ -163,6 +165,12 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
     return t.has(key) ? t(key) : cls;
   }
 
+  // Tipi di danno salvati in inglese (es. "fire"): si mostrano tradotti (chiavi damageFire, …)
+  function damageLabel(type: string) {
+    const key = damageKey(type) as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : type;
+  }
+
   const langData = getLangData(viewLang);
   const title = langData?.nome ?? spell?.nome ?? "—";
 
@@ -271,6 +279,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
                 </div>
               )}
             </div>
+            <Field label={t("fieldDanno")} value={(spell.tipiDanno ?? []).map(damageLabel).join(", ")} />
             <Field label={t("colClassi")} value={translateClassi(spell.classi, classLabel)} />
           </>
         ) : null}

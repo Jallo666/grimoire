@@ -9,6 +9,7 @@ import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
 import { SPELL_CLASSES, translateClassi } from "@/lib/spellClasses";
+import { DAMAGE_TYPES, damageKey } from "@/lib/damageTypes";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
 import SpellViewModal from "./SpellViewModal";
 import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP, MOVE_SPELLS_TO_GROUP } from "@/lib/queries/spellGroups";
@@ -55,6 +56,7 @@ type SpellRow = {
   concentration: boolean | null;
   ritual: boolean | null;
   classi: string | null;
+  tipiDanno: string[] | null;
   groupId: string | null;
   groupNome: string | null;
 };
@@ -75,6 +77,7 @@ export default function SpellsPage() {
   const scuole = getListParam("scuola");
   const livelli = getListParam("livello");
   const classi = getListParam("classe");
+  const tipiDanno = getListParam("danno");
   const concentration = searchParams.get("concentration") ?? "";
   const ritual = searchParams.get("ritual") ?? "";
   const groupFilter = getListParam("group");
@@ -142,7 +145,7 @@ export default function SpellsPage() {
   }
 
   function resetFilters() {
-    setParams({ search: "", group: "", scuola: "", livello: "", classe: "", concentration: "", ritual: "" }); // la vista resta
+    setParams({ search: "", group: "", scuola: "", livello: "", classe: "", danno: "", concentration: "", ritual: "" }); // la vista resta
   }
 
   function handleTabChange(k: string) {
@@ -178,6 +181,13 @@ export default function SpellsPage() {
     return t.has(key) ? t(key) : cls;
   };
   const classOptions = SPELL_CLASSES.map((c) => ({ value: c, label: classLabel(c) }));
+
+  // Tipi di danno: valori in inglese come nel database, etichette tradotte
+  const damageLabel = (type: string) => {
+    const key = damageKey(type) as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : type;
+  };
+  const damageOptions = DAMAGE_TYPES.map((d) => ({ value: d, label: damageLabel(d) }));
 
   const livelloOptions = [
     { value: "0", label: t("livelloOption0") },
@@ -226,6 +236,7 @@ export default function SpellsPage() {
     scuole: scuole.length ? scuole : undefined,
     livelli: livelli.length ? livelli.map(Number) : undefined,
     classi: classi.length ? classi : undefined,
+    tipiDanno: tipiDanno.length ? tipiDanno : undefined,
     concentration: concentration === "true" ? true : undefined,
     ritual: ritual === "true" ? true : undefined,
   };
@@ -331,6 +342,7 @@ export default function SpellsPage() {
     { key: "scuola", label: t("colScuola"), sortable: true, type: "badge", badgeColors: SCUOLA_BADGE_COLORS, badgeLabels: Object.fromEntries(scuolaOptions.map((o) => [o.value, o.label])) },
     { key: "livello", label: t("colLivello"), sortable: true, render: (v) => (v === 0 ? t("trucchetto") : t("livelloShort", { n: v as number })) },
     { key: "gittata", label: t("colGittata"), render: (v) => formatRange(v as string | null, unitSystem, tRange) },
+    { key: "tipiDanno", label: t("colDanno"), render: (v) => ((v as string[] | null) ?? []).map(damageLabel).join(", ") },
   ];
 
   const meiColumns: Column<SpellRow>[] = [
@@ -345,7 +357,7 @@ export default function SpellsPage() {
   ];
 
   // Quanti filtri sono attivi (per il pulsante "Filtri (n)" su mobile)
-  const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, classi.length, concentration, ritual].filter(Boolean).length;
+  const activeFilterCount = [search, groupFilter.length, scuole.length, livelli.length, classi.length, tipiDanno.length, concentration, ritual].filter(Boolean).length;
 
   function askDeleteSpell(s: SpellRow) {
     setConfirm({
@@ -388,6 +400,7 @@ export default function SpellsPage() {
               gittata={s.gittata}
               concentration={s.concentration}
               ritual={s.ritual}
+              tipiDanno={s.tipiDanno}
               groupNome={tab === "miei" ? s.groupNome : null}
             />
           )}
@@ -509,6 +522,7 @@ export default function SpellsPage() {
         <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} style={{ minWidth: "160px" }} />
         <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} style={{ minWidth: "130px" }} />
         <GrimoireMultiSelect id="spell-classe" placeholder={t("filterAllClasses")} value={classi} onChange={(v) => setParam("classe", v.join(","))} options={classOptions} style={{ minWidth: "150px" }} />
+        <GrimoireMultiSelect id="spell-danno" placeholder={t("filterAllDamage")} value={tipiDanno} onChange={(v) => setParam("danno", v.join(","))} options={damageOptions} style={{ minWidth: "150px" }} />
         <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
         <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
       </GrimoireInlineGroup>
@@ -528,6 +542,7 @@ export default function SpellsPage() {
       <GrimoireChips label={t("colLivello")} options={livelloOptions} value={livelli} onChange={(v) => setParam("livello", v.join(","))} />
       <GrimoireChips label={t("colScuola")} options={scuolaOptions} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} />
       <GrimoireChips label={t("colClassi")} options={classOptions} value={classi} onChange={(v) => setParam("classe", v.join(","))} />
+      <GrimoireChips label={t("fieldDanno")} options={damageOptions} value={tipiDanno} onChange={(v) => setParam("danno", v.join(","))} />
       <GrimoireChips
         label={t("filterOther")}
         options={[

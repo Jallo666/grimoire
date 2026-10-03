@@ -47,6 +47,8 @@ export const spells = pgTable("spells", {
   higherLevel: text("higher_level"),
   classi: text("classi"),
   sottoclassi: text("sottoclassi"),
+  // Tipi di danno in inglese, come nei dati SRD (es. ["fire", "radiant"]); null = nessun danno
+  tipiDanno: text("tipi_danno").array(),
   translations: jsonb("translations").$type<Record<string, { nome: string; descrizione?: string; highLevel?: string; material?: string }>>().default({}),
 });
 

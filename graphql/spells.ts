@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and, or, ilike, isNull, inArray } from "drizzle-orm";
+import { eq, and, or, ilike, isNull, inArray, arrayOverlaps } from "drizzle-orm";
 import { db } from "@/db";
 import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
@@ -31,6 +31,7 @@ export const spellTypeDefs = gql`
     ritual: Boolean
     classi: String
     sottoclassi: String
+    tipiDanno: [String!]
     creatorId: Int
     createdAt: String!
     isOwner: Boolean!
@@ -42,10 +43,10 @@ export const spellTypeDefs = gql`
   }
 
   type Query {
-    mySpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
+    mySpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], tipiDanno: [String!], concentration: Boolean, ritual: Boolean, groupIds: [ID!], locale: String): [Spell!]!
     spell(id: ID!, locale: String): Spell
-    srdSpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
-    allSpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    srdSpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], tipiDanno: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
+    allSpells(search: String, scuole: [String!], livelli: [Int!], classi: [String!], tipiDanno: [String!], concentration: Boolean, ritual: Boolean, locale: String): [Spell!]!
     campaignSpells(campaignId: ID!): [Spell!]!
   }
 
@@ -143,12 +144,14 @@ function classiCondition(classi: string[]) {
 
 export const spellResolvers = {
   Query: {
-    mySpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; concentration?: boolean; ritual?: boolean; groupIds?: string[]; locale?: string }, context: Context) => {
+    mySpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; concentration?: boolean; ritual?: boolean; groupIds?: string[]; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
       const conditions = [eq(userSpellLibrary.userId, user.id)];
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
+      // almeno uno dei tipi di danno scelti
+      if (args.tipiDanno?.length) conditions.push(arrayOverlaps(spells.tipiDanno, args.tipiDanno));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -172,7 +175,7 @@ export const spellResolvers = {
       return toGql(spell, user.id, true, null, null, args.locale);
     },
 
-    srdSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    srdSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       assertAuthenticated(context);
       const user = context.user!;
 
@@ -180,6 +183,8 @@ export const spellResolvers = {
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
+      // almeno uno dei tipi di danno scelti
+      if (args.tipiDanno?.length) conditions.push(arrayOverlaps(spells.tipiDanno, args.tipiDanno));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));
@@ -193,13 +198,15 @@ export const spellResolvers = {
       return rows.map((s) => toGql(s, user.id, inLibrarySet.has(s.id), null, null, args.locale));
     },
 
-    allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
+    allSpells: async (_: unknown, args: { search?: string; scuole?: string[]; livelli?: number[]; classi?: string[]; tipiDanno?: string[]; concentration?: boolean; ritual?: boolean; locale?: string }, context: Context) => {
       const user = assertAuthenticated(context);
 
       const conditions = [];
       if (args.scuole?.length) conditions.push(inArray(spells.scuola, args.scuole));
       if (args.livelli?.length) conditions.push(inArray(spells.livello, args.livelli));
       if (args.classi?.length) conditions.push(classiCondition(args.classi));
+      // almeno uno dei tipi di danno scelti
+      if (args.tipiDanno?.length) conditions.push(arrayOverlaps(spells.tipiDanno, args.tipiDanno));
       if (args.search) conditions.push(ilike(spells.nome, `%${args.search}%`));
       if (args.concentration === true) conditions.push(eq(spells.concentration, true));
       if (args.ritual === true) conditions.push(eq(spells.ritual, true));

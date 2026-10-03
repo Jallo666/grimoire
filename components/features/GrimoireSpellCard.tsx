@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
+import { damageKey } from "@/lib/damageTypes";
 import GrimoireCard from "@/components/ui/GrimoireCard";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 
@@ -14,12 +15,13 @@ type Props = {
   gittata: string | null;
   concentration: boolean | null;
   ritual: boolean | null;
+  tipiDanno?: string[] | null;
   groupNome?: string | null;
 };
 
 // Card di un incantesimo (vista a card della pagina incantesimi):
 // nome e livello in alto, badge della scuola, poi gittata, concentrazione/rituale ed eventuale gruppo.
-export default function GrimoireSpellCard({ nome, scuola, livello, gittata, concentration, ritual, groupNome }: Props) {
+export default function GrimoireSpellCard({ nome, scuola, livello, gittata, concentration, ritual, tipiDanno, groupNome }: Props) {
   const t = useTranslations("spells");
   const unitSystem = useAppSelector((s) => s.prefs.unitSystem) as UnitSystem;
   const tRange = (key: string) => t(`range${key.charAt(0).toUpperCase()}${key.slice(1)}` as Parameters<typeof t>[0]);
@@ -28,8 +30,15 @@ export default function GrimoireSpellCard({ nome, scuola, livello, gittata, conc
   const scuolaKey = `scuola${scuola}` as Parameters<typeof t>[0];
   const scuolaLabel = scuola && t.has(scuolaKey) ? t(scuolaKey) : scuola;
 
+  // Tipi di danno tradotti (es. "Fuoco, Radioso")
+  const danno = (tipiDanno ?? []).map((d) => {
+    const key = damageKey(d) as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : d;
+  }).join(", ");
+
   const details = [
     formatRange(gittata, unitSystem, tRange),
+    danno || null,
     concentration ? t("colConcentrazione") : null,
     ritual ? t("colRituale") : null,
   ].filter(Boolean).join(" · ");

@@ -1,23 +1,23 @@
 import { gql } from "graphql-tag";
 
-const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi groupId groupNome createdAt`;
-const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi creatorId isOwner isSystem inLibrary groupId groupNome createdAt translations { locale nome descrizione highLevel material }`;
+const SPELL_FIELDS = `id nome scuola livello gittata isOwner isSystem inLibrary concentration ritual classi tipiDanno groupId groupNome createdAt`;
+const SPELL_FULL_FIELDS = `id nome descrizione scuola livello tempoLancio gittata durata componenti higherLevel concentration ritual classi sottoclassi tipiDanno creatorId isOwner isSystem inLibrary groupId groupNome createdAt translations { locale nome descrizione highLevel material }`;
 
 export const MY_SPELLS = gql`
-  query MySpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [String!], $concentration: Boolean, $ritual: Boolean, $groupIds: [ID!], $locale: String) {
-    mySpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, concentration: $concentration, ritual: $ritual, groupIds: $groupIds, locale: $locale) { ${SPELL_FIELDS} }
+  query MySpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [String!], $tipiDanno: [String!], $concentration: Boolean, $ritual: Boolean, $groupIds: [ID!], $locale: String) {
+    mySpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, concentration: $concentration, ritual: $ritual, groupIds: $groupIds, locale: $locale) { ${SPELL_FIELDS} }
   }
 `;
 
 export const SRD_SPELLS = gql`
-  query SrdSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [String!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
-    srdSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
+  query SrdSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [String!], $tipiDanno: [String!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
+    srdSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
   }
 `;
 
 export const ALL_SPELLS = gql`
-  query AllSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [String!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
-    allSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
+  query AllSpells($search: String, $scuole: [String!], $livelli: [Int!], $classi: [String!], $tipiDanno: [String!], $concentration: Boolean, $ritual: Boolean, $locale: String) {
+    allSpells(search: $search, scuole: $scuole, livelli: $livelli, classi: $classi, tipiDanno: $tipiDanno, concentration: $concentration, ritual: $ritual, locale: $locale) { ${SPELL_FIELDS} }
   }
 `;
 
