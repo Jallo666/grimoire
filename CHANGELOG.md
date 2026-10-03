@@ -3,6 +3,13 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.12.1] - 2026-10-03
+
+### Corretto
+- Dettaglio incantesimo: skeleton anche sul titolo mentre carica (prop `titleSkeleton` di `GrimoireModal`).
+- Creazione incantesimo allineata al dettaglio: a schermo intero su tablet e telefono, tab della lingua con `GrimoireTabs`, campi su due colonne da 768px (nuovo componente `GrimoireFieldGrid`).
+- `GrimoireTabs`: i bottoni non inviano più un form quando le tab sono dentro un form.
+
 ## [0.12.0] - 2026-10-02
 
 ### Aggiunto
