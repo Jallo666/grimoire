@@ -15,6 +15,7 @@ import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
 import { getLocaleCookie, setLocaleCookie } from "@/lib/localeCookie";
+import GrimoireField from "@/components/ui/GrimoireField";
 
 type UserPrefs = {
   id: string;
@@ -151,9 +152,7 @@ export default function ProfilePage() {
         <GrimoireCardGridItem half>
           <GrimoireCard title={t("emailSection")}>
             {me && (
-              <p style={{ color: "var(--g-text-muted)", marginBottom: "1rem", fontSize: "0.875rem" }}>
-                {t("emailCurrent")}: <strong style={{ color: "var(--g-text)" }}>{me.email}</strong>
-              </p>
+              <GrimoireField label={t("emailCurrent")} value={me.email} />
             )}
             {emailMsg && (
               <GrimoireAlert variant={emailMsg.ok ? "success" : "danger"}>{emailMsg.text}</GrimoireAlert>

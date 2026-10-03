@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ import GrimoireFieldGrid from "@/components/ui/GrimoireFieldGrid";
 import GrimoireDivider from "@/components/ui/GrimoireDivider";
 import GrimoirePager from "@/components/ui/GrimoirePager";
 import GrimoireModalFooter from "@/components/ui/GrimoireModalFooter";
-import styles from "./SpellViewModal.module.css";
+import GrimoireSwipeArea from "@/components/ui/GrimoireSwipeArea";
 import { CASTING_TIME_MAP, DURATION_MAP, translateField } from "@/lib/formatSpellFields";
 
 type Translation = {
@@ -118,26 +118,6 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  // Swipe: dito verso sinistra = successivo, verso destra = precedente.
-  // Conta solo se il movimento è lungo almeno 60px e chiaramente orizzontale
-  // (così scorrere in giù una descrizione lunga non cambia incantesimo).
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
-
-  function handleTouchStart(e: React.TouchEvent) {
-    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }
-
-  function handleTouchEnd(e: React.TouchEvent) {
-    const start = touchStart.current;
-    touchStart.current = null;
-    if (!start) return;
-    const dx = e.changedTouches[0].clientX - start.x;
-    const dy = e.changedTouches[0].clientY - start.y;
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-    if (dx < 0) goNext();
-    else goPrev();
-  }
-
   function getLangData(lang: string) {
     if (!spell) return null;
     const trans = spell.translations.find((tr) => tr.locale === lang);
@@ -192,13 +172,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
       }
     >
       {/* key: cambiando incantesimo il contenuto si ricrea e l'animazione di entrata riparte */}
-      <div
-        key={spellId ?? ""}
-        className={direction === "next" ? styles.fromRight : direction === "prev" ? styles.fromLeft : undefined}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        style={{ minHeight: "100%" }}
-      >
+      <GrimoireSwipeArea key={spellId ?? ""} enterFrom={direction} onSwipeLeft={goNext} onSwipeRight={goPrev}>
         {loading ? (
           // Skeleton con la stessa forma del contenuto: descrizione, poi scuola, livello, tempo, gittata, durata
           <>
@@ -252,7 +226,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             <GrimoireField label={t("colClassi")} value={spell.classi.map((c) => c.nome).join(", ")} />
           </>
         ) : null}
-      </div>
+      </GrimoireSwipeArea>
     </GrimoireModal>
   );
 }

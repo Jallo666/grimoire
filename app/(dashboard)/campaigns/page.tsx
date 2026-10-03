@@ -11,7 +11,7 @@ import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
 import GrimoireModal from "@/components/ui/GrimoireModal";
-import GrimoireAlert from "@/components/ui/GrimoireAlert";
+import GrimoireModalFooter from "@/components/ui/GrimoireModalFooter";
 import GrimoireConfirm, { type ConfirmRequest } from "@/components/ui/GrimoireConfirm";
 
 type CampaignRow = {
@@ -122,15 +122,10 @@ export default function CampaignsPage() {
         title={t("createModalTitle")}
         size="lg"
         footer={
-          <div className="d-flex flex-column gap-2 w-100">
-            {(createFormError || createError?.message) && (
-              <GrimoireAlert>{createFormError ?? createError?.message}</GrimoireAlert>
-            )}
-            <div className="d-flex gap-2 justify-content-end">
-              <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); setCreateFormError(null); }}>{t("cancelButton")}</GrimoireButton>
-              <GrimoireButton type="submit" form="create-campaign-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
-            </div>
-          </div>
+          <GrimoireModalFooter error={createFormError ?? createError}>
+            <GrimoireButton variant="outline-secondary" onClick={() => { setShowCreate(false); setCreateFormError(null); }}>{t("cancelButton")}</GrimoireButton>
+            <GrimoireButton type="submit" form="create-campaign-form" loading={creating}>{t("createSubmit")}</GrimoireButton>
+          </GrimoireModalFooter>
         }
       >
         <GrimoireForm

@@ -1,5 +1,10 @@
-/* Cambio incantesimo (‹ ›, frecce della tastiera, swipe): il nuovo contenuto entra
-   scivolando dal lato da cui arriva — da destra il successivo, da sinistra il precedente */
+/* Area tutta alta quanto lo spazio disponibile, così lo swipe funziona anche sotto un contenuto corto */
+.area {
+  min-height: 100%;
+}
+
+/* Cambio di contenuto (frecce, tastiera, swipe): il nuovo contenuto entra scivolando dal lato
+   da cui arriva — da destra il successivo, da sinistra il precedente */
 .fromRight {
   animation: fromRight 220ms ease-out both;
 }

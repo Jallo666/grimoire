@@ -9,10 +9,11 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: Option[];
   size?: "sm";
-  style?: React.CSSProperties;
+  // larghezza minima in px (es. nei filtri affiancati)
+  minWidth?: number;
 };
 
-export default function GrimoireSelect({ id, label, value, onChange, options, size, style }: Props) {
+export default function GrimoireSelect({ id, label, value, onChange, options, size, minWidth }: Props) {
   return (
     <div className={label ? "mb-3" : undefined}>
       {label && (
@@ -29,7 +30,7 @@ export default function GrimoireSelect({ id, label, value, onChange, options, si
           backgroundColor: "var(--g-input-bg)",
           borderColor: "var(--g-input-border)",
           color: "var(--g-input-text)",
-          ...style,
+          minWidth,
         }}
       >
         {options.map((o) => (

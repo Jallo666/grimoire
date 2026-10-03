@@ -10,11 +10,10 @@ import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireFormSection from "@/components/ui/GrimoireFormSection";
 import GrimoireForm, { type FieldConfig } from "@/components/ui/GrimoireForm";
 import GrimoireModal from "@/components/ui/GrimoireModal";
-import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
+import GrimoireModalFooter from "@/components/ui/GrimoireModalFooter";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireAlert from "@/components/ui/GrimoireAlert";
 import GrimoireInput from "@/components/ui/GrimoireInput";
-import GrimoireCard from "@/components/ui/GrimoireCard";
 
 type SpellTranslation = { locale: string; nome: string; descrizione: string | null; highLevel: string | null; material: string | null };
 
@@ -40,10 +39,6 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   const [showShare, setShowShare] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const [shareSuccess, setShareSuccess] = useState(false);
-  const [transNome, setTransNome] = useState("");
-  const [transDescrizione, setTransDescrizione] = useState("");
-  const [transHighLevel, setTransHighLevel] = useState("");
-  const [transMaterial, setTransMaterial] = useState("");
   const t = useTranslations("spellDetail");
   const ts = useTranslations("spells");
   const locale = useLocale();
@@ -101,16 +96,7 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
   const [updateSpell, { loading: updating, error: updateError }] = useMutation(UPDATE_SPELL, { onCompleted: () => refetch() });
   type UpsertResult = { upsertSpellTranslation: { id: string; translations: SpellTranslation[] } };
   const [upsertTranslation, { loading: savingTrans, error: transError }] = useMutation<UpsertResult>(UPSERT_SPELL_TRANSLATION, {
-    onCompleted: (data) => {
-      const saved = data?.upsertSpellTranslation?.translations?.find((tr) => tr.locale === locale);
-      if (saved) {
-        setTransNome(saved.nome);
-        setTransDescrizione(saved.descrizione ?? "");
-        setTransHighLevel(saved.highLevel ?? "");
-        setTransMaterial(saved.material ?? "");
-      }
-      refetch();
-    },
+    onCompleted: () => refetch(),
   });
   const [shareSpell, { loading: sharing, error: shareError }] = useMutation(SHARE_SPELL_USER, {
     onCompleted: () => { setShareSuccess(true); setShareEmail(""); },
@@ -131,12 +117,20 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
 
   const spell = data.spell;
 
-  // Pre-populate translation fields from loaded data
+  // Traduzione nella lingua dell'interfaccia: campi già riempiti se esiste
   const existingTrans = spell.translations.find((tr) => tr.locale === locale);
-  const initTransNome = transNome || existingTrans?.nome || "";
-  const initTransDescrizione = transDescrizione || existingTrans?.descrizione || "";
-  const initTransHighLevel = transHighLevel || existingTrans?.highLevel || "";
-  const initTransMaterial = transMaterial || existingTrans?.material || "";
+  const translationFields: FieldConfig[] = [
+    { name: "nome", label: t("translationNome"), type: "text", required: true },
+    { name: "descrizione", label: t("translationDescrizione"), type: "textarea", rows: 5 },
+    { name: "highLevel", label: t("translationHigherLevel"), type: "textarea", rows: 2 },
+    { name: "material", label: t("translationMaterial"), type: "text" },
+  ];
+  const translationValues: Record<string, string> = {
+    nome: existingTrans?.nome ?? "",
+    descrizione: existingTrans?.descrizione ?? "",
+    highLevel: existingTrans?.highLevel ?? "",
+    material: existingTrans?.material ?? "",
+  };
 
   const initialValues: Record<string, string> = {
     nome: spell.nome,
@@ -171,16 +165,15 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     });
   }
 
-  async function handleSaveTranslation() {
-    if (!initTransNome) return;
+  async function handleSaveTranslation(values: Record<string, string>) {
     await upsertTranslation({
       variables: {
         spellId: id,
         locale,
-        nome: initTransNome,
-        descrizione: initTransDescrizione || null,
-        highLevel: initTransHighLevel || null,
-        material: initTransMaterial || null,
+        nome: values.nome,
+        descrizione: values.descrizione || null,
+        highLevel: values.highLevel || null,
+        material: values.material || null,
       },
     });
   }
@@ -203,67 +196,39 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
           onSubmit={handleUpdate}
           submitLabel={t("saveButton")}
           loading={updating}
-          error={updateError?.message}
+          error={updateError}
           view={!spell.isOwner}
         />
       </GrimoireFormSection>
 
-      {/* Translation card */}
+      {/* Traduzione nella lingua dell'interfaccia */}
       <GrimoireFormSection full>
-        <GrimoireCard bare>
-          <div
-            className="card-header border-bottom px-4 pt-4 pb-3"
-            style={{ backgroundColor: "var(--g-card-bg)", borderColor: "var(--g-card-border)" }}
-          >
-            <h5 className="mb-0" style={{ color: "var(--g-text)" }}>{t("translationTitle", { locale: locale.toUpperCase() })}</h5>
-          </div>
-          <div className="card-body px-4 py-3">
-            {transError && <GrimoireAlert>{transError.message}</GrimoireAlert>}
-            <GrimoireInput
-              id="trans-nome"
-              label={t("translationNome")}
-              type="text"
-              value={initTransNome}
-              onChange={(e) => setTransNome((e.target as HTMLInputElement).value)}
-            />
-            <GrimoireInput
-              id="trans-descrizione"
-              label={t("translationDescrizione")}
-              type="textarea"
-              rows={5}
-              value={initTransDescrizione}
-              onChange={(e) => setTransDescrizione((e.target as HTMLTextAreaElement).value)}
-            />
-            <GrimoireInput
-              id="trans-higher-level"
-              label={t("translationHigherLevel")}
-              type="textarea"
-              rows={2}
-              value={initTransHighLevel}
-              onChange={(e) => setTransHighLevel((e.target as HTMLTextAreaElement).value)}
-            />
-            <GrimoireInput
-              id="trans-material"
-              label={t("translationMaterial")}
-              type="text"
-              value={initTransMaterial}
-              onChange={(e) => setTransMaterial((e.target as HTMLInputElement).value)}
-            />
-          </div>
-          <div
-            className="card-footer px-4 py-3 d-flex justify-content-end border-top"
-            style={{ backgroundColor: "var(--g-card-bg)", borderColor: "var(--g-card-border)" }}
-          >
-            <GrimoireButton loading={savingTrans} onClick={handleSaveTranslation}>
-              {t("translationSave")}
-            </GrimoireButton>
-          </div>
-        </GrimoireCard>
+        <GrimoireForm
+          key={`${spell.id}-${locale}`}
+          title={t("translationTitle", { locale: locale.toUpperCase() })}
+          fields={translationFields}
+          initialValues={translationValues}
+          onSubmit={handleSaveTranslation}
+          submitLabel={t("translationSave")}
+          loading={savingTrans}
+          error={transError}
+        />
       </GrimoireFormSection>
 
-      <GrimoireModal show={showShare} onClose={() => setShowShare(false)} title={t("shareModalTitle")}>
+      <GrimoireModal
+        show={showShare}
+        onClose={() => setShowShare(false)}
+        title={t("shareModalTitle")}
+        footer={
+          <GrimoireModalFooter error={shareError}>
+            <GrimoireButton variant="outline-secondary" onClick={() => setShowShare(false)}>{t("cancelButton")}</GrimoireButton>
+            <GrimoireButton loading={sharing} onClick={() => shareSpell({ variables: { spellId: id, email: shareEmail } })}>
+              {t("shareButton")}
+            </GrimoireButton>
+          </GrimoireModalFooter>
+        }
+      >
         {shareSuccess && <GrimoireAlert variant="success">{t("shareSuccess")}</GrimoireAlert>}
-        {shareError && <GrimoireAlert>{shareError.message}</GrimoireAlert>}
         <GrimoireInput
           id="share-email"
           label={t("shareEmailLabel")}
@@ -272,12 +237,6 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
           onChange={(e) => setShareEmail((e.target as HTMLInputElement).value)}
           placeholder={t("shareEmailPlaceholder")}
         />
-        <GrimoireModalActions>
-          <GrimoireButton variant="outline-secondary" onClick={() => setShowShare(false)}>{t("cancelButton")}</GrimoireButton>
-          <GrimoireButton loading={sharing} onClick={() => shareSpell({ variables: { spellId: id, email: shareEmail } })}>
-            {t("shareButton")}
-          </GrimoireButton>
-        </GrimoireModalActions>
       </GrimoireModal>
     </GrimoirePage>
   );

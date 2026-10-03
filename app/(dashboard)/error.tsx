@@ -3,23 +3,25 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { errorExtensions } from "@/lib/errorReason";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
+import GrimoireAlert from "@/components/ui/GrimoireAlert";
 import GrimoireButton from "@/components/ui/GrimoireButton";
-
-type ApolloLike = Error & { graphQLErrors?: { extensions?: { code?: string } }[] };
 
 export default function DashboardError({
   error,
   reset,
 }: {
-  error: ApolloLike & { digest?: string };
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
   const router = useRouter();
   const t = useTranslations("errors");
-  const code = error.graphQLErrors?.[0]?.extensions?.code;
+  // code generico dell'errore del server (UNAUTHENTICATED, FORBIDDEN, …)
+  const code = errorExtensions(error)?.code;
 
+  // Sessione scaduta: si torna al login
   useEffect(() => {
     if (code === "UNAUTHENTICATED") router.push("/login");
   }, [code, router]);
@@ -31,9 +33,8 @@ export default function DashboardError({
       <GrimoirePageTitle showBack>
         {code === "FORBIDDEN" ? t("accessDenied") : t("error")}
       </GrimoirePageTitle>
-      <p style={{ color: "var(--g-text-muted)" }}>
-        {code === "FORBIDDEN" ? t("forbiddenDescription") : (error.message ?? t("unexpectedError"))}
-      </p>
+      {/* messaggio tradotto dal codice dell'errore, o generico */}
+      <GrimoireAlert error={error} />
       {code !== "FORBIDDEN" && (
         <GrimoireButton variant="outline-secondary" onClick={reset}>
           {t("retry")}

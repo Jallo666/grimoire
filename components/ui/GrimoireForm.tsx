@@ -36,7 +36,8 @@ type Props = {
   subtitle?: string;
   fields: FieldConfig[];
   initialValues?: Record<string, string>;
-  error?: string;
+  // Errore da mostrare in cima: testo, oppure errore del server (tradotto da GrimoireAlert)
+  error?: unknown;
   onSubmit: (values: Record<string, string>) => void | Promise<void>;
   submitLabel?: string;
   loading?: boolean;
@@ -124,7 +125,7 @@ export default function GrimoireForm({
 
       <form id={id} onSubmit={handleSubmit} noValidate>
         <div className="card-body px-4 py-3">
-          {(error || validationError) && <GrimoireAlert>{error ?? validationError}</GrimoireAlert>}
+          {!!(error || validationError) && <GrimoireAlert error={error || validationError} />}
           {fields.map((f) =>
             f.type === "range" ? (
               <GrimoireRangeInput

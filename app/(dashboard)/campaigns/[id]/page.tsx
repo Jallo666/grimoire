@@ -13,7 +13,8 @@ import GrimoireTable, { type Column } from "@/components/ui/GrimoireTable";
 import GrimoireButton from "@/components/ui/GrimoireButton";
 import GrimoireBadge from "@/components/ui/GrimoireBadge";
 import GrimoireModal from "@/components/ui/GrimoireModal";
-import GrimoireModalActions from "@/components/ui/GrimoireModalActions";
+import GrimoireModalFooter from "@/components/ui/GrimoireModalFooter";
+import GrimoireText from "@/components/ui/GrimoireText";
 import GrimoireSectionHeader from "@/components/ui/GrimoireSectionHeader";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireSelect from "@/components/ui/GrimoireSelect";
@@ -87,12 +88,12 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
       render: (v, row, meta) => {
         const u = v as UserRow;
         return (
-          <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <GrimoireInlineGroup>
             {u.nome ?? "—"}
             {row.userId === (meta.ownerId as number) && (
               <GrimoireBadge>{tUi("owner")}</GrimoireBadge>
             )}
-          </span>
+          </GrimoireInlineGroup>
         );
       },
     },
@@ -183,7 +184,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           onSubmit={handleUpdate}
           submitLabel={t("saveButton")}
           loading={updating}
-          error={updateError?.message}
+          error={updateError}
           view={!isOwner}
         />
       </GrimoireFormSection>
@@ -218,6 +219,16 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         show={!!editingMember}
         onClose={() => setEditingMember(null)}
         title={t("changeRoleModalTitle", { name: editingMember?.user.nome ?? editingMember?.user.email ?? "" })}
+        footer={
+          <GrimoireModalFooter>
+            <GrimoireButton variant="outline-secondary" onClick={() => setEditingMember(null)}>
+              {t("cancelButton")}
+            </GrimoireButton>
+            <GrimoireButton loading={updatingRole} onClick={() => updateRole({ variables: { memberId: editingMember!.id, ruolo: editingRole } })}>
+              {t("saveRoleButton")}
+            </GrimoireButton>
+          </GrimoireModalFooter>
+        }
       >
         <GrimoireInput
           id="edit-role"
@@ -227,19 +238,11 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           onChange={(e) => setEditingRole(e.target.value)}
           options={changeRoleOptions}
         />
-        <GrimoireModalActions>
-          <GrimoireButton variant="outline-secondary" onClick={() => setEditingMember(null)}>
-            {t("cancelButton")}
-          </GrimoireButton>
-          <GrimoireButton loading={updatingRole} onClick={() => updateRole({ variables: { memberId: editingMember!.id, ruolo: editingRole } })}>
-            {t("saveRoleButton")}
-          </GrimoireButton>
-        </GrimoireModalActions>
       </GrimoireModal>
 
       <GrimoireModal show={showPicker} onClose={() => setShowPicker(false)} title={t("addMemberModalTitle")} size="lg">
         {availableUsers.length === 0 ? (
-          <p style={{ color: "var(--g-text-muted)" }}>{t("noAvailableUsers")}</p>
+          <GrimoireText muted>{t("noAvailableUsers")}</GrimoireText>
         ) : (
           <GrimoireTable
             columns={pickerColumns}
@@ -253,7 +256,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
                   onChange={(e) => setPickerRoles((r) => ({ ...r, [u.id]: e.target.value }))}
                   options={pickerRoleOptions}
                   size="sm"
-                  style={{ minWidth: "130px" }}
+                  minWidth={130}
                 />
                 <GrimoireButton
                   size="sm"

@@ -11,13 +11,14 @@ type Props = {
   options: Option[];
   value: string[];
   onChange: (values: string[]) => void;
-  style?: React.CSSProperties;
+  // larghezza minima in px (es. nei filtri affiancati)
+  minWidth?: number;
 };
 
 // Select a scelta multipla: un pulsante che sembra una select e apre un elenco di caselle da spuntare.
 // Nessuna voce spuntata = mostra il placeholder (es. "Tutte le scuole").
 // Una voce = mostra quella voce. Più voci = mostra la prima e quante altre (es. "Evocazione +2").
-export default function GrimoireMultiSelect({ id, placeholder, options, value, onChange, style }: Props) {
+export default function GrimoireMultiSelect({ id, placeholder, options, value, onChange, minWidth }: Props) {
   const t = useTranslations("ui");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -51,7 +52,7 @@ export default function GrimoireMultiSelect({ id, placeholder, options, value, o
     : `${selected[0].label} +${selected.length - 1}`;
 
   return (
-    <div ref={ref} style={{ position: "relative", ...style }}>
+    <div ref={ref} style={{ position: "relative", minWidth }}>
       <button
         id={id}
         type="button"

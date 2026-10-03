@@ -316,8 +316,6 @@
   "errors": {
     "accessDenied": "Accesso negato",
     "error": "Errore",
-    "forbiddenDescription": "Non sei membro di questa campagna.",
-    "unexpectedError": "Si è verificato un errore imprevisto.",
     "retry": "Riprova",
     "somethingWentWrong": "Qualcosa è andato storto",
     "GENERIC": "Non è stato possibile completare l'operazione. Riprova.",

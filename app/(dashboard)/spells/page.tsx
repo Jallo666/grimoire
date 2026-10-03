@@ -517,14 +517,14 @@ export default function SpellsPage() {
       <GrimoireInlineGroup wrap spaced>
         <GrimoireSearchInput id="spell-search" value={search} onSearch={(v) => setParam("search", v)} placeholder={t("searchPlaceholder")} />
         {tab === "miei" && (
-          <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} style={{ minWidth: "150px" }} />
+          <GrimoireMultiSelect id="spell-group" placeholder={t("filterAllGroups")} value={groupFilter} onChange={(v) => setParam("group", v.join(","))} options={groupOptions} minWidth={150} />
         )}
-        <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} style={{ minWidth: "160px" }} />
-        <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} style={{ minWidth: "130px" }} />
-        <GrimoireMultiSelect id="spell-classe" placeholder={t("filterAllClasses")} value={classi} onChange={(v) => setParam("classe", v.join(","))} options={classOptions} style={{ minWidth: "150px" }} />
-        <GrimoireMultiSelect id="spell-danno" placeholder={t("filterAllDamage")} value={tipiDanno} onChange={(v) => setParam("danno", v.join(","))} options={damageOptions} style={{ minWidth: "150px" }} />
-        <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} style={{ minWidth: "155px" }} />
-        <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} style={{ minWidth: "120px" }} />
+        <GrimoireMultiSelect id="spell-scuola" placeholder={t("filterAll")} value={scuole} onChange={(v) => setParam("scuola", v.join(","))} options={scuolaOptions} minWidth={160} />
+        <GrimoireMultiSelect id="spell-livello" placeholder={t("filterAllLevels")} value={livelli} onChange={(v) => setParam("livello", v.join(","))} options={livelloOptions} minWidth={130} />
+        <GrimoireMultiSelect id="spell-classe" placeholder={t("filterAllClasses")} value={classi} onChange={(v) => setParam("classe", v.join(","))} options={classOptions} minWidth={150} />
+        <GrimoireMultiSelect id="spell-danno" placeholder={t("filterAllDamage")} value={tipiDanno} onChange={(v) => setParam("danno", v.join(","))} options={damageOptions} minWidth={150} />
+        <GrimoireSelect id="spell-concentration" value={concentration} onChange={(e) => setParam("concentration", e.target.value)} options={boolOptions(t("filterConcentrazione"))} minWidth={155} />
+        <GrimoireSelect id="spell-ritual" value={ritual} onChange={(e) => setParam("ritual", e.target.value)} options={boolOptions(t("filterRituale"))} minWidth={120} />
       </GrimoireInlineGroup>
     </GrimoireFilterPanel>
   );

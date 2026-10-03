@@ -35,7 +35,7 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
         submitLabel={t("registerSubmit")}
         loading={loading}
-        error={error?.message}
+        error={error}
         actions={[{ label: t("registerGoLogin"), onClick: () => router.push("/login") }]}
       />
     </GrimoireAuthLayout>
