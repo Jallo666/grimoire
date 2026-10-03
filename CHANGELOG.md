@@ -3,6 +3,18 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.22.0] - 2026-10-03
+
+### Aggiunto
+- Oggetti (tabella `items`): 53 oggetti di base SRD (es. Diamante, Polvere di rubino) da `scripts/srd-items.json`; ogni utente può crearne di suoi.
+- Ingredienti dei componenti materiali (tabelle `material_options` e `material_ingredients`): alternative ("oppure"), ingredienti richiesti insieme, quantità, valore minimo per pezzo, valore totale minimo, consumato. Per gli incantesimi SRD vengono da `scripts/srd-materials.json` (53 materiali con costo o consumati).
+- Dettaglio: gli ingredienti sotto il componente materiale, con i valori in mo/ma/mr.
+- Form: alternative e ingredienti modificabili, e creazione di un oggetto nuovo al volo.
+
+### Modificato
+- Le migrazioni temporanee partono solo nel build di produzione di Vercel, non nelle anteprime dei branch.
+- Migrazione temporanea `scripts/migrate-0.22.ts` al posto della 0.21.1.
+
 ## [0.21.1] - 2026-10-03
 
 ### Modificato
