@@ -18,10 +18,11 @@ import { THEME_STORAGE_KEY } from "./ThemeSync";
 import styles from "./GrimoireNavbar.module.css";
 import type { User } from "@/db/types";
 
-const NAV_LINKS: { href: string; tKey: "home" | "campaigns" | "spells" }[] = [
+const NAV_LINKS: { href: string; tKey: "home" | "campaigns" | "spells" | "items" }[] = [
   { href: "/", tKey: "home" },
   { href: "/campaigns", tKey: "campaigns" },
   { href: "/spells", tKey: "spells" },
+  { href: "/items", tKey: "items" },
 ];
 
 export default function GrimoireNavbar() {

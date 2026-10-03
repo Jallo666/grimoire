@@ -61,9 +61,10 @@ type Props = {
   // Posizione nella lista, mostrata come "3 / 42"
   position?: { current: number; total: number };
   // Solo per chi l'ha creato: apri la modifica / la condivisione (la modale di dettaglio si chiude).
-  // lang: tab della lingua da aprire nella modifica (es. "Traduci")
-  onEdit: (id: string, lang?: string) => void;
-  onShare: (id: string) => void;
+  // lang: tab della lingua da aprire nella modifica (es. "Traduci").
+  // Facoltativi: senza, i bottoni non compaiono (es. dettaglio aperto dalla pagina oggetti)
+  onEdit?: (id: string, lang?: string) => void;
+  onShare?: (id: string) => void;
 };
 
 export default function SpellViewModal({ spellId, onClose, onPrev, onNext, position, onEdit, onShare }: Props) {
@@ -167,7 +168,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
       fullscreenOnMobile
       footer={
         <GrimoireModalFooter
-          start={spell?.isOwner && (
+          start={spell?.isOwner && onEdit && onShare && (
             <GrimoireInlineGroup>
               <GrimoireButton variant="outline-secondary" mobileIcon="pencil" onClick={() => { close(); onEdit(spell.id); }}>
                 {tDetail("editButton")}
@@ -220,7 +221,7 @@ export default function SpellViewModal({ spellId, onClose, onPrev, onNext, posit
             ) : (
               <>
                 <GrimoireAlert variant="info">{t("notTranslated", { lingua: t(`langName_${viewLang}` as Parameters<typeof t>[0]) })}</GrimoireAlert>
-                {spell.isOwner && (
+                {spell.isOwner && onEdit && (
                   <GrimoireButton variant="outline-secondary" onClick={() => { close(); onEdit(spell.id, viewLang); }}>
                     {t("translateButton")}
                   </GrimoireButton>

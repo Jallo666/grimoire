@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations, useLocale } from "next-intl";
 import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
 import { MY_SPELL_GROUPS } from "@/lib/queries/spellGroups";
-import SpellViewModal from "./SpellViewModal";
+import SpellViewModal from "@/components/features/spells/SpellViewModal";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
