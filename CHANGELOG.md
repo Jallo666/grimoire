@@ -3,6 +3,12 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.17.1] - 2026-10-03
+
+### Modificato
+- `AGENTS.md`: regole del progetto scritte per ogni sessione (architettura, tema, responsive, traduzioni, dati SRD, migrazioni, versioning, pubblicazione).
+- Tolta la migrazione temporanea 0.17 dal build: il build torna a essere solo `next build`.
+
 ## [0.17.0] - 2026-10-03
 
 ### Aggiunto
