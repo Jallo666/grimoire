@@ -3,6 +3,16 @@
 Tutte le modifiche rilevanti del progetto, dalla più recente.
 Le versioni seguono il [Semantic Versioning](https://semver.org/lang/it/): MAJOR.MINOR.PATCH.
 
+## [0.19.0] - 2026-10-03
+
+### Modificato
+- Pagina incantesimi divisa in pezzi in `components/features/spells/` (filtri, lista, selezione multipla, modali di creazione, spostamento e gruppi); la pagina li collega soltanto.
+- Parametri dell'URL dei filtri in inglese: `school`, `level`, `class`, `damage`. I link salvati con i vecchi nomi (`scuola`, `livello`, `classe`, `danno`) aprono la pagina senza filtri.
+- `AGENTS.md`: Bootstrap ammesso nei componenti di `features/`, pagine corte, parametri dell'URL in inglese.
+
+### Corretto
+- Filtri su mobile: scegliendo insieme concentrazione e rituale uno dei due non si perde più.
+
 ## [0.18.0] - 2026-10-03
 
 ### Aggiunto
