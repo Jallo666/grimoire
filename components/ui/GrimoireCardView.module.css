@@ -63,3 +63,40 @@
     justify-content: center;
   }
 }
+
+/* Modalità selezione: cerchio in alto a destra, pieno con la spunta quando la card è selezionata */
+.card {
+  position: relative;
+}
+
+.check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--g-text-muted);
+  background-color: var(--g-card-bg);
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.selected {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+.selected .check {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+/* Spazio in fondo, così le ultime card non finiscono sotto la barra delle azioni */
+.selecting {
+  padding-bottom: 6rem;
+}

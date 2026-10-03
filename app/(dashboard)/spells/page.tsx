@@ -8,9 +8,9 @@ import { useAppSelector } from "@/store/hooks";
 import { formatRange, type UnitSystem } from "@/lib/formatRange";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import { SCUOLA_BADGE_COLORS } from "@/lib/spellSchools";
-import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL } from "@/lib/queries/spells";
+import { MY_SPELLS, SRD_SPELLS, ALL_SPELLS, CREATE_SPELL, DELETE_SPELL, ADD_SRD_SPELL, REMOVE_SRD_SPELL, ADD_SRD_SPELLS, REMOVE_SRD_SPELLS, DELETE_SPELLS } from "@/lib/queries/spells";
 import SpellViewModal from "./SpellViewModal";
-import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP } from "@/lib/queries/spellGroups";
+import { MY_SPELL_GROUPS, CREATE_SPELL_GROUP, RENAME_SPELL_GROUP, DELETE_SPELL_GROUP, MOVE_SPELL_TO_GROUP, MOVE_SPELLS_TO_GROUP } from "@/lib/queries/spellGroups";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
 import GrimoireButton from "@/components/ui/GrimoireButton";
@@ -31,6 +31,8 @@ import GrimoireFilterModal from "@/components/ui/GrimoireFilterModal";
 import GrimoireChips from "@/components/ui/GrimoireChips";
 import GrimoireFieldGrid from "@/components/ui/GrimoireFieldGrid";
 import GrimoireConfirm, { type ConfirmRequest } from "@/components/ui/GrimoireConfirm";
+import GrimoireSelectionBar from "@/components/ui/GrimoireSelectionBar";
+import GrimoireToast from "@/components/ui/GrimoireToast";
 import GrimoireInput from "@/components/ui/GrimoireInput";
 import GrimoireSearchInput from "@/components/ui/GrimoireSearchInput";
 import GrimoireRangeInput from "@/components/ui/GrimoireRangeInput";
@@ -103,6 +105,13 @@ export default function SpellsPage() {
   const [showFilters, setShowFilters] = useState(false);
   // Conferma prima delle azioni distruttive (eliminare, togliere dalla libreria)
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
+  // Modalità selezione e azioni in blocco
+  const [selecting, setSelecting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkGroupMode, setBulkGroupMode] = useState<"add" | "move" | null>(null);
+  const [bulkGroupId, setBulkGroupId] = useState("");
+  const [toast, setToast] = useState<string | null>(null);
+  const hideToast = useCallback(() => setToast(null), []);
   const [moveSpell, setMoveSpell] = useState<SpellRow | null>(null);
   const [moveGroupId, setMoveGroupId] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
@@ -136,6 +145,7 @@ export default function SpellsPage() {
 
   function handleTabChange(k: string) {
     const next = k as TabKey;
+    exitSelection();
     // Cambiando tab i filtri si azzerano, la vista scelta resta
     router.replace(`${pathname}?tab=${TAB_TO_PARAM[next]}${view === "cards" ? "&view=cards" : ""}`);
   }
@@ -253,6 +263,10 @@ export default function SpellsPage() {
   const [removeSrdSpell] = useMutation(REMOVE_SRD_SPELL, {
     onCompleted: () => { refetchMy(); refetchSrd(); refetchAll(); },
   });
+  const [addSrdSpells] = useMutation<{ addSrdSpellsToLibrary: number }>(ADD_SRD_SPELLS);
+  const [removeSrdSpells] = useMutation<{ removeSrdSpellsFromLibrary: number }>(REMOVE_SRD_SPELLS);
+  const [deleteSpells] = useMutation<{ deleteSpells: number }>(DELETE_SPELLS);
+  const [moveSpellsToGroup] = useMutation<{ moveSpellsToGroup: number }>(MOVE_SPELLS_TO_GROUP);
   const [moveToGroup] = useMutation(MOVE_SPELL_TO_GROUP, {
     onCompleted: () => { refetchMy(); setMoveSpell(null); },
   });
@@ -369,6 +383,9 @@ export default function SpellsPage() {
           )}
           title={(s) => s.nome}
           actions={actions}
+          selectable={selecting}
+          selectedIds={selectedIds}
+          onSelectionChange={(ids) => setSelectedIds(ids.map(String))}
           sort={{ key: "livello", dir: "asc", thenBy: "nome" }}
           skeleton={loading}
           emptyMessage={t("tableEmpty")}
@@ -388,9 +405,84 @@ export default function SpellsPage() {
         emptyMessage={t("tableEmpty")}
         actions={actions}
         onOrderChange={handleOrderChange}
+        selectable={selecting}
+        selectedIds={selectedIds}
+        onSelectionChange={(ids) => setSelectedIds(ids.map(String))}
       />
     );
   }
+
+  // ── Selezione e azioni in blocco ──
+  // Contano solo i selezionati ancora visibili (cambiando i filtri alcuni possono sparire)
+  const selectedVisible = selectedIds.filter((id) => visibleIds.includes(id));
+  const allVisibleSelected = visibleIds.length > 0 && selectedVisible.length === visibleIds.length;
+
+  function exitSelection() {
+    setSelecting(false);
+    setSelectedIds([]);
+  }
+
+  // Dopo un'azione in blocco: messaggio col risultato, liste aggiornate, fine selezione
+  function finishBulk(done: number, resultKey: "resultAdded" | "resultRemoved" | "resultMoved" | "resultDeleted") {
+    const ignored = selectedVisible.length - done;
+    setToast(t(resultKey, { count: done }) + (ignored > 0 ? t("resultIgnored", { count: ignored }) : ""));
+    exitSelection();
+    refetchMy(); refetchSrd(); refetchAll(); refetchGroups();
+  }
+
+  function openBulkGroup(mode: "add" | "move") {
+    setBulkGroupMode(mode);
+    // aggiunta: gruppo facoltativo ("automatico"); spostamento: serve un gruppo, si parte dal primo
+    setBulkGroupId(mode === "move" ? groups[0]?.id ?? "" : "");
+  }
+
+  async function confirmBulkGroup() {
+    if (bulkGroupMode === "add") {
+      const { data } = await addSrdSpells({ variables: { spellIds: selectedVisible, groupId: bulkGroupId || undefined } });
+      finishBulk(data?.addSrdSpellsToLibrary ?? 0, "resultAdded");
+    } else if (bulkGroupMode === "move" && bulkGroupId) {
+      const { data } = await moveSpellsToGroup({ variables: { spellIds: selectedVisible, groupId: bulkGroupId } });
+      finishBulk(data?.moveSpellsToGroup ?? 0, "resultMoved");
+    }
+    setBulkGroupMode(null);
+  }
+
+  function askBulkRemove() {
+    setConfirm({
+      title: t("confirmRemoveManyTitle", { count: selectedVisible.length }),
+      message: t("confirmRemoveManyMessage"),
+      confirmLabel: tUi("remove"),
+      danger: true,
+      onConfirm: async () => {
+        const { data } = await removeSrdSpells({ variables: { spellIds: selectedVisible } });
+        finishBulk(data?.removeSrdSpellsFromLibrary ?? 0, "resultRemoved");
+      },
+    });
+  }
+
+  function askBulkDelete() {
+    setConfirm({
+      title: t("confirmDeleteManyTitle", { count: selectedVisible.length }),
+      message: t("confirmDeleteManyMessage"),
+      confirmLabel: tUi("delete"),
+      danger: true,
+      onConfirm: async () => {
+        const { data } = await deleteSpells({ variables: { ids: selectedVisible } });
+        finishBulk(data?.deleteSpells ?? 0, "resultDeleted");
+      },
+    });
+  }
+
+  // Azioni della barra, in base alla tab
+  const none = selectedVisible.length === 0;
+  const bulkActions = (
+    <>
+      {tab !== "miei" && <GrimoireButton size="sm" icon="plus-lg" disabled={none} onClick={() => openBulkGroup("add")}>{t("bulkAdd")}</GrimoireButton>}
+      {tab === "miei" && <GrimoireButton size="sm" variant="outline-secondary" icon="collection" disabled={none || groups.length === 0} onClick={() => openBulkGroup("move")}>{t("bulkMove")}</GrimoireButton>}
+      <GrimoireButton size="sm" variant="outline-secondary" icon="dash-circle" disabled={none} onClick={askBulkRemove}>{t("bulkRemove")}</GrimoireButton>
+      {tab !== "srd" && <GrimoireButton size="sm" variant="danger" icon="trash" disabled={none} onClick={askBulkDelete}>{tUi("delete")}</GrimoireButton>}
+    </>
+  );
 
   // Precedente / successivo nel dettaglio, nell'ordine mostrato
   const viewIndex = viewSpellId ? visibleIds.indexOf(viewSpellId) : -1;
@@ -444,6 +536,7 @@ export default function SpellsPage() {
       <GrimoirePageTitle action={
         <GrimoireInlineGroup>
           <GrimoireButton variant="outline-secondary" mobileIcon="collection" onClick={() => setShowGroups(true)}>{t("manageGroups")}</GrimoireButton>
+          <GrimoireButton variant={selecting ? "primary" : "outline-secondary"} mobileIcon="check2-square" onClick={() => (selecting ? exitSelection() : setSelecting(true))}>{tUi("select")}</GrimoireButton>
           <GrimoireButton mobileIcon="plus-lg" onClick={() => setShowCreate(true)}>{t("newButton")}</GrimoireButton>
         </GrimoireInlineGroup>
       }>
@@ -683,6 +776,42 @@ export default function SpellsPage() {
       />
 
       <GrimoireConfirm request={confirm} onClose={() => setConfirm(null)} />
+
+      {selecting && (
+        <GrimoireSelectionBar
+          count={selectedVisible.length}
+          allSelected={allVisibleSelected}
+          onToggleAll={() => setSelectedIds(allVisibleSelected ? [] : visibleIds)}
+          onExit={exitSelection}
+        >
+          {bulkActions}
+        </GrimoireSelectionBar>
+      )}
+
+      {/* Scelta del gruppo per le azioni in blocco: aggiungi alla libreria / sposta */}
+      <GrimoireModal
+        show={!!bulkGroupMode}
+        onClose={() => setBulkGroupMode(null)}
+        title={bulkGroupMode === "add" ? t("bulkAddTitle") : t("moveModalTitle")}
+        footer={
+          <>
+            <GrimoireButton variant="outline-secondary" onClick={() => setBulkGroupMode(null)}>{t("cancelButton")}</GrimoireButton>
+            <GrimoireButton disabled={bulkGroupMode === "move" && !bulkGroupId} onClick={confirmBulkGroup}>
+              {bulkGroupMode === "add" ? t("bulkAdd") : t("groupSave")}
+            </GrimoireButton>
+          </>
+        }
+      >
+        <GrimoireSelect
+          id="bulk-group"
+          label={t("groupLabel")}
+          value={bulkGroupId}
+          onChange={(e) => setBulkGroupId(e.target.value)}
+          options={bulkGroupMode === "add" ? groupSelectOptions : groupOptions}
+        />
+      </GrimoireModal>
+
+      <GrimoireToast message={toast} onHide={hideToast} />
     </GrimoirePage>
   );
 }

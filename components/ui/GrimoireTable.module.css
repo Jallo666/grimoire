@@ -94,3 +94,14 @@
     color: var(--g-text-muted);
   }
 }
+
+/* Modalità selezione: spazio in fondo, così le ultime righe non finiscono sotto la barra
+   delle azioni (GrimoireSelectionBar), che sta fissa in basso */
+.selecting {
+  padding-bottom: 6rem;
+}
+
+/* Righe toccabili anche su desktop quando si seleziona */
+.selecting .tappableRow {
+  cursor: pointer;
+}

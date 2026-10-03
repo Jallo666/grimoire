@@ -216,7 +216,16 @@
     "confirmRemoveManyTitle": "Remove {count, plural, one {# spell} other {# spells}} from your library?",
     "confirmRemoveManyMessage": "The selected SRD spells will be removed from your library. You can add them again from the SRD compendium.",
     "confirmDeleteGroupTitle": "Delete group?",
-    "confirmDeleteGroupMessage": "The group “{name}” will be deleted. Its spells stay in your library, without a group."
+    "confirmDeleteGroupMessage": "The group “{name}” will be deleted. Its spells stay in your library, without a group.",
+    "bulkAdd": "Add",
+    "bulkRemove": "Remove",
+    "bulkMove": "Move",
+    "bulkAddTitle": "Add to library",
+    "resultAdded": "{count, plural, =0 {No spells added} one {# spell added} other {# spells added}}",
+    "resultRemoved": "{count, plural, =0 {No spells removed} one {# spell removed from library} other {# spells removed from library}}",
+    "resultMoved": "{count, plural, =0 {No spells moved} one {# spell moved} other {# spells moved}}",
+    "resultDeleted": "{count, plural, =0 {No spells deleted} one {# spell deleted} other {# spells deleted}}",
+    "resultIgnored": " · {count} skipped"
   },
   "spellDetail": {
     "formTitle": "Spell details",
@@ -256,7 +265,12 @@
     "owner": "Owner",
     "version": "Version {version}",
     "delete": "Delete",
-    "remove": "Remove"
+    "remove": "Remove",
+    "select": "Select",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "selectedCount": "{count} selected",
+    "exitSelection": "Exit selection"
   },
   "profile": {
     "pageTitle": "My profile",

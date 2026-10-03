@@ -64,7 +64,8 @@ export default function GrimoireButton({
       {loading ? (
         <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
       ) : icon ? (
-        <GrimoireIcon name={icon} size={14} />
+        // con anche il testo, un piccolo spazio tra icona e testo
+        <span className={children ? "me-1" : undefined}><GrimoireIcon name={icon} size={14} /></span>
       ) : null}
       {mobileIcon ? (
         <>

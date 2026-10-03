@@ -52,6 +52,11 @@ type Props<T extends { id: string | number }> = {
   // Avvisa quando cambia l'ordine delle righe mostrate (filtri, riordino): serve per
   // scorrere al precedente/successivo nel dettaglio. Passare una funzione stabile (useCallback)
   onOrderChange?: (rows: T[]) => void;
+  // Modalità selezione: casella accanto alla colonna leader, tocco sulla riga = seleziona,
+  // niente colonna Azioni né menu. selectedIds: id selezionati; onSelectionChange: nuova lista
+  selectable?: boolean;
+  selectedIds?: (string | number)[];
+  onSelectionChange?: (ids: (string | number)[]) => void;
 };
 
 const cellStyle = {
@@ -109,6 +114,9 @@ export default function GrimoireTable<T extends { id: string | number }>({
   fillHeight = false,
   defaultSort,
   onOrderChange,
+  selectable = false,
+  selectedIds = [],
+  onSelectionChange,
 }: Props<T>) {
   const t = useTranslations("ui");
   const empty = emptyMessage ?? t("empty");
@@ -141,7 +149,8 @@ export default function GrimoireTable<T extends { id: string | number }>({
     onOrderChange?.(sorted);
   }, [sorted, onOrderChange]);
 
-  const hasActions = !!(actions || renderActions);
+  // In modalità selezione la colonna Azioni sparisce
+  const hasActions = !!(actions || renderActions) && !selectable;
 
   // Tabella a tutta altezza e vuota: su mobile il messaggio va al centro dello spazio
   const showCenteredEmpty = fillHeight && !skeleton && sorted.length === 0;
@@ -152,7 +161,23 @@ export default function GrimoireTable<T extends { id: string | number }>({
   const [sheetRow, setSheetRow] = useState<T | null>(null);
   const titleColumn = columns.find((c) => c.leader) ?? columns[0];
 
+  // Selezione
+  const isSelected = (row: T) => selectedIds.includes(row.id);
+  const allSelected = sorted.length > 0 && sorted.every(isSelected);
+
+  function toggleRow(row: T) {
+    onSelectionChange?.(isSelected(row) ? selectedIds.filter((id) => id !== row.id) : [...selectedIds, row.id]);
+  }
+
+  function toggleAll() {
+    onSelectionChange?.(allSelected ? [] : sorted.map((r) => r.id));
+  }
+
   function handleRowClick(row: T) {
+    if (selectable) {
+      toggleRow(row);
+      return;
+    }
     if (!sheetEnabled || !window.matchMedia("(max-width: 991.98px)").matches) return;
     if (visibleActions(row).length > 0) setSheetRow(row);
   }
@@ -163,7 +188,7 @@ export default function GrimoireTable<T extends { id: string | number }>({
   const colCount = columns.length + (hasActions ? 1 : 0);
 
   return (
-    <div className={`table-responsive${fillHeight ? ` ${styles.fill}` : ""}${showCenteredEmpty ? ` ${styles.fillEmpty}` : ""}`}>
+    <div className={`table-responsive${fillHeight ? ` ${styles.fill}` : ""}${showCenteredEmpty ? ` ${styles.fillEmpty}` : ""}${selectable ? ` ${styles.selecting}` : ""}`}>
       <table className={`table table-hover mb-0 ${styles.table}`}>
         <thead>
           <tr>
@@ -179,6 +204,17 @@ export default function GrimoireTable<T extends { id: string | number }>({
                 }}
                 onClick={col.sortable ? () => handleSort(col.key) : undefined}
               >
+                {selectable && col.key === titleColumn.key && (
+                  // Casella "seleziona tutti" (il clic non riordina la colonna)
+                  <input
+                    type="checkbox"
+                    className="form-check-input me-2"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={t("selectAll")}
+                  />
+                )}
                 {col.label}
                 {col.sortable && sortKey === col.key && (
                   <span style={{ marginLeft: "4px", fontSize: "0.7rem" }}>
@@ -221,9 +257,25 @@ export default function GrimoireTable<T extends { id: string | number }>({
               const rawActions = actions?.(row);
               const rowActions = Array.isArray(rawActions) ? rawActions.filter((a) => !a.hidden) : [];
               return (
-                <tr key={row.id} className={sheetEnabled ? styles.tappableRow : undefined} onClick={() => handleRowClick(row)}>
+                <tr key={row.id} className={sheetEnabled || selectable ? styles.tappableRow : undefined} onClick={() => handleRowClick(row)}>
                   {columns.map((col) => (
-                    <td key={String(col.key)} className={col.leader ? styles.leader : undefined} style={cellStyle}>
+                    <td
+                      key={String(col.key)}
+                      className={col.leader ? styles.leader : undefined}
+                      style={selectable && isSelected(row) ? { ...cellStyle, backgroundColor: "var(--g-table-hover-bg)" } : cellStyle}
+                    >
+                      {selectable && col.key === titleColumn.key && (
+                        // Solo indicatore: il tocco lo gestisce la riga intera
+                        <input
+                          type="checkbox"
+                          className="form-check-input me-2"
+                          checked={isSelected(row)}
+                          readOnly
+                          tabIndex={-1}
+                          style={{ pointerEvents: "none" }}
+                          aria-hidden="true"
+                        />
+                      )}
                       {col.render
                         ? col.render(row[col.key], row, meta)
                         : col.type === "badge"
