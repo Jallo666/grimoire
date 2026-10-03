@@ -30,6 +30,7 @@ import GrimoireFilterButton from "@/components/ui/GrimoireFilterButton";
 import GrimoireFilterModal from "@/components/ui/GrimoireFilterModal";
 import GrimoireChips from "@/components/ui/GrimoireChips";
 import GrimoireFieldGrid from "@/components/ui/GrimoireFieldGrid";
+import GrimoireStack from "@/components/ui/GrimoireStack";
 import GrimoireConfirm, { type ConfirmRequest } from "@/components/ui/GrimoireConfirm";
 import GrimoireSelectionBar from "@/components/ui/GrimoireSelectionBar";
 import GrimoireToast from "@/components/ui/GrimoireToast";
@@ -104,6 +105,8 @@ export default function SpellsPage() {
   const [createCommon, setCreateCommon] = useState({
     scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "",
   });
+  // Classi e tipi di danno scelti nella creazione (id)
+  const [createTags, setCreateTags] = useState<{ classIds: string[]; damageTypeIds: string[] }>({ classIds: [], damageTypeIds: [] });
   const [showGroups, setShowGroups] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   // Conferma prima delle azioni distruttive (eliminare, togliere dalla libreria)
@@ -260,6 +263,7 @@ export default function SpellsPage() {
     setCreatePrimary({ nome: "", descrizione: "" });
     setCreateSecondary({ nome: "", descrizione: "" });
     setCreateCommon({ scuola: "", livello: "1", tempoLancio: "", gittata: "", durata: "", componenti: "", groupId: "" });
+    setCreateTags({ classIds: [], damageTypeIds: [] });
     setCreateActiveLang(locale);
     setCreateFormError(null);
   }
@@ -325,6 +329,8 @@ export default function SpellsPage() {
         translationLocale: createSecondary.nome.trim() ? secondaryLocale : undefined,
         translationNome: createSecondary.nome.trim() || undefined,
         translationDescrizione: createSecondary.descrizione.trim() || undefined,
+        classIds: createTags.classIds,
+        damageTypeIds: createTags.damageTypeIds,
       },
     });
   }
@@ -720,6 +726,10 @@ export default function SpellsPage() {
             value={createCommon.componenti}
             onChange={(val) => setCreateCommon((v) => ({ ...v, componenti: val }))}
           />
+          <GrimoireStack>
+            <GrimoireChips label={t("colClassi")} options={classOptions} value={createTags.classIds} onChange={(ids) => setCreateTags((v) => ({ ...v, classIds: ids }))} />
+            <GrimoireChips label={t("fieldDanno")} options={damageOptions} value={createTags.damageTypeIds} onChange={(ids) => setCreateTags((v) => ({ ...v, damageTypeIds: ids }))} />
+          </GrimoireStack>
         </form>
       </GrimoireModal>
 

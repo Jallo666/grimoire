@@ -7,13 +7,16 @@ import GrimoireInput from "./GrimoireInput";
 import GrimoireRangeInput from "./GrimoireRangeInput";
 import GrimoireSelectOrText from "./GrimoireSelectOrText";
 import GrimoireComponentsInput from "./GrimoireComponentsInput";
+import GrimoireChips from "./GrimoireChips";
+import GrimoireSkeletonText from "./GrimoireSkeletonText";
 import GrimoireButton from "./GrimoireButton";
 import GrimoireAlert from "./GrimoireAlert";
 
 export type FieldConfig = {
   name: string;
   label?: string;
-  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea" | "range" | "selectOrText" | "components";
+  // "chips": pillole a scelta multipla; il valore è la lista degli id separati da virgola
+  type?: "text" | "email" | "password" | "checkbox" | "select" | "textarea" | "range" | "selectOrText" | "components" | "chips";
   placeholder?: string;
   required?: boolean;
   defaultValue?: string;
@@ -146,6 +149,20 @@ export default function GrimoireForm({
                 skeleton={fetching}
                 disabled={view}
               />
+            ) : f.type === "chips" ? (
+              fetching ? (
+                <GrimoireSkeletonText key={f.name} />
+              ) : (
+                <div key={f.name} className="mb-3">
+                  <GrimoireChips
+                    label={f.label ?? ""}
+                    options={f.options ?? []}
+                    value={(values[f.name] ?? "").split(",").filter(Boolean)}
+                    onChange={(ids) => setValues((v) => ({ ...v, [f.name]: ids.join(",") }))}
+                    disabled={view}
+                  />
+                </div>
+              )
             ) : f.type === "components" ? (
               <GrimoireComponentsInput
                 key={f.name}

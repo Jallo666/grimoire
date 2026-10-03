@@ -7,11 +7,13 @@ type Props = {
   options: Option[];
   value: string[];
   onChange: (values: string[]) => void;
+  // sola lettura: si vedono le scelte ma non si possono cambiare
+  disabled?: boolean;
 };
 
 // Gruppo di "pillole" a scelta multipla: si toccano per accenderle o spegnerle.
 // Accesa = blu pieno, spenta = solo bordo. Comodo su telefono: tutte le scelte sono visibili.
-export default function GrimoireChips({ label, options, value, onChange }: Props) {
+export default function GrimoireChips({ label, options, value, onChange, disabled = false }: Props) {
   function toggle(optionValue: string) {
     if (value.includes(optionValue)) onChange(value.filter((v) => v !== optionValue));
     else onChange([...value, optionValue]);
@@ -29,6 +31,7 @@ export default function GrimoireChips({ label, options, value, onChange }: Props
               type="button"
               className={`btn btn-sm rounded-pill ${selected ? "btn-primary" : "btn-outline-secondary"}`}
               aria-pressed={selected}
+              disabled={disabled}
               onClick={() => toggle(o.value)}
             >
               {o.label}

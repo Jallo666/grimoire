@@ -3,7 +3,7 @@
 import { use, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useTranslations, useLocale } from "next-intl";
-import { SPELL, UPDATE_SPELL, SHARE_SPELL_USER, UPSERT_SPELL_TRANSLATION } from "@/lib/queries/spells";
+import { SPELL, UPDATE_SPELL, SHARE_SPELL_USER, UPSERT_SPELL_TRANSLATION, SPELL_CLASSES, DAMAGE_TYPES } from "@/lib/queries/spells";
 import { CASTING_TIME_MAP, DURATION_MAP } from "@/lib/formatSpellFields";
 import GrimoirePage from "@/components/ui/GrimoirePage";
 import GrimoirePageTitle from "@/components/ui/GrimoirePageTitle";
@@ -29,6 +29,8 @@ type SpellDetail = {
   gittata: string | null;
   durata: string | null;
   componenti: string | null;
+  classi: { id: string; nome: string }[];
+  tipiDanno: { id: string; nome: string }[];
   isOwner: boolean;
   translations: SpellTranslation[];
 };
@@ -73,6 +75,12 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     label: ts(key as Parameters<typeof ts>[0]),
   }));
 
+  // Classi e tipi di danno dal database (id e nome già tradotto)
+  const { data: classesData } = useQuery<{ spellClasses: { id: string; nome: string }[] }>(SPELL_CLASSES, { variables: { locale } });
+  const { data: damageData } = useQuery<{ damageTypes: { id: string; nome: string }[] }>(DAMAGE_TYPES, { variables: { locale } });
+  const classOptions = (classesData?.spellClasses ?? []).map((c) => ({ value: c.id, label: c.nome }));
+  const damageOptions = (damageData?.damageTypes ?? []).map((d) => ({ value: d.id, label: d.nome }));
+
   const fields: FieldConfig[] = [
     { name: "nome", label: ts("fieldNome"), type: "text", required: true },
     { name: "scuola", label: ts("fieldScuola"), type: "select", options: scuolaOptions },
@@ -83,10 +91,12 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     { name: "gittata", label: ts("fieldGittata"), type: "range" },
     { name: "durata", label: ts("fieldDurata"), type: "selectOrText", options: durationOptions, customLabel: ts("durCustom") },
     { name: "componenti", label: ts("fieldComponenti"), type: "components" },
+    { name: "classIds", label: ts("colClassi"), type: "chips", options: classOptions },
+    { name: "damageTypeIds", label: ts("fieldDanno"), type: "chips", options: damageOptions },
   ];
 
   const { data, loading, error, refetch } = useQuery<{ spell: SpellDetail }>(SPELL, {
-    variables: { id, locale },
+    variables: { id, locale, tagsLocale: locale },
   });
   const [updateSpell, { loading: updating, error: updateError }] = useMutation(UPDATE_SPELL, { onCompleted: () => refetch() });
   type UpsertResult = { upsertSpellTranslation: { id: string; translations: SpellTranslation[] } };
@@ -138,6 +148,8 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
     gittata: spell.gittata ?? "",
     durata: spell.durata ?? "",
     componenti: spell.componenti ?? "",
+    classIds: spell.classi.map((c) => c.id).join(","),
+    damageTypeIds: spell.tipiDanno.map((d) => d.id).join(","),
   };
 
   async function handleUpdate(values: Record<string, string>) {
@@ -153,6 +165,8 @@ export default function SpellDetailPage({ params }: { params: Promise<{ id: stri
         gittata: values.gittata || null,
         durata: values.durata || null,
         componenti: values.componenti || null,
+        classIds: values.classIds.split(",").filter(Boolean),
+        damageTypeIds: values.damageTypeIds.split(",").filter(Boolean),
       },
     });
   }

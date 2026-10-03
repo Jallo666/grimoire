@@ -50,12 +50,15 @@ export const CREATE_SPELL = gql`
     $translationLocale: String
     $translationNome: String
     $translationDescrizione: String
+    $classIds: [ID!]
+    $damageTypeIds: [ID!]
   ) {
     createSpell(
       nome: $nome descrizione: $descrizione scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
       groupId: $groupId
       translationLocale: $translationLocale translationNome: $translationNome translationDescrizione: $translationDescrizione
+      classIds: $classIds damageTypeIds: $damageTypeIds
     ) { id nome }
   }
 `;
@@ -72,10 +75,13 @@ export const UPDATE_SPELL = gql`
     $gittata: String
     $durata: String
     $componenti: String
+    $classIds: [ID!]
+    $damageTypeIds: [ID!]
   ) {
     updateSpell(
       id: $id nome: $nome descrizione: $descrizione higherLevel: $higherLevel scuola: $scuola livello: $livello
       tempoLancio: $tempoLancio gittata: $gittata durata: $durata componenti: $componenti
+      classIds: $classIds damageTypeIds: $damageTypeIds
     ) { id nome descrizione higherLevel scuola livello tempoLancio gittata durata componenti isOwner }
   }
 `;

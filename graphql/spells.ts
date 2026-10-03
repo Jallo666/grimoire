@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql } from "graphql-tag";
-import { eq, and, ilike, isNull, inArray } from "drizzle-orm";
+import { eq, and, or, ilike, isNull, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { spells, userSpellLibrary, campaignSpellLibrary, campaignMembers, spellGroups, classes, spellClasses, damageTypes, spellDamageTypes } from "@/db/schema";
 import { assertAuthenticated } from "./permissions";
@@ -81,6 +81,8 @@ export const spellTypeDefs = gql`
       translationLocale: String
       translationNome: String
       translationDescrizione: String
+      classIds: [ID!]
+      damageTypeIds: [ID!]
     ): Spell!
 
     updateSpell(
@@ -94,6 +96,9 @@ export const spellTypeDefs = gql`
       gittata: String
       durata: String
       componenti: String
+      # se passati, sostituiscono classi e tipi di danno dell'incantesimo
+      classIds: [ID!]
+      damageTypeIds: [ID!]
     ): Spell!
 
     deleteSpell(id: ID!): Boolean!
@@ -168,6 +173,31 @@ function tipiDannoCondition(damageTypeIds: string[]) {
     spells.id,
     db.select({ id: spellDamageTypes.spellId }).from(spellDamageTypes).where(inArray(spellDamageTypes.damageTypeId, damageTypeIds.map(Number)))
   );
+}
+
+// Collega un incantesimo alle classi e ai tipi di danno scelti, sostituendo quelli di prima.
+// Un elenco non passato (o null) resta com'è. Si accettano solo voci di sistema (SRD) o
+// create dall'utente; gli id sconosciuti vengono ignorati.
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+async function setSpellTags(tx: Tx, spellId: number, userId: number, classIds?: string[] | null, damageTypeIds?: string[] | null) {
+  if (classIds != null) {
+    await tx.delete(spellClasses).where(eq(spellClasses.spellId, spellId));
+    const ids = classIds.map(Number);
+    if (ids.length) {
+      const allowed = await tx.select({ id: classes.id }).from(classes)
+        .where(and(inArray(classes.id, ids), or(eq(classes.isSystem, true), eq(classes.creatorId, userId))));
+      if (allowed.length) await tx.insert(spellClasses).values(allowed.map((c) => ({ spellId, classId: c.id })));
+    }
+  }
+  if (damageTypeIds != null) {
+    await tx.delete(spellDamageTypes).where(eq(spellDamageTypes.spellId, spellId));
+    const ids = damageTypeIds.map(Number);
+    if (ids.length) {
+      const allowed = await tx.select({ id: damageTypes.id }).from(damageTypes)
+        .where(and(inArray(damageTypes.id, ids), or(eq(damageTypes.isSystem, true), eq(damageTypes.creatorId, userId))));
+      if (allowed.length) await tx.insert(spellDamageTypes).values(allowed.map((d) => ({ spellId, damageTypeId: d.id })));
+    }
+  }
 }
 
 // Classe o tipo di danno per GraphQL: id e nome già tradotto
@@ -341,7 +371,7 @@ export const spellResolvers = {
   Mutation: {
     createSpell: async (
       _: unknown,
-      args: { nome: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string },
+      args: { nome: string; descrizione?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; groupId?: string; translationLocale?: string; translationNome?: string; translationDescrizione?: string; classIds?: string[]; damageTypeIds?: string[] },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -369,13 +399,14 @@ export const spellResolvers = {
           ...(Object.keys(translationsData).length > 0 ? { translations: translationsData } : {}),
         }).returning();
         await tx.insert(userSpellLibrary).values({ userId: user.id, spellId: spell.id, groupId });
+        await setSpellTags(tx, spell.id, user.id, args.classIds, args.damageTypeIds);
         return toGql(spell, user.id, true, groupId, null);
       });
     },
 
     updateSpell: async (
       _: unknown,
-      args: { id: string; nome?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string },
+      args: { id: string; nome?: string; descrizione?: string; higherLevel?: string; scuola?: string; livello?: number; tempoLancio?: string; gittata?: string; durata?: string; componenti?: string; classIds?: string[]; damageTypeIds?: string[] },
       context: Context
     ) => {
       const user = assertAuthenticated(context);
@@ -391,8 +422,13 @@ export const spellResolvers = {
       if (args.gittata !== undefined) updates.gittata = args.gittata;
       if (args.durata !== undefined) updates.durata = args.durata;
       if (args.componenti !== undefined) updates.componenti = args.componenti;
-      const [updated] = await db.update(spells).set(updates).where(eq(spells.id, spell.id)).returning();
-      return toGql(updated, user.id, true);
+      return db.transaction(async (tx) => {
+        const [updated] = Object.keys(updates).length
+          ? await tx.update(spells).set(updates).where(eq(spells.id, spell.id)).returning()
+          : [spell];
+        await setSpellTags(tx, spell.id, user.id, args.classIds, args.damageTypeIds);
+        return toGql(updated, user.id, true);
+      });
     },
 
     deleteSpell: async (_: unknown, args: { id: string }, context: Context) => {
