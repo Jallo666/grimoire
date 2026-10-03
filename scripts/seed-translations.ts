@@ -2,7 +2,8 @@
  * Importa le traduzioni da scripts/srd-translations-it.json nel DB.
  * Fa match per nome inglese (spell.nome) — aggiorna solo le spell SRD (isSystem=true).
  *
- * Uso: npx ts-node -r tsconfig-paths/register scripts/seed-translations.ts
+ * Di solito si lancia con tutti gli altri: npm run db:seed (oppure npm run db:setup da zero).
+ * Da solo: npx tsx scripts/seed-translations.ts
  */
 
 import { config } from "dotenv";

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "tsx scripts/migrate-0.15.ts && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx scripts/seed-spells.ts && tsx scripts/seed-translations.ts && tsx scripts/seed-classes.ts && tsx scripts/seed-damage-types.ts",
+    "db:setup": "drizzle-kit push && npm run db:seed"
   },
   "dependencies": {
     "@apollo/client": "^4.2.12",

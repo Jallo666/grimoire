@@ -9,7 +9,7 @@ import { resolve } from "path";
 // Crea le classi SRD da scripts/srd-classes.json (se mancano, altrimenti ne aggiorna le
 // traduzioni) e collega gli incantesimi SRD alle loro classi, leggendo da srd-spells.json.
 // Si può rilanciare senza problemi: non crea doppioni.
-// Prima: npx drizzle-kit push e npx tsx scripts/seed-spells.ts
+// Di solito si lancia con tutti gli altri: npm run db:seed (oppure npm run db:setup da zero).
 // Uso: npx tsx scripts/seed-classes.ts
 
 // dotenv must run before we create the postgres client
